@@ -1,0 +1,53 @@
+.products-layout {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.products-sidebar {
+  flex: 1;
+  min-width: 300px;
+}
+
+.products-main {
+  flex: 3;
+  min-width: 400px;
+}
+
+.form-card h3 { margin-bottom: 1rem; }
+.form-row { display: flex; gap: 1rem; margin-bottom: 1rem; }
+.form-row .input-group { flex: 1; }
+
+.product-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.product-table th, .product-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.product-table th { background: #f8fafc; font-weight: 600; color: var(--secondary); }
+.product-table tr:hover { background: #f1f5f9; }
+
+.price-tag { font-weight: 700; color: var(--primary); }
+.stock-badge {
+  padding: 0.25rem 0.6rem;
+  border-radius: 99px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.in-stock { background: #dcfce7; color: #166534; }
+.low-stock { background: #fef3c7; color: #92400e; }
+.out-stock { background: #fee2e2; color: #991b1b; }
+
+.action-btns { display: flex; gap: 0.5rem; }
+.btn-sm { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
+.btn-edit { background: #f59e0b; color: white; }
+.btn-edit:hover { background: #d97706; }
+.btn-delete { background: var(--danger); color: white; }
+.btn-delete:hover { background: #dc2626; }
