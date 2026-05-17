@@ -76,3 +76,21 @@ body {
   font-size: 0.9rem;
 }
 .alert-error { background: #fee2e2; color: var(--danger); border: 1px solid #fecaca; }
+
+.ellipsis {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;  
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Анимация появления карточек */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.rfq-card, .stat-card, .product-table tr {
+  animation: fadeIn 0.3s ease-out;
+}

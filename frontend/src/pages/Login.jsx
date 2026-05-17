@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { api } from '../api'
 import { useNavigate, Link } from 'react-router-dom'
-import '../styles/Auth.css' // 👈 Импортируем CSS
+import '../styles/Auth.css'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -14,11 +14,25 @@ export default function Login() {
     e.preventDefault()
     setError('')
     setLoading(true)
+    
     try {
       const { data } = await api.post('/auth/login', { email, password })
+      
+      // Сохраняем токен
       localStorage.setItem('token', data.accessToken)
+      
+      if (data.user?.isAdmin) {
+        localStorage.setItem('isAdmin', 'true')
+      } else {
+        // Удаляем флаг, если пользователь не админ (защита от "залипания" прав)
+        localStorage.removeItem('isAdmin')
+      }
+      
+      // Плавный переход на дашборд
       setTimeout(() => navigate('/dashboard', { replace: true }), 100)
+      
     } catch (err) {
+      console.error('Login error:', err)
       setError(err.response?.data?.error || 'Ошибка входа')
     } finally {
       setLoading(false)
