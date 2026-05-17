@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'  // ← ДОБАВИТЬ ЭТУ СТРОКУ!
 import { api } from '../api'
 import '../styles/Dashboard.css'
+import RfqFeed from '../components/RfqFeed'
 
 export default function Dashboard() {
   const [user, setUser] = useState(null)
@@ -61,6 +62,9 @@ export default function Dashboard() {
             <div className="stat-title">Настройки</div>
             <div className="stat-value">—</div>
           </div>
+        </div>
+        <div style={{ marginTop: '2rem' }}>
+           <RfqFeed limit={5} />
         </div>
       </main>
     </div>

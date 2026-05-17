@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import { io } from 'socket.io-client'
+import { useNotification } from '../context/NotificationContext' // ← ИМПОРТ ХУКА
 import './Chat.css'
 
 export default function Chat({ rfqId, currentTenantId }) {
@@ -7,13 +8,14 @@ export default function Chat({ rfqId, currentTenantId }) {
   const [newMessage, setNewMessage] = useState('')
   const [socket, setSocket] = useState(null)
   const messagesEndRef = useRef(null)
+  const { addNotification } = useNotification()
 
   useEffect(() => {
     // Инициализация сокета
     const token = localStorage.getItem('token')
     const newSocket = io('http://localhost:8000', {
       auth: { token },
-      transports: ['websocket', 'polling'], // Фолбэк на polling если нужно
+      transports: ['websocket', 'polling'],
     })
 
     setSocket(newSocket)
@@ -27,6 +29,13 @@ export default function Chat({ rfqId, currentTenantId }) {
     // Слушаем новые сообщения
     newSocket.on('message:receive', (message) => {
       setMessages(prev => [...prev, message])
+
+      if (message.senderId !== currentTenantId) {
+        addNotification(
+          `💬 Новое сообщение от ${message.sender?.name || 'партнёра'}`,
+          'info'
+        )
+      }
     })
 
     // Слушаем загрузку истории
@@ -38,7 +47,7 @@ export default function Chat({ rfqId, currentTenantId }) {
     return () => {
       newSocket.disconnect()
     }
-  }, [rfqId])
+  }, [rfqId, currentTenantId, addNotification]) // ← Добавили зависимости
 
   // Автоскролл вниз при новом сообщении
   useEffect(() => {
