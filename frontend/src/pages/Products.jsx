@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api'
 import '../styles/Products.css'
+import ProductFilters from '../components/ProductFilters' // ← Импорт компонента фильтров
 
 export default function Products() {
   const [products, setProducts] = useState([])
@@ -8,6 +9,7 @@ export default function Products() {
   const [form, setForm] = useState({ name: '', description: '', price: '', stock: '0', category: 'general' })
   const [editId, setEditId] = useState(null)
   const [error, setError] = useState('')
+  const [filters, setFilters] = useState({}) // ← Состояние для фильтров
 
   useEffect(() => { loadProducts() }, [])
 
@@ -40,7 +42,13 @@ export default function Products() {
   }
 
   const handleEdit = (p) => {
-    setForm({ name: p.name, description: p.description || '', price: p.price.toString(), stock: p.stock.toString(), category: p.category })
+    setForm({ 
+      name: p.name, 
+      description: p.description || '', 
+      price: p.price.toString(), 
+      stock: p.stock.toString(), 
+      category: p.category 
+    })
     setEditId(p.id)
   }
 
@@ -53,6 +61,16 @@ export default function Products() {
       setError(err.response?.data?.error || 'Ошибка удаления')
     }
   }
+
+  // 🔍 Логика фильтрации
+  const filteredProducts = products.filter(p => {
+    if (filters.search && !p.name.toLowerCase().includes(filters.search.toLowerCase())) return false
+    if (filters.category && p.category !== filters.category) return false
+    if (filters.minPrice && p.price < parseFloat(filters.minPrice)) return false
+    if (filters.maxPrice && p.price > parseFloat(filters.maxPrice)) return false
+    if (filters.inStock && p.stock <= 0) return false
+    return true
+  })
 
   if (loading) return <div className="auth-wrapper">Загрузка каталога...</div>
 
@@ -98,7 +116,10 @@ export default function Products() {
                 {editId ? 'Сохранить' : 'Добавить'}
               </button>
               {editId && (
-                <button type="button" className="btn btn-danger" onClick={() => { setEditId(null); setForm({ name: '', description: '', price: '', stock: '0', category: 'general' }) }}>
+                <button type="button" className="btn btn-danger" onClick={() => { 
+                  setEditId(null)
+                  setForm({ name: '', description: '', price: '', stock: '0', category: 'general' }) 
+                }}>
                   Отмена
                 </button>
               )}
@@ -108,9 +129,16 @@ export default function Products() {
 
         {/* Таблица товаров */}
         <div className="products-main">
-          {products.length === 0 ? (
+          {/* 🔥 Компонент фильтров */}
+          <ProductFilters onFilterChange={setFilters} />
+
+          {filteredProducts.length === 0 ? (
             <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
-              <p style={{ color: 'var(--secondary)', fontSize: '1.1rem' }}>Товаров пока нет. Создайте первый!</p>
+              <p style={{ color: 'var(--secondary)', fontSize: '1.1rem' }}>
+                {products.length === 0 
+                  ? 'Товаров пока нет. Создайте первый!' 
+                  : 'По вашему запросу ничего не найдено'}
+              </p>
             </div>
           ) : (
             <table className="product-table">
@@ -124,7 +152,8 @@ export default function Products() {
                 </tr>
               </thead>
               <tbody>
-                {products.map(p => (
+                {/* 🔥 Используем filteredProducts вместо products */}
+                {filteredProducts.map(p => (
                   <tr key={p.id}>
                     <td>
                       <strong>{p.name}</strong>

@@ -27,7 +27,12 @@ router.post('/register', async (req, res) => {
 
     res.status(201).json({
       accessToken: generateToken(user.id, newTenant.id),
-      user: { id: user.id, email: user.email, tenantId: newTenant.id }
+      user: { 
+        id: user.id, 
+        email: user.email, 
+        tenantId: newTenant.id,
+        isAdmin: user.isAdmin // ← ДОБАВЛЕНО
+      }
     });
   } catch (err) {
     console.error(' Register error:', err.message);
@@ -46,7 +51,12 @@ router.post('/login', async (req, res) => {
 
     res.json({
       accessToken: generateToken(user.id, user.tenantId),
-      user: { id: user.id, email: user.email, tenantId: user.tenantId }
+      user: { 
+        id: user.id, 
+        email: user.email, 
+        tenantId: user.tenantId,
+        isAdmin: user.isAdmin // ← ДОБАВЛЕНО
+      }
     });
   } catch (err) {
     console.error(' Login error:', err.message);
@@ -62,6 +72,7 @@ router.get('/me', authenticate, async (req, res) => {
         id: true,
         email: true,
         isActive: true,
+        isAdmin: true, // ← ДОБАВЛЕНО
         createdAt: true,
         tenantId: true,
         tenant: { select: { name: true, role: true } }
@@ -71,10 +82,9 @@ router.get('/me', authenticate, async (req, res) => {
     if (!user) return res.status(404).json({ error: 'Пользователь не найден' });
     res.json(user);
   } catch (err) {
-    console.error('❌ Profile error:', err.message);
+    console.error('Profile error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
-
 
 module.exports = router;

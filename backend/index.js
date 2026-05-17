@@ -47,6 +47,9 @@ const server = http.createServer(app);
 // Инициализация Socket.io (после создания server, но до prisma.$connect)
 const io = initSocket(server);
 
+const adminRoutes = require('./routes/admin');
+app.use('/api/admin', adminRoutes);
+
 // Запуск сервера только после подключения к БД
 prisma.$connect()
   .then(() => {
