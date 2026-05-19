@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/select'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Search, ChevronLeft, ChevronRight, Settings, Trash2, AlertCircle } from 'lucide-react'
+import SEO from '../components/SEO'
 
 export default function AdminRfqs() {
   const navigate = useNavigate()
@@ -95,13 +96,14 @@ export default function AdminRfqs() {
 
   return (
     <div className="space-y-6">
+      <SEO title="Заявки" description="Управление заявками на закупку в админ-панели NexaTrade." noindex nofollow />
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h2 className="text-2xl font-bold text-[#0f172a]">Управление заявками</h2>
-        <span className="text-sm text-[#64748b]">Всего: {rfqs.length}</span>
+        <h1 className="text-2xl font-bold text-foreground">Управление заявками</h1>
+        <span className="text-sm text-muted-foreground">Всего: {rfqs.length}</span>
       </div>
 
       {error && (
-        <Alert variant="destructive" className="bg-[#fee2e2] text-[#ef4444] border-[#fecaca]">
+        <Alert variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
@@ -109,16 +111,16 @@ export default function AdminRfqs() {
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94a3b8]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
           <Input
             placeholder="Поиск по названию..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1) }}
-            className="pl-9 border-[#e2e8f0]"
+            className="pl-9 border-border"
           />
         </div>
         <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1) }}>
-          <SelectTrigger className="w-[180px] border-[#e2e8f0]">
+          <SelectTrigger className="w-[180px] border-border">
             <SelectValue placeholder="Все статусы" />
           </SelectTrigger>
           <SelectContent>
@@ -131,37 +133,37 @@ export default function AdminRfqs() {
         </Select>
       </div>
 
-      <Card className="border border-[#e2e8f0] bg-white overflow-hidden">
+      <Card className="border border-border bg-card overflow-hidden">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#e2e8f0] bg-[#f8fafc]">
-                  <th className="text-left px-4 py-3 font-semibold text-[#64748b]">Название</th>
-                  <th className="text-left px-4 py-3 font-semibold text-[#64748b]">Покупатель</th>
-                  <th className="text-left px-4 py-3 font-semibold text-[#64748b]">Статус</th>
-                  <th className="text-left px-4 py-3 font-semibold text-[#64748b]">Предложений</th>
-                  <th className="text-left px-4 py-3 font-semibold text-[#64748b]">Дата</th>
-                  <th className="text-left px-4 py-3 font-semibold text-[#64748b] w-[120px]">Действия</th>
+                <tr className="border-b border-border bg-muted">
+                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Название</th>
+                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Покупатель</th>
+                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Статус</th>
+                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Предложений</th>
+                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Дата</th>
+                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground w-[120px]">Действия</th>
                 </tr>
               </thead>
               <tbody>
                 {rfqs.map((rfq) => (
-                  <tr key={rfq.id} className="border-b border-[#f1f5f9] hover:bg-[#f8fafc] transition-colors">
+                  <tr key={rfq.id} className="border-b border-border hover:bg-muted transition-colors">
                     <td className="px-4 py-3">
-                      <div className="font-medium text-[#0f172a]">{rfq.title}</div>
-                      <div className="text-[#64748b] text-xs mt-0.5 truncate max-w-[200px]">
+                      <div className="font-medium text-foreground">{rfq.title}</div>
+                      <div className="text-muted-foreground text-xs mt-0.5 truncate max-w-[200px]">
                         {rfq.description?.substring(0, 60)}...
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-[#0f172a]">{rfq.buyer?.name || '—'}</td>
+                    <td className="px-4 py-3 text-foreground">{rfq.buyer?.name || '—'}</td>
                     <td className="px-4 py-3">
                       <Badge variant={statusVariant(rfq.status)} className="text-xs">
                         {statusLabel(rfq.status)}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3 text-[#0f172a]">{rfq._count?.quotes || 0}</td>
-                    <td className="px-4 py-3 text-[#64748b] whitespace-nowrap">
+                    <td className="px-4 py-3 text-foreground">{rfq._count?.quotes || 0}</td>
+                    <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
                       {new Date(rfq.createdAt).toLocaleDateString('ru-RU')}
                     </td>
                     <td className="px-4 py-3">
@@ -169,7 +171,7 @@ export default function AdminRfqs() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-[#64748b] hover:text-[#005BAC]"
+                          className="h-8 w-8 text-muted-foreground hover:text-primary"
                           onClick={() => openStatusModal(rfq)}
                         >
                           <Settings className="h-4 w-4" />
@@ -177,7 +179,7 @@ export default function AdminRfqs() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-[#64748b] hover:text-[#ef4444]"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
                           onClick={() => openDeleteModal(rfq)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -188,14 +190,14 @@ export default function AdminRfqs() {
                 ))}
                 {rfqs.length === 0 && !loading && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-12 text-center text-[#64748b]">
+                    <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
                       Заявок не найдено
                     </td>
                   </tr>
                 )}
                 {loading && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-12 text-center text-[#64748b]">
+                    <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
                       Загрузка...
                     </td>
                   </tr>
@@ -211,19 +213,19 @@ export default function AdminRfqs() {
           <Button
             variant="outline"
             size="sm"
-            className="border-[#e2e8f0]"
+            className="border-border"
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <span className="text-sm text-[#64748b]">
+          <span className="text-sm text-muted-foreground">
             Стр. {page} из {pagination.pages}
           </span>
           <Button
             variant="outline"
             size="sm"
-            className="border-[#e2e8f0]"
+            className="border-border"
             onClick={() => setPage((p) => Math.min(pagination.pages, p + 1))}
             disabled={page === pagination.pages}
           >
@@ -244,7 +246,7 @@ export default function AdminRfqs() {
               <Button
                 key={s}
                 variant={modal?.rfq?.status === s ? 'default' : 'outline'}
-                className={modal?.rfq?.status === s ? 'bg-[#005BAC] text-white' : 'border-[#e2e8f0]'}
+                className={modal?.rfq?.status === s ? 'bg-primary text-white' : 'border-border'}
                 onClick={() => handleStatusChange(s)}
                 disabled={modal?.rfq?.status === s}
               >
@@ -265,7 +267,7 @@ export default function AdminRfqs() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">
-            <Button variant="outline" className="border-[#e2e8f0]" onClick={() => setModal(null)}>
+            <Button variant="outline" className="border-border" onClick={() => setModal(null)}>
               Отмена
             </Button>
             <Button variant="destructive" onClick={handleDelete}>

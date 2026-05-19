@@ -135,87 +135,88 @@ export default function AdminCategories() {
 
   return (
     <div className="space-y-6">
+      <SEO title="Категории" description="Управление категориями товаров в админ-панели NexaTrade." noindex nofollow />
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-[#0f172a]">Категории товаров</h1>
-          <p className="text-sm text-[#64748b]">Управление категориями и подкатегориями</p>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Категории товаров</h1>
+          <p className="text-sm text-muted-foreground">Управление категориями и подкатегориями</p>
         </div>
-        <Button className="bg-[#005BAC] text-white hover:bg-[#004a8d] flex items-center gap-2 shrink-0" onClick={openCreate}>
+        <Button className="bg-primary text-white hover:bg-primary/90 flex items-center gap-2 shrink-0" onClick={openCreate}>
           <Plus className="h-4 w-4" />
           Добавить категорию
         </Button>
       </div>
 
-      <Separator className="bg-[#e2e8f0]" />
+      <Separator className="bg-border" />
 
       {/* Фильтр */}
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#64748b]" />
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            className="pl-9 border-[#e2e8f0]"
+            className="pl-9 border-border"
             placeholder="Поиск категории..."
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
           {search && (
-            <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#64748b] hover:text-[#0f172a]">
+            <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
               <X className="h-4 w-4" />
             </button>
           )}
         </div>
-        <Badge variant="outline" className="border-[#e2e8f0]">
+        <Badge variant="outline" className="border-border">
           {filteredCategories.length} категорий
         </Badge>
       </div>
 
       {/* Таблица категорий */}
-      <Card className="border-[#e2e8f0] shadow-sm">
+      <Card className="border-border shadow-sm">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base text-[#0f172a] flex items-center gap-2">
-            <FolderTree className="h-4 w-4 text-[#005BAC]" />
+          <CardTitle className="text-base text-foreground flex items-center gap-2">
+            <FolderTree className="h-4 w-4 text-primary" />
             Список категорий
           </CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="flex items-center justify-center h-40 text-[#64748b]">Загрузка...</div>
+            <div className="flex items-center justify-center h-40 text-muted-foreground">Загрузка...</div>
           ) : filteredCategories.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
-              <Tag className="h-10 w-10 text-[#cbd5e1] mb-3" />
-              <p className="text-[#64748b]">Категории не найдены</p>
+              <Tag className="h-10 w-10 text-muted-foreground/50 mb-3" />
+              <p className="text-muted-foreground">Категории не найдены</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-[#e2e8f0] hover:bg-transparent">
-                    <TableHead className="text-[#64748b] font-medium">Название</TableHead>
-                    <TableHead className="text-[#64748b] font-medium">Slug</TableHead>
-                    <TableHead className="text-[#64748b] font-medium">Родительская</TableHead>
-                    <TableHead className="text-[#64748b] font-medium w-[100px]">Действия</TableHead>
+                  <TableRow className="border-border hover:bg-transparent">
+                    <TableHead className="text-muted-foreground font-medium">Название</TableHead>
+                    <TableHead className="text-muted-foreground font-medium">Slug</TableHead>
+                    <TableHead className="text-muted-foreground font-medium">Родительская</TableHead>
+                    <TableHead className="text-muted-foreground font-medium w-[100px]">Действия</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredCategories.map(cat => (
-                    <TableRow key={cat.id} className="border-[#e2e8f0]">
-                      <TableCell className="font-medium text-[#0f172a]">{cat.name}</TableCell>
-                      <TableCell className="text-sm text-[#64748b]">{cat.slug}</TableCell>
+                    <TableRow key={cat.id} className="border-border">
+                      <TableCell className="font-medium text-foreground">{cat.name}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{cat.slug}</TableCell>
                       <TableCell>
                         {cat.parentId ? (
-                          <Badge variant="outline" className="border-[#e2e8f0] text-[#64748b]">
+                          <Badge variant="outline" className="border-border text-muted-foreground">
                             {getParentName(cat.parentId)}
                           </Badge>
                         ) : (
-                          <span className="text-sm text-[#94a3b8]">—</span>
+                          <span className="text-sm text-muted-foreground/60">—</span>
                         )}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-[#64748b] hover:text-[#005BAC]" onClick={() => openEdit(cat)}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={() => openEdit(cat)}>
                             <Pencil className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-[#64748b] hover:text-[#ef4444]" onClick={() => setDeleteId(cat.id)}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => setDeleteId(cat.id)}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
@@ -231,38 +232,38 @@ export default function AdminCategories() {
 
       {/* Дерево категорий */}
       {!search.trim() && categories.length > 0 && (
-        <Card className="border-[#e2e8f0] shadow-sm">
+        <Card className="border-border shadow-sm">
           <CardHeader className="pb-3">
-            <CardTitle className="text-base text-[#0f172a] flex items-center gap-2">
-              <FolderTree className="h-4 w-4 text-[#005BAC]" />
+            <CardTitle className="text-base text-foreground flex items-center gap-2">
+              <FolderTree className="h-4 w-4 text-primary" />
               Дерево категорий
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               {categories.map(root => (
-                <div key={root.id} className="border border-[#e2e8f0] rounded-lg p-3">
+                <div key={root.id} className="border border-border rounded-lg p-3">
                   <div className="flex items-center justify-between">
-                    <div className="font-medium text-[#0f172a]">{root.name}</div>
+                    <div className="font-medium text-foreground">{root.name}</div>
                     <div className="flex items-center gap-1">
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-[#64748b] hover:text-[#005BAC]" onClick={() => openEdit(root)}>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary" onClick={() => openEdit(root)}>
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-[#64748b] hover:text-[#ef4444]" onClick={() => setDeleteId(root.id)}>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => setDeleteId(root.id)}>
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </div>
                   </div>
                   {root.children && root.children.length > 0 && (
-                    <div className="mt-2 pl-4 border-l-2 border-[#e2e8f0] space-y-1">
+                    <div className="mt-2 pl-4 border-l-2 border-border space-y-1">
                       {root.children.map(child => (
                         <div key={child.id} className="flex items-center justify-between py-1">
-                          <div className="text-sm text-[#64748b]">{child.name}</div>
+                          <div className="text-sm text-muted-foreground">{child.name}</div>
                           <div className="flex items-center gap-1">
-                            <Button variant="ghost" size="icon" className="h-7 w-7 text-[#64748b] hover:text-[#005BAC]" onClick={() => openEdit(child)}>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary" onClick={() => openEdit(child)}>
                               <Pencil className="h-3.5 w-3.5" />
                             </Button>
-                            <Button variant="ghost" size="icon" className="h-7 w-7 text-[#64748b] hover:text-[#ef4444]" onClick={() => setDeleteId(child.id)}>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => setDeleteId(child.id)}>
                               <Trash2 className="h-3.5 w-3.5" />
                             </Button>
                           </div>
@@ -295,7 +296,7 @@ export default function AdminCategories() {
                 onChange={e => setForm({ ...form, name: e.target.value })}
                 placeholder="Например: Строительные материалы"
                 required
-                className="border-[#e2e8f0]"
+                className="border-border"
               />
             </div>
             <div className="space-y-2">
@@ -304,7 +305,7 @@ export default function AdminCategories() {
                 value={form.parentId}
                 onValueChange={v => setForm({ ...form, parentId: v })}
               >
-                <SelectTrigger className="border-[#e2e8f0]">
+                <SelectTrigger className="border-border">
                   <SelectValue placeholder="Без родительской (корневая)" />
                 </SelectTrigger>
                 <SelectContent>
@@ -318,13 +319,13 @@ export default function AdminCategories() {
               </Select>
             </div>
             {error && (
-              <div className="bg-[#fee2e2] text-[#ef4444] border border-[#fecaca] rounded-lg px-3 py-2 text-sm">
+              <div className="bg-destructive/10 text-destructive border border-destructive/20 rounded-lg px-3 py-2 text-sm">
                 {error}
               </div>
             )}
             <DialogFooter>
-              <Button type="button" variant="outline" className="border-[#e2e8f0]" onClick={() => setDialogOpen(false)}>Отмена</Button>
-              <Button type="submit" className="bg-[#005BAC] text-white hover:bg-[#004a8d]" disabled={saving}>
+              <Button type="button" variant="outline" className="border-border" onClick={() => setDialogOpen(false)}>Отмена</Button>
+              <Button type="submit" className="bg-primary text-white hover:bg-primary/90" disabled={saving}>
                 {saving ? 'Сохранение...' : (editingCategory ? 'Сохранить' : 'Создать')}
               </Button>
             </DialogFooter>
@@ -343,7 +344,7 @@ export default function AdminCategories() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setDeleteId(null)}>Отмена</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-[#ef4444] text-white hover:bg-[#dc2626]">
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-white hover:bg-destructive/90">
               Удалить
             </AlertDialogAction>
           </AlertDialogFooter>

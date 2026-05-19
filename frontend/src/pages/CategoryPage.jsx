@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { ChevronLeft, ChevronRight, Package, Building2, Phone } from 'lucide-react'
+import SEO from '../components/SEO'
 
 export default function CategoryPage() {
   const { slug } = useParams()
@@ -35,7 +36,7 @@ export default function CategoryPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 text-[#64748b]">
+      <div className="flex items-center justify-center h-64 text-muted-foreground">
         Загрузка...
       </div>
     )
@@ -43,7 +44,7 @@ export default function CategoryPage() {
 
   if (!category) {
     return (
-      <div className="flex items-center justify-center h-64 text-[#64748b]">
+      <div className="flex items-center justify-center h-64 text-muted-foreground">
         Категория не найдена
       </div>
     )
@@ -51,28 +52,29 @@ export default function CategoryPage() {
 
   return (
     <div className="space-y-5">
+      <SEO title={category.name} description={`${category.name} — товары и услуги от B2B-поставщиков на NexaTrade. ${category.description || ''}`} />
       {/* Breadcrumbs */}
-      <nav className="flex items-center gap-2 text-sm text-[#64748b]">
-        <Link to="/products" className="hover:text-[#0f172a] hover:underline transition-colors">Каталог</Link>
+      <nav className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Link to="/products" className="hover:text-foreground hover:underline transition-colors">Каталог</Link>
         {category.parent && (
           <>
-            <ChevronRight className="h-3.5 w-3.5 text-[#e2e8f0]" />
-            <Link to={`/category/${category.parent.slug}`} className="hover:text-[#0f172a] hover:underline transition-colors">
+            <ChevronRight className="h-3.5 w-3.5 text-border" />
+            <Link to={`/category/${category.parent.slug}`} className="hover:text-foreground hover:underline transition-colors">
               {category.parent.name}
             </Link>
           </>
         )}
-        <ChevronRight className="h-3.5 w-3.5 text-[#e2e8f0]" />
-        <span className="text-[#0f172a] font-medium">{category.name}</span>
+        <ChevronRight className="h-3.5 w-3.5 text-border" />
+        <span className="text-foreground font-medium">{category.name}</span>
       </nav>
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <h1 className="text-2xl font-bold tracking-tight text-[#0f172a]">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
           {category.name}
-          {category.parent && <span className="text-[#64748b] font-normal"> в {category.parent.name}</span>}
+          {category.parent && <span className="text-muted-foreground font-normal"> в {category.parent.name}</span>}
         </h1>
-        <Badge variant="outline" className="border-[#e2e8f0] text-[#64748b] w-fit">
+        <Badge variant="outline" className="border-border text-muted-foreground w-fit">
           {pagination.total} товаров
         </Badge>
       </div>
@@ -85,26 +87,26 @@ export default function CategoryPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="border-[#e2e8f0] text-[#0f172a] hover:bg-[#f1f5f9] hover:border-[#005BAC]/30 transition-colors"
+                className="border-border text-foreground hover:bg-muted hover:border-primary/30 transition-colors"
               >
-                <TagIcon className="h-3.5 w-3.5 mr-1.5 text-[#005BAC]" />
+                <TagIcon className="h-3.5 w-3.5 mr-1.5 text-primary" />
                 {sub.name}
-                <span className="ml-1.5 text-xs text-[#64748b]">({sub._count?.products || 0})</span>
+                <span className="ml-1.5 text-xs text-muted-foreground">({sub._count?.products || 0})</span>
               </Button>
             </Link>
           ))}
         </div>
       )}
 
-      <Separator className="bg-[#e2e8f0]" />
+      <Separator className="bg-border" />
 
       {/* Products */}
       {products.length === 0 ? (
-        <Card className="border-[#e2e8f0]">
+        <Card className="border-border">
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <Package className="h-12 w-12 text-[#e2e8f0] mb-4" />
-            <h3 className="text-lg font-semibold text-[#0f172a]">В этой категории пока нет товаров</h3>
-            <p className="text-sm text-[#64748b] mt-1">Добавьте первый товар в этой категории</p>
+            <Package className="h-12 w-12 text-border mb-4" />
+            <h3 className="text-lg font-semibold text-foreground">В этой категории пока нет товаров</h3>
+            <p className="text-sm text-muted-foreground mt-1">Добавьте первый товар в этой категории</p>
           </CardContent>
         </Card>
       ) : (
@@ -112,10 +114,10 @@ export default function CategoryPage() {
           {products.map(product => (
             <Card
               key={product.id}
-              className="border-[#e2e8f0] overflow-hidden hover:border-[#005BAC]/30 hover:shadow-md transition-all flex flex-col"
+              className="border-border overflow-hidden hover:border-primary/30 hover:shadow-md transition-all flex flex-col"
             >
               {/* Product image */}
-              <div className="h-44 bg-[#f8fafc] flex items-center justify-center relative overflow-hidden group">
+              <div className="h-44 bg-muted flex items-center justify-center relative overflow-hidden group">
                 {product.images?.[0] ? (
                   <img
                     src={product.images[0]}
@@ -123,14 +125,14 @@ export default function CategoryPage() {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 ) : (
-                  <Package className="h-10 w-10 text-[#e2e8f0]" />
+                  <Package className="h-10 w-10 text-border" />
                 )}
                 <div className="absolute top-2 right-2 flex flex-col gap-1">
                   {product.isOpt && (
-                    <Badge className="bg-[#005BAC]/90 text-white border-0 text-[10px]">Опт</Badge>
+                    <Badge className="bg-primary/90 text-white border-0 text-[10px]">Опт</Badge>
                   )}
                   {product.isRetail && (
-                    <Badge className="bg-[#f59e0b]/90 text-white border-0 text-[10px]">Розница</Badge>
+                    <Badge className="bg-amber-500/90 text-white border-0 text-[10px]">Розница</Badge>
                   )}
                 </div>
               </div>
@@ -139,19 +141,19 @@ export default function CategoryPage() {
                 {/* Supplier */}
                 <Link
                   to={`/company/${product.tenantId}`}
-                  className="text-xs text-[#005BAC] hover:underline font-medium flex items-center gap-1 mb-1.5"
+                  className="text-xs text-primary hover:underline font-medium flex items-center gap-1 mb-1.5"
                 >
                   <Building2 className="h-3 w-3" />
                   {product.tenant?.name || 'Поставщик'}
                 </Link>
 
                 {/* Title */}
-                <h3 className="text-sm font-bold text-[#0f172a] line-clamp-2 mb-1 min-h-[2.5rem]">
+                <h3 className="text-sm font-bold text-foreground line-clamp-2 mb-1 min-h-[2.5rem]">
                   {product.name}
                 </h3>
 
                 {/* Description */}
-                <p className="text-xs text-[#64748b] line-clamp-2 mb-3 min-h-[2rem]">
+                <p className="text-xs text-muted-foreground line-clamp-2 mb-3 min-h-[2rem]">
                   {product.description || 'Нет описания'}
                 </p>
 
@@ -160,8 +162,8 @@ export default function CategoryPage() {
                   <Badge
                     className={
                       product.stock > 0
-                        ? 'bg-[#22c55e]/10 text-[#22c55e] border-0 text-[10px]'
-                        : 'bg-[#f59e0b]/10 text-[#f59e0b] border-0 text-[10px]'
+                        ? 'bg-green-500/10 text-green-500 border-0 text-[10px]'
+                        : 'bg-amber-500/10 text-amber-500 border-0 text-[10px]'
                     }
                   >
                     {product.stock > 0 ? 'В наличии' : 'Под заказ'}
@@ -169,19 +171,19 @@ export default function CategoryPage() {
                 </div>
 
                 {/* Price and CTA */}
-                <div className="mt-auto pt-3 border-t border-[#e2e8f0]">
+                <div className="mt-auto pt-3 border-t border-border">
                   <div className="flex items-baseline gap-1 mb-3">
-                    <span className="text-lg font-bold text-[#005BAC]">
+                    <span className="text-lg font-bold text-primary">
                       {product.price ? `${Number(product.price).toLocaleString('ru-RU')} ₽` : 'Договорная'}
                     </span>
                     {product.price && (
-                      <span className="text-xs text-[#64748b]">/{product.unit || 'шт.'}</span>
+                      <span className="text-xs text-muted-foreground">/{product.unit || 'шт.'}</span>
                     )}
                   </div>
                   <Link to={`/company/${product.tenantId}`}>
                     <Button
                       size="sm"
-                      className="w-full bg-[#005BAC] hover:bg-[#005BAC]/90 text-white"
+                      className="w-full bg-primary hover:bg-primary/90 text-white"
                     >
                       <Phone className="h-3.5 w-3.5 mr-1.5" />
                       Связаться
@@ -202,7 +204,7 @@ export default function CategoryPage() {
             size="sm"
             onClick={() => setPage(p => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="border-[#e2e8f0] text-[#0f172a] hover:bg-[#f1f5f9] disabled:opacity-50"
+            className="border-border text-foreground hover:bg-muted disabled:opacity-50"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -216,8 +218,8 @@ export default function CategoryPage() {
                 onClick={() => setPage(p)}
                 className={
                   p === page
-                    ? 'bg-[#005BAC] hover:bg-[#005BAC]/90 text-white'
-                    : 'border-[#e2e8f0] text-[#0f172a] hover:bg-[#f1f5f9]'
+                    ? 'bg-primary hover:bg-primary/90 text-white'
+                    : 'border-border text-foreground hover:bg-muted'
                 }
               >
                 {p}
@@ -230,7 +232,7 @@ export default function CategoryPage() {
             size="sm"
             onClick={() => setPage(p => Math.min(pagination.pages, p + 1))}
             disabled={page === pagination.pages}
-            className="border-[#e2e8f0] text-[#0f172a] hover:bg-[#f1f5f9] disabled:opacity-50"
+            className="border-border text-foreground hover:bg-muted disabled:opacity-50"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>

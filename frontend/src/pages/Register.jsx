@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { api } from '../api'
 import { useNavigate, Link } from 'react-router-dom'
+import SEO from '../components/SEO'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -40,22 +41,24 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] px-4">
+    <>
+      <SEO title="Регистрация" description="Создайте аккаунт компании на NexaTrade — B2B-платформа для оптовых закупок и продаж." noindex />
+      <div className="min-h-screen flex items-center justify-center bg-muted px-4">
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-6">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#005BAC] text-[#ffffff] font-bold text-2xl">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold text-2xl">
             N
           </div>
         </div>
 
-        <Card className="border border-[#e2e8f0] bg-[#ffffff]">
+        <Card className="border border-border bg-card">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl text-[#0f172a]">Регистрация</CardTitle>
-            <CardDescription className="text-[#64748b]">Создайте аккаунт компании для B2B-торговли</CardDescription>
+            <CardTitle className="text-2xl text-foreground">Регистрация</CardTitle>
+            <CardDescription className="text-muted-foreground">Создайте аккаунт компании для B2B-торговли</CardDescription>
           </CardHeader>
           <CardContent>
             {error && (
-              <div className="flex items-center gap-3 rounded-lg border border-[#ef4444] bg-[rgba(239,68,68,0.08)] px-4 py-3 text-sm text-[#ef4444] mb-4">
+              <div className="flex items-center gap-3 rounded-lg border border-destructive bg-destructive/10 px-4 py-3 text-sm text-destructive mb-4">
                 <AlertCircle className="h-4 w-4 shrink-0" />
                 <span>{error}</span>
               </div>
@@ -63,13 +66,13 @@ export default function Register() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-[#0f172a]">Email</Label>
+                <Label htmlFor="email" className="text-foreground">Email</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#64748b]" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="email"
                     type="email"
-                    className="pl-9 border-[#e2e8f0] text-[#0f172a]"
+                    className="pl-9 border-border text-foreground"
                     placeholder="company@example.com"
                     value={form.email}
                     onChange={e => setForm({ ...form, email: e.target.value })}
@@ -79,12 +82,12 @@ export default function Register() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="company" className="text-[#0f172a]">Название компании</Label>
+                <Label htmlFor="company" className="text-foreground">Название компании</Label>
                 <div className="relative">
-                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#64748b]" />
+                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="company"
-                    className="pl-9 border-[#e2e8f0] text-[#0f172a]"
+                    className="pl-9 border-border text-foreground"
                     placeholder="ООО «Пример»"
                     value={form.companyName}
                     onChange={e => setForm({ ...form, companyName: e.target.value })}
@@ -94,10 +97,10 @@ export default function Register() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="role" className="text-[#0f172a]">Роль в системе</Label>
+                <Label htmlFor="role" className="text-foreground">Роль в системе</Label>
                 <select
                   id="role"
-                  className="flex h-10 w-full rounded-lg border border-[#e2e8f0] bg-[#ffffff] px-3 py-2 text-sm text-[#0f172a] outline-none focus:ring-2 focus:ring-[#005BAC]/30"
+                  className="flex h-10 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/30"
                   value={form.role}
                   onChange={e => setForm({ ...form, role: e.target.value })}
                 >
@@ -107,13 +110,13 @@ export default function Register() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-[#0f172a]">Пароль</Label>
+                <Label htmlFor="password" className="text-foreground">Пароль</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#64748b]" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="password"
                     type="password"
-                    className="pl-9 border-[#e2e8f0] text-[#0f172a]"
+                    className="pl-9 border-border text-foreground"
                     placeholder="••••••••"
                     value={form.password}
                     onChange={e => setForm({ ...form, password: e.target.value })}
@@ -127,19 +130,19 @@ export default function Register() {
                   id="consent"
                   checked={agreed}
                   onCheckedChange={(checked) => setAgreed(checked === true)}
-                  className="border-[#e2e8f0] data-checked:border-[#005BAC] data-checked:bg-[#005BAC] data-checked:text-[#ffffff] mt-0.5"
+                  className="border-border data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground mt-0.5"
                 />
-                <Label htmlFor="consent" className="text-xs font-normal leading-relaxed cursor-pointer text-[#64748b]">
+                <Label htmlFor="consent" className="text-xs font-normal leading-relaxed cursor-pointer text-muted-foreground">
                   Я согласен на обработку моих персональных данных в соответствии с{' '}
-                  <a href="#" className="underline text-[#005BAC] hover:underline">Политикой конфиденциальности</a>{' '}
+                  <a href="#" className="underline text-primary hover:underline">Политикой конфиденциальности</a>{' '}
                   и принимаю{' '}
-                  <a href="#" className="underline text-[#005BAC] hover:underline">Пользовательское соглашение</a>
+                  <a href="#" className="underline text-primary hover:underline">Пользовательское соглашение</a>
                 </Label>
               </div>
 
               <Button
                 type="submit"
-                className="w-full bg-[#005BAC] text-[#ffffff] hover:bg-[#004a8d]"
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
                 disabled={loading}
               >
                 {loading ? 'Создание аккаунта...' : 'Создать аккаунт'}
@@ -147,9 +150,9 @@ export default function Register() {
             </form>
           </CardContent>
           <CardFooter className="justify-center">
-            <p className="text-sm text-[#64748b]">
+            <p className="text-sm text-muted-foreground">
               Уже есть аккаунт?{' '}
-              <Link to="/login" className="font-medium text-[#005BAC] hover:underline">
+              <Link to="/login" className="font-medium text-primary hover:underline">
                 Войти
               </Link>
             </p>
@@ -157,5 +160,6 @@ export default function Register() {
         </Card>
       </div>
     </div>
+    </>
   )
 }

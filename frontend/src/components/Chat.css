@@ -11,7 +11,7 @@
 .chat-header {
   padding: 1rem;
   border-bottom: 1px solid var(--border);
-  background: #f8fafc;
+  background: var(--muted);
   font-weight: 600;
 }
 
@@ -38,7 +38,7 @@
 }
 .message.other {
   align-self: flex-start;
-  background: #f1f5f9;
+  background: var(--muted);
   color: var(--text-main);
   border-bottom-left-radius: 4px;
 }

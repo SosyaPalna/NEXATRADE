@@ -27,6 +27,7 @@ import {
   MessageSquare,
   MapPin
 } from 'lucide-react'
+import SEO from '../components/SEO'
 
 export default function CompanyPage() {
   const { id } = useParams()
@@ -130,7 +131,7 @@ export default function CompanyPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 text-[#64748b]">
+      <div className="flex items-center justify-center h-64 text-muted-foreground">
         Загрузка...
       </div>
     )
@@ -138,7 +139,7 @@ export default function CompanyPage() {
 
   if (!company) {
     return (
-      <div className="flex items-center justify-center h-64 text-[#64748b]">
+      <div className="flex items-center justify-center h-64 text-muted-foreground">
         Компания не найдена
       </div>
     )
@@ -146,21 +147,37 @@ export default function CompanyPage() {
 
   return (
     <div className="space-y-6">
+      <SEO
+        title={company.name}
+        description={company.description || `Компания ${company.name} на B2B-платформе NexaTrade`}
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'Organization',
+          name: company.name,
+          description: company.description,
+          url: `https://nexatrade.ru/company/${company.id}`,
+          telephone: company.phone,
+          address: company.address ? {
+            '@type': 'PostalAddress',
+            addressLocality: company.address,
+          } : undefined,
+        }}
+      />
       {/* Cover */}
-      <div className="relative h-48 md:h-64 rounded-xl overflow-hidden bg-gradient-to-r from-[#005BAC]/80 to-[#005BAC]">
+      <div className="relative h-48 md:h-64 rounded-xl overflow-hidden bg-gradient-to-r from-primary/80 to-primary">
         {company.coverUrl ? (
           <img src={company.coverUrl} alt="" className="w-full h-full object-cover" />
         ) : null}
         {isOwn && isEditing && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center gap-3">
-            <label className="cursor-pointer bg-white/90 hover:bg-white text-[#0f172a] px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors">
+            <label className="cursor-pointer bg-card/90 hover:bg-card text-foreground px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors">
               <Camera className="h-4 w-4" />
               Изменить обложку
               <input type="file" accept="image/*" onChange={e => handleImageUpload(e.target.files[0], 'cover')} hidden />
             </label>
             {company.coverUrl && (
               <button
-                className="bg-[#ef4444]/90 hover:bg-[#ef4444] text-white px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors"
+                className="bg-destructive/90 hover:bg-destructive text-white px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors"
                 onClick={() => handleDeleteImage('cover')}
               >
                 <Trash2 className="h-4 w-4" />
@@ -174,21 +191,21 @@ export default function CompanyPage() {
       {/* Company header */}
       <div className="flex flex-col md:flex-row gap-4 items-start">
         <div className="relative -mt-16 ml-4 md:ml-8">
-          <Avatar className="h-24 w-24 border-4 border-[#f8fafc]">
+          <Avatar className="h-24 w-24 border-4 border-background">
             <AvatarImage src={company.avatarUrl} alt={company.name} />
-            <AvatarFallback className="bg-[#005BAC] text-white text-2xl">
+            <AvatarFallback className="bg-primary text-white text-2xl">
               {company.name?.charAt(0)?.toUpperCase()}
             </AvatarFallback>
           </Avatar>
           {isOwn && isEditing && (
             <div className="absolute -bottom-1 -right-1 flex gap-1">
-              <label className="cursor-pointer bg-[#005BAC] text-white rounded-full p-1.5 hover:bg-[#005BAC]/90 transition-colors">
+              <label className="cursor-pointer bg-primary text-white rounded-full p-1.5 hover:bg-primary/90 transition-colors">
                 <Camera className="h-3 w-3" />
                 <input type="file" accept="image/*" onChange={e => handleImageUpload(e.target.files[0], 'avatar')} hidden />
               </label>
               {company.avatarUrl && (
                 <button
-                  className="bg-[#ef4444] text-white rounded-full p-1.5 hover:opacity-90 transition-opacity"
+                  className="bg-destructive text-white rounded-full p-1.5 hover:opacity-90 transition-opacity"
                   onClick={() => handleDeleteImage('avatar')}
                 >
                   <Trash2 className="h-3 w-3" />
@@ -201,12 +218,12 @@ export default function CompanyPage() {
         <div className="flex-1 min-w-0 pt-2 md:pt-0">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
             <div>
-              <h1 className="text-2xl font-bold text-[#0f172a]">{company.name}</h1>
+              <h1 className="text-2xl font-bold text-foreground">{company.name}</h1>
               <div className="flex items-center gap-2 mt-1 flex-wrap">
-                <Badge variant="outline" className="border-[#e2e8f0] text-[#0f172a]">
+                <Badge variant="outline" className="border-border text-foreground">
                   {company.role === 'buyer' ? 'Покупатель' : 'Поставщик'}
                 </Badge>
-                <span className="text-xs text-[#64748b] flex items-center gap-1">
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
                   <CalendarDays className="h-3 w-3" />
                   На платформе с {new Date(company.createdAt).toLocaleDateString('ru-RU')}
                 </span>
@@ -216,7 +233,7 @@ export default function CompanyPage() {
               <Button
                 onClick={() => isEditing ? setIsEditing(false) : setIsEditing(true)}
                 variant={isEditing ? 'default' : 'outline'}
-                className={isEditing ? 'bg-[#005BAC] hover:bg-[#005BAC]/90 text-white' : 'border-[#e2e8f0] text-[#0f172a] hover:bg-[#f1f5f9]'}
+                className={isEditing ? 'bg-primary hover:bg-primary/90 text-white' : 'border-border text-foreground hover:bg-muted'}
               >
                 {isEditing ? <><X className="h-4 w-4 mr-1" /> Отмена</> : <><Pencil className="h-4 w-4 mr-1" /> Редактировать</>}
               </Button>
@@ -226,7 +243,7 @@ export default function CompanyPage() {
       </div>
 
       {error && (
-        <Alert className="bg-[#ef4444]/10 border-[#ef4444]/30 text-[#ef4444]">
+        <Alert className="bg-destructive/10 border-destructive/30 text-destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
@@ -235,43 +252,43 @@ export default function CompanyPage() {
       {/* Content */}
       {!isEditing ? (
         <Tabs defaultValue="about" className="w-full">
-          <TabsList className="bg-[#f8fafc] border border-[#e2e8f0]">
-            <TabsTrigger value="about" className="data-active:bg-white data-active:text-[#005BAC] data-active:shadow-sm text-[#64748b]">
+          <TabsList className="bg-muted border border-border">
+            <TabsTrigger value="about" className="data-active:bg-card data-active:text-primary data-active:shadow-sm text-muted-foreground">
               <Building2 className="h-4 w-4 mr-1.5" />
               О компании
             </TabsTrigger>
-            <TabsTrigger value="products" className="data-active:bg-white data-active:text-[#005BAC] data-active:shadow-sm text-[#64748b]">
+            <TabsTrigger value="products" className="data-active:bg-card data-active:text-primary data-active:shadow-sm text-muted-foreground">
               <Package className="h-4 w-4 mr-1.5" />
               Товары
               {company._count?.products > 0 && (
-                <span className="ml-1.5 text-xs bg-[#005BAC]/10 text-[#005BAC] px-1.5 py-0.5 rounded-full">
+                <span className="ml-1.5 text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
                   {company._count.products}
                 </span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="contacts" className="data-active:bg-white data-active:text-[#005BAC] data-active:shadow-sm text-[#64748b]">
+            <TabsTrigger value="contacts" className="data-active:bg-card data-active:text-primary data-active:shadow-sm text-muted-foreground">
               <Phone className="h-4 w-4 mr-1.5" />
               Контакты
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="about" className="mt-4">
-            <Card className="border-[#e2e8f0]">
+            <Card className="border-border">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2 text-[#0f172a]">
-                  <Building2 className="h-4 w-4 text-[#005BAC]" />
+                <CardTitle className="text-base flex items-center gap-2 text-foreground">
+                  <Building2 className="h-4 w-4 text-primary" />
                   О компании
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {company.description ? (
-                  <p className="text-sm text-[#0f172a] whitespace-pre-line leading-relaxed">
+                  <p className="text-sm text-foreground whitespace-pre-line leading-relaxed">
                     {company.description}
                   </p>
                 ) : (
                   <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <Building2 className="h-10 w-10 text-[#e2e8f0] mb-3" />
-                    <p className="text-sm text-[#64748b]">Описание не добавлено</p>
+                    <Building2 className="h-10 w-10 text-border mb-3" />
+                    <p className="text-sm text-muted-foreground">Описание не добавлено</p>
                   </div>
                 )}
               </CardContent>
@@ -282,31 +299,31 @@ export default function CompanyPage() {
             {company.products?.length > 0 ? (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-[#0f172a]">Товары компании</h2>
-                  <span className="text-sm text-[#64748b]">{company._count?.products || 0} позиций в каталоге</span>
+                  <h2 className="text-lg font-semibold text-foreground">Товары компании</h2>
+                  <span className="text-sm text-muted-foreground">{company._count?.products || 0} позиций в каталоге</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {company.products.slice(0, 6).map(p => (
                     <Card
                       key={p.id}
-                      className="border-[#e2e8f0] cursor-pointer hover:border-[#005BAC]/30 hover:shadow-sm transition-all overflow-hidden"
+                      className="border-border cursor-pointer hover:border-primary/30 hover:shadow-sm transition-all overflow-hidden"
                       onClick={() => navigate('/products')}
                     >
-                      <div className="h-36 bg-[#f8fafc] flex items-center justify-center">
+                      <div className="h-36 bg-muted flex items-center justify-center">
                         {p.images?.[0] ? (
                           <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover" />
                         ) : (
-                          <Package className="h-8 w-8 text-[#e2e8f0]" />
+                          <Package className="h-8 w-8 text-border" />
                         )}
                       </div>
                       <CardContent className="p-4">
-                        <h3 className="font-medium text-sm text-[#0f172a] line-clamp-1">{p.name}</h3>
-                        <p className="text-xs text-[#64748b] mt-1 line-clamp-2">{p.description || 'Нет описания'}</p>
+                        <h3 className="font-medium text-sm text-foreground line-clamp-1">{p.name}</h3>
+                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{p.description || 'Нет описания'}</p>
                         <div className="flex items-center justify-between mt-3">
-                          <span className="text-sm font-semibold text-[#005BAC]">
+                          <span className="text-sm font-semibold text-primary">
                             {p.price ? `${Number(p.price).toLocaleString('ru-RU')} ₽` : 'Договорная'}
                           </span>
-                          <Badge className={p.stock > 0 ? 'bg-[#22c55e]/10 text-[#22c55e] border-0' : 'bg-[#f59e0b]/10 text-[#f59e0b] border-0'}>
+                          <Badge className={p.stock > 0 ? 'bg-green-500/10 text-green-500 border-0' : 'bg-amber-500/10 text-amber-500 border-0'}>
                             {p.stock > 0 ? 'В наличии' : 'Под заказ'}
                           </Badge>
                         </div>
@@ -319,7 +336,7 @@ export default function CompanyPage() {
                     <Button
                       variant="outline"
                       onClick={() => navigate('/products')}
-                      className="border-[#e2e8f0] text-[#0f172a] hover:bg-[#f1f5f9]"
+                      className="border-border text-foreground hover:bg-muted"
                     >
                       Показать все товары
                       <ExternalLink className="h-4 w-4 ml-1.5" />
@@ -328,33 +345,33 @@ export default function CompanyPage() {
                 )}
               </div>
             ) : (
-              <Card className="border-[#e2e8f0]">
+              <Card className="border-border">
                 <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-                  <Package className="h-12 w-12 text-[#e2e8f0] mb-4" />
-                  <h3 className="text-lg font-semibold text-[#0f172a]">В каталоге пока нет товаров</h3>
-                  <p className="text-sm text-[#64748b] mt-1">Компания еще не добавила ни одного товара</p>
+                  <Package className="h-12 w-12 text-border mb-4" />
+                  <h3 className="text-lg font-semibold text-foreground">В каталоге пока нет товаров</h3>
+                  <p className="text-sm text-muted-foreground mt-1">Компания еще не добавила ни одного товара</p>
                 </CardContent>
               </Card>
             )}
           </TabsContent>
 
           <TabsContent value="contacts" className="mt-4">
-            <Card className="border-[#e2e8f0]">
+            <Card className="border-border">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2 text-[#0f172a]">
-                  <Phone className="h-4 w-4 text-[#005BAC]" />
+                <CardTitle className="text-base flex items-center gap-2 text-foreground">
+                  <Phone className="h-4 w-4 text-primary" />
                   Контакты
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {company.phone && (
                   <div className="flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-full bg-[#005BAC]/10 flex items-center justify-center shrink-0">
-                      <Phone className="h-4 w-4 text-[#005BAC]" />
+                    <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <Phone className="h-4 w-4 text-primary" />
                     </div>
                     <div>
-                      <p className="text-xs text-[#64748b]">Телефон</p>
-                      <a href={`tel:${company.phone}`} className="text-sm text-[#0f172a] hover:text-[#005BAC] transition-colors font-medium">
+                      <p className="text-xs text-muted-foreground">Телефон</p>
+                      <a href={`tel:${company.phone}`} className="text-sm text-foreground hover:text-primary transition-colors font-medium">
                         {company.phone}
                       </a>
                     </div>
@@ -362,12 +379,12 @@ export default function CompanyPage() {
                 )}
                 {company.website && (
                   <div className="flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-full bg-[#005BAC]/10 flex items-center justify-center shrink-0">
-                      <Globe className="h-4 w-4 text-[#005BAC]" />
+                    <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <Globe className="h-4 w-4 text-primary" />
                     </div>
                     <div>
-                      <p className="text-xs text-[#64748b]">Сайт</p>
-                      <a href={company.website} target="_blank" rel="noopener" className="text-sm text-[#0f172a] hover:text-[#005BAC] transition-colors font-medium flex items-center gap-1">
+                      <p className="text-xs text-muted-foreground">Сайт</p>
+                      <a href={company.website} target="_blank" rel="noopener" className="text-sm text-foreground hover:text-primary transition-colors font-medium flex items-center gap-1">
                         {company.website}
                         <ExternalLink className="h-3 w-3" />
                       </a>
@@ -376,12 +393,12 @@ export default function CompanyPage() {
                 )}
                 {company.socialLinks?.vk && (
                   <div className="flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-full bg-[#005BAC]/10 flex items-center justify-center shrink-0">
-                      <MessageSquare className="h-4 w-4 text-[#005BAC]" />
+                    <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <MessageSquare className="h-4 w-4 text-primary" />
                     </div>
                     <div>
-                      <p className="text-xs text-[#64748b]">ВКонтакте</p>
-                      <a href={company.socialLinks.vk} target="_blank" rel="noopener" className="text-sm text-[#0f172a] hover:text-[#005BAC] transition-colors font-medium flex items-center gap-1">
+                      <p className="text-xs text-muted-foreground">ВКонтакте</p>
+                      <a href={company.socialLinks.vk} target="_blank" rel="noopener" className="text-sm text-foreground hover:text-primary transition-colors font-medium flex items-center gap-1">
                         {company.socialLinks.vk}
                         <ExternalLink className="h-3 w-3" />
                       </a>
@@ -390,12 +407,12 @@ export default function CompanyPage() {
                 )}
                 {company.socialLinks?.telegram && (
                   <div className="flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-full bg-[#005BAC]/10 flex items-center justify-center shrink-0">
-                      <MessageSquare className="h-4 w-4 text-[#005BAC]" />
+                    <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <MessageSquare className="h-4 w-4 text-primary" />
                     </div>
                     <div>
-                      <p className="text-xs text-[#64748b]">Telegram</p>
-                      <a href={company.socialLinks.telegram} target="_blank" rel="noopener" className="text-sm text-[#0f172a] hover:text-[#005BAC] transition-colors font-medium flex items-center gap-1">
+                      <p className="text-xs text-muted-foreground">Telegram</p>
+                      <a href={company.socialLinks.telegram} target="_blank" rel="noopener" className="text-sm text-foreground hover:text-primary transition-colors font-medium flex items-center gap-1">
                         {company.socialLinks.telegram}
                         <ExternalLink className="h-3 w-3" />
                       </a>
@@ -404,12 +421,12 @@ export default function CompanyPage() {
                 )}
                 {company.socialLinks?.whatsapp && (
                   <div className="flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-full bg-[#005BAC]/10 flex items-center justify-center shrink-0">
-                      <MessageSquare className="h-4 w-4 text-[#005BAC]" />
+                    <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <MessageSquare className="h-4 w-4 text-primary" />
                     </div>
                     <div>
-                      <p className="text-xs text-[#64748b]">WhatsApp</p>
-                      <a href={company.socialLinks.whatsapp} target="_blank" rel="noopener" className="text-sm text-[#0f172a] hover:text-[#005BAC] transition-colors font-medium flex items-center gap-1">
+                      <p className="text-xs text-muted-foreground">WhatsApp</p>
+                      <a href={company.socialLinks.whatsapp} target="_blank" rel="noopener" className="text-sm text-foreground hover:text-primary transition-colors font-medium flex items-center gap-1">
                         {company.socialLinks.whatsapp}
                         <ExternalLink className="h-3 w-3" />
                       </a>
@@ -418,8 +435,8 @@ export default function CompanyPage() {
                 )}
                 {!company.website && !company.phone && !company.socialLinks?.vk && !company.socialLinks?.telegram && !company.socialLinks?.whatsapp && (
                   <div className="flex flex-col items-center justify-center py-6 text-center">
-                    <MapPin className="h-10 w-10 text-[#e2e8f0] mb-3" />
-                    <p className="text-sm text-[#64748b]">Контакты не указаны</p>
+                    <MapPin className="h-10 w-10 text-border mb-3" />
+                    <p className="text-sm text-muted-foreground">Контакты не указаны</p>
                   </div>
                 )}
               </CardContent>
@@ -427,95 +444,95 @@ export default function CompanyPage() {
           </TabsContent>
         </Tabs>
       ) : (
-        <Card className="border-[#e2e8f0]">
+        <Card className="border-border">
           <CardHeader>
-            <CardTitle className="text-[#0f172a]">Редактирование профиля компании</CardTitle>
-            <CardDescription className="text-[#64748b]">Внесите изменения и сохраните профиль</CardDescription>
+            <CardTitle className="text-foreground">Редактирование профиля компании</CardTitle>
+            <CardDescription className="text-muted-foreground">Внесите изменения и сохраните профиль</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSave} className="space-y-5">
               <div className="space-y-2">
-                <Label className="text-[#0f172a]">Описание</Label>
+                <Label className="text-foreground">Описание</Label>
                 <Textarea
                   rows={5}
                   value={form.description}
                   onChange={e => setForm({ ...form, description: e.target.value })}
                   placeholder="Расскажите о вашей компании..."
-                  className="border-[#e2e8f0] focus-visible:ring-[#005BAC] focus-visible:ring-1 focus-visible:border-[#005BAC] resize-none"
+                  className="border-border focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary resize-none"
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-[#0f172a]">Сайт</Label>
+                  <Label className="text-foreground">Сайт</Label>
                   <Input
                     value={form.website}
                     onChange={e => setForm({ ...form, website: e.target.value })}
                     placeholder="https://..."
-                    className="border-[#e2e8f0] focus-visible:ring-[#005BAC] focus-visible:ring-1 focus-visible:border-[#005BAC]"
+                    className="border-border focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[#0f172a]">Телефон</Label>
+                  <Label className="text-foreground">Телефон</Label>
                   <Input
                     value={form.phone}
                     onChange={e => setForm({ ...form, phone: e.target.value })}
                     placeholder="+7..."
-                    className="border-[#e2e8f0] focus-visible:ring-[#005BAC] focus-visible:ring-1 focus-visible:border-[#005BAC]"
+                    className="border-border focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary"
                   />
                 </div>
               </div>
 
-              <Separator className="bg-[#e2e8f0]" />
+              <Separator className="bg-border" />
 
               <div>
-                <h3 className="text-sm font-medium text-[#0f172a] mb-3">Социальные сети</h3>
+                <h3 className="text-sm font-medium text-foreground mb-3">Социальные сети</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-[#0f172a]">ВКонтакте</Label>
+                    <Label className="text-foreground">ВКонтакте</Label>
                     <Input
                       value={form.socialLinks?.vk || ''}
                       onChange={e => setForm({ ...form, socialLinks: { ...form.socialLinks, vk: e.target.value } })}
                       placeholder="https://vk.com/..."
-                      className="border-[#e2e8f0] focus-visible:ring-[#005BAC] focus-visible:ring-1 focus-visible:border-[#005BAC]"
+                      className="border-border focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[#0f172a]">Telegram</Label>
+                    <Label className="text-foreground">Telegram</Label>
                     <Input
                       value={form.socialLinks?.telegram || ''}
                       onChange={e => setForm({ ...form, socialLinks: { ...form.socialLinks, telegram: e.target.value } })}
                       placeholder="https://t.me/..."
-                      className="border-[#e2e8f0] focus-visible:ring-[#005BAC] focus-visible:ring-1 focus-visible:border-[#005BAC]"
+                      className="border-border focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[#0f172a]">WhatsApp</Label>
+                    <Label className="text-foreground">WhatsApp</Label>
                     <Input
                       value={form.socialLinks?.whatsapp || ''}
                       onChange={e => setForm({ ...form, socialLinks: { ...form.socialLinks, whatsapp: e.target.value } })}
                       placeholder="https://wa.me/..."
-                      className="border-[#e2e8f0] focus-visible:ring-[#005BAC] focus-visible:ring-1 focus-visible:border-[#005BAC]"
+                      className="border-border focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary"
                     />
                   </div>
                 </div>
               </div>
 
-              <Separator className="bg-[#e2e8f0]" />
+              <Separator className="bg-border" />
 
               <div className="flex justify-end gap-2 pt-2">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => { setIsEditing(false); loadData(); }}
-                  className="border-[#e2e8f0] text-[#0f172a] hover:bg-[#f1f5f9]"
+                  className="border-border text-foreground hover:bg-muted"
                 >
                   Отмена
                 </Button>
                 <Button
                   type="submit"
                   disabled={saving}
-                  className="bg-[#005BAC] hover:bg-[#005BAC]/90 text-white"
+                  className="bg-primary hover:bg-primary/90 text-white"
                 >
                   <Save className="h-4 w-4 mr-1" />
                   {saving ? 'Сохранение...' : 'Сохранить изменения'}
