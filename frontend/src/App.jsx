@@ -47,7 +47,7 @@ function AdminOnly() {
 // 🏗 Основная обёртка приложения (навбар + контент)
 function AppLayout() {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
       <NavBar />
       <div className="flex-1 px-4 sm:px-6 lg:px-8 py-6">
         <main className="mx-auto max-w-7xl">
@@ -55,6 +55,16 @@ function AppLayout() {
         </main>
       </div>
       <CookieConsent />
+      <footer className="border-t border-border bg-card py-6 mt-auto">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
+          <p>© {new Date().getFullYear()} NexaTrade. Все права защищены.</p>
+          <nav className="flex items-center gap-4">
+            <a href="/products" className="hover:text-foreground transition-colors">Каталог</a>
+            <a href="/requests" className="hover:text-foreground transition-colors">Заявки</a>
+            <a href="/rfq/create" className="hover:text-foreground transition-colors">Создать заявку</a>
+          </nav>
+        </div>
+      </footer>
     </div>
   )
 }
@@ -92,13 +102,13 @@ export default function App() {
 
                 {/* ⚙️ Админ-панель (ленивая загрузка) */}
                 <Route path="/admin/*" element={<AdminOnly />}>
-                  <Route element={<Suspense fallback={<div className="flex items-center justify-center h-screen text-[#64748b]">Загрузка админ-панели...</div>}><AdminLayout /></Suspense>}>
+                  <Route element={<Suspense fallback={<div className="flex items-center justify-center h-screen text-muted-foreground">Загрузка админ-панели...</div>}><AdminLayout /></Suspense>}>
                     <Route index element={<Navigate to="dashboard" replace />} />
-                    <Route path="dashboard" element={<Suspense fallback={<div className="flex items-center justify-center h-64 text-[#64748b]">Загрузка...</div>}><AdminDashboard /></Suspense>} />
-                    <Route path="users" element={<Suspense fallback={<div className="flex items-center justify-center h-64 text-[#64748b]">Загрузка...</div>}><AdminUsers /></Suspense>} />
-                    <Route path="rfqs" element={<Suspense fallback={<div className="flex items-center justify-center h-64 text-[#64748b]">Загрузка...</div>}><AdminRfqs /></Suspense>} />
-                    <Route path="reports" element={<Suspense fallback={<div className="flex items-center justify-center h-64 text-[#64748b]">Загрузка...</div>}><AdminReports /></Suspense>} />
-                    <Route path="categories" element={<Suspense fallback={<div className="flex items-center justify-center h-64 text-[#64748b]">Загрузка...</div>}><AdminCategories /></Suspense>} />
+                    <Route path="dashboard" element={<Suspense fallback={<div className="flex items-center justify-center h-64 text-muted-foreground">Загрузка...</div>}><AdminDashboard /></Suspense>} />
+                    <Route path="users" element={<Suspense fallback={<div className="flex items-center justify-center h-64 text-muted-foreground">Загрузка...</div>}><AdminUsers /></Suspense>} />
+                    <Route path="rfqs" element={<Suspense fallback={<div className="flex items-center justify-center h-64 text-muted-foreground">Загрузка...</div>}><AdminRfqs /></Suspense>} />
+                    <Route path="reports" element={<Suspense fallback={<div className="flex items-center justify-center h-64 text-muted-foreground">Загрузка...</div>}><AdminReports /></Suspense>} />
+                    <Route path="categories" element={<Suspense fallback={<div className="flex items-center justify-center h-64 text-muted-foreground">Загрузка...</div>}><AdminCategories /></Suspense>} />
                   </Route>
                 </Route>
 

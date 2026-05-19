@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { api } from '../api'
 import { useNavigate, Link } from 'react-router-dom'
+import SEO from '../components/SEO'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -8,6 +9,15 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { AlertCircle, Mail, Lock } from 'lucide-react'
 
 export default function Login() {
+  return (
+    <>
+      <SEO title="Вход" description="Войдите в свой аккаунт NexaTrade — B2B-платформа для оптовых закупок." noindex />
+      <LoginForm />
+    </>
+  )
+}
+
+function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -37,22 +47,22 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-muted px-4">
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-6">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#005BAC] text-[#ffffff] font-bold text-2xl">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold text-2xl">
             N
           </div>
         </div>
 
-        <Card className="border border-[#e2e8f0] bg-[#ffffff]">
+        <Card className="border border-border bg-card">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl text-[#0f172a]">Вход в NexaTrade</CardTitle>
-            <CardDescription className="text-[#64748b]">Введите данные вашей компании</CardDescription>
+            <CardTitle className="text-2xl text-foreground">Вход в NexaTrade</CardTitle>
+            <CardDescription className="text-muted-foreground">Введите данные вашей компании</CardDescription>
           </CardHeader>
           <CardContent>
             {error && (
-              <div className="flex items-center gap-3 rounded-lg border border-[#ef4444] bg-[rgba(239,68,68,0.08)] px-4 py-3 text-sm text-[#ef4444] mb-4">
+              <div className="flex items-center gap-3 rounded-lg border border-destructive bg-destructive/10 px-4 py-3 text-sm text-destructive mb-4">
                 <AlertCircle className="h-4 w-4 shrink-0" />
                 <span>{error}</span>
               </div>
@@ -60,13 +70,13 @@ export default function Login() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-[#0f172a]">Email</Label>
+                <Label htmlFor="email" className="text-foreground">Email</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#64748b]" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="email"
                     type="email"
-                    className="pl-9 border-[#e2e8f0] text-[#0f172a]"
+                    className="pl-9 border-border text-foreground"
                     placeholder="admin@company.com"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
@@ -76,13 +86,13 @@ export default function Login() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-[#0f172a]">Пароль</Label>
+                <Label htmlFor="password" className="text-foreground">Пароль</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#64748b]" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="password"
                     type="password"
-                    className="pl-9 border-[#e2e8f0] text-[#0f172a]"
+                    className="pl-9 border-border text-foreground"
                     placeholder="••••••••"
                     value={password}
                     onChange={e => setPassword(e.target.value)}
@@ -93,7 +103,7 @@ export default function Login() {
 
               <Button
                 type="submit"
-                className="w-full bg-[#005BAC] text-[#ffffff] hover:bg-[#004a8d]"
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
                 disabled={loading}
               >
                 {loading ? 'Вход...' : 'Войти'}
@@ -101,9 +111,9 @@ export default function Login() {
             </form>
           </CardContent>
           <CardFooter className="justify-center">
-            <p className="text-sm text-[#64748b]">
+            <p className="text-sm text-muted-foreground">
               Нет аккаунта?{' '}
-              <Link to="/register" className="font-medium text-[#005BAC] hover:underline">
+              <Link to="/register" className="font-medium text-primary hover:underline">
                 Создать компанию
               </Link>
             </p>

@@ -28,6 +28,7 @@ import {
   AlertCircle,
   Pencil,
 } from 'lucide-react'
+import SEO from '../components/SEO'
 
 export default function AdminUsers() {
   const navigate = useNavigate()
@@ -115,27 +116,27 @@ export default function AdminUsers() {
     return (
       <div className="space-y-6 max-w-4xl mx-auto">
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" className="text-[#64748b]" onClick={closeUserDetail}>
+          <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={closeUserDetail}>
             <ArrowLeft className="h-4 w-4 mr-1" />
             Назад
           </Button>
         </div>
 
         {error && (
-          <Alert variant="destructive" className="bg-[#fee2e2] text-[#ef4444] border-[#fecaca]">
+          <Alert variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
 
-        <Card className="border border-[#e2e8f0] bg-white">
+        <Card className="border border-border bg-card">
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-xl text-[#0f172a]">Карточка пользователя</CardTitle>
+            <CardTitle className="text-xl text-foreground">Карточка пользователя</CardTitle>
             {!isEditing && (
               <Button
                 variant="outline"
                 size="sm"
-                className="border-[#e2e8f0]"
+                className="border-border"
                 onClick={() => setIsEditing(true)}
               >
                 <Pencil className="h-4 w-4 mr-1" />
@@ -148,52 +149,52 @@ export default function AdminUsers() {
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-[#64748b] text-xs">Email</Label>
-                    <p className="text-[#0f172a] font-medium">{selectedUser.email}</p>
+                    <Label className="text-muted-foreground text-xs">Email</Label>
+                    <p className="text-foreground font-medium">{selectedUser.email}</p>
                   </div>
                   <div>
-                    <Label className="text-[#64748b] text-xs">Компания</Label>
-                    <p className="text-[#0f172a] font-medium">{selectedUser.tenant?.name || '—'}</p>
+                    <Label className="text-muted-foreground text-xs">Компания</Label>
+                    <p className="text-foreground font-medium">{selectedUser.tenant?.name || '—'}</p>
                   </div>
                   <div>
-                    <Label className="text-[#64748b] text-xs">Роль</Label>
-                    <p className="text-[#0f172a] font-medium">{selectedUser.tenant?.role || '—'}</p>
+                    <Label className="text-muted-foreground text-xs">Роль</Label>
+                    <p className="text-foreground font-medium">{selectedUser.tenant?.role || '—'}</p>
                   </div>
                   <div>
-                    <Label className="text-[#64748b] text-xs">Администратор</Label>
-                    <p className="text-[#0f172a] font-medium">{selectedUser.isAdmin ? 'Да' : 'Нет'}</p>
+                    <Label className="text-muted-foreground text-xs">Администратор</Label>
+                    <p className="text-foreground font-medium">{selectedUser.isAdmin ? 'Да' : 'Нет'}</p>
                   </div>
                   <div>
-                    <Label className="text-[#64748b] text-xs">Активен</Label>
-                    <p className="text-[#0f172a] font-medium">{selectedUser.isActive ? 'Да' : 'Нет'}</p>
+                    <Label className="text-muted-foreground text-xs">Активен</Label>
+                    <p className="text-foreground font-medium">{selectedUser.isActive ? 'Да' : 'Нет'}</p>
                   </div>
                   <div>
-                    <Label className="text-[#64748b] text-xs">Дата регистрации</Label>
-                    <p className="text-[#0f172a] font-medium">
+                    <Label className="text-muted-foreground text-xs">Дата регистрации</Label>
+                    <p className="text-foreground font-medium">
                       {new Date(selectedUser.createdAt).toLocaleDateString('ru-RU')}
                     </p>
                   </div>
                 </div>
 
-                <Separator className="bg-[#e2e8f0]" />
+                <Separator className="bg-border" />
 
                 <div>
-                  <h4 className="text-[#0f172a] font-semibold mb-3">
+                  <h4 className="text-foreground font-semibold mb-3">
                     Последние заявки ({userRfqs.length})
                   </h4>
                   {userRfqs.length === 0 ? (
-                    <p className="text-[#64748b] text-sm">Заявок пока нет</p>
+                    <p className="text-muted-foreground text-sm">Заявок пока нет</p>
                   ) : (
                     <div className="space-y-2">
                       {userRfqs.map((rfq) => (
                         <div
                           key={rfq.id}
                           onClick={() => openRfqDetail(rfq.id)}
-                          className="flex items-center justify-between p-3 rounded-lg border border-[#e2e8f0] bg-[#f8fafc] hover:bg-[#f1f5f9] cursor-pointer transition-colors"
+                          className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted hover:bg-muted cursor-pointer transition-colors"
                         >
                           <div>
-                            <p className="font-medium text-[#0f172a] text-sm">{rfq.title}</p>
-                            <p className="text-xs text-[#64748b] mt-0.5">
+                            <p className="font-medium text-foreground text-sm">{rfq.title}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">
                               Создана: {new Date(rfq.createdAt).toLocaleDateString('ru-RU')}
                             </p>
                           </div>
@@ -201,7 +202,7 @@ export default function AdminUsers() {
                             <Badge variant={rfq.status === 'open' ? 'default' : rfq.status === 'in_progress' ? 'secondary' : 'outline'} className="text-xs">
                               {rfq.status}
                             </Badge>
-                            <span className="text-sm font-semibold text-[#005BAC]">
+                            <span className="text-sm font-semibold text-primary">
                               {rfq.budget ? `${rfq.budget} ₽` : '—'}
                             </span>
                           </div>
@@ -213,14 +214,14 @@ export default function AdminUsers() {
               </>
             ) : (
               <div className="space-y-4">
-                <h3 className="text-[#0f172a] font-semibold">Редактирование</h3>
+                <h3 className="text-foreground font-semibold">Редактирование</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Email</Label>
                     <Input
                       value={editForm.email}
                       onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                      className="border-[#e2e8f0]"
+                      className="border-border"
                     />
                   </div>
                   <div className="space-y-2">
@@ -228,7 +229,7 @@ export default function AdminUsers() {
                     <Input
                       value={editForm.companyName}
                       onChange={(e) => setEditForm({ ...editForm, companyName: e.target.value })}
-                      className="border-[#e2e8f0]"
+                      className="border-border"
                     />
                   </div>
                   <div className="space-y-2 sm:col-span-2">
@@ -237,19 +238,19 @@ export default function AdminUsers() {
                       type="password"
                       value={editForm.password}
                       onChange={(e) => setEditForm({ ...editForm, password: e.target.value })}
-                      className="border-[#e2e8f0]"
+                      className="border-border"
                     />
                   </div>
                 </div>
                 <div className="flex items-center gap-6">
-                  <label className="flex items-center gap-2 text-sm text-[#0f172a] cursor-pointer">
+                  <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
                     <Checkbox
                       checked={editForm.isActive}
                       onCheckedChange={(v) => setEditForm({ ...editForm, isActive: v })}
                     />
                     Активен
                   </label>
-                  <label className="flex items-center gap-2 text-sm text-[#0f172a] cursor-pointer">
+                  <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
                     <Checkbox
                       checked={editForm.isAdmin}
                       onCheckedChange={(v) => setEditForm({ ...editForm, isAdmin: v })}
@@ -258,11 +259,11 @@ export default function AdminUsers() {
                   </label>
                 </div>
                 <div className="flex gap-2 justify-end pt-2">
-                  <Button variant="outline" className="border-[#e2e8f0]" onClick={() => setIsEditing(false)} disabled={saving}>
+                  <Button variant="outline" className="border-border" onClick={() => setIsEditing(false)} disabled={saving}>
                     <X className="h-4 w-4 mr-1" />
                     Отмена
                   </Button>
-                  <Button className="bg-[#005BAC] text-white hover:bg-[#004a8d]" onClick={handleSaveUser} disabled={saving}>
+                  <Button className="bg-primary text-white hover:bg-primary/90" onClick={handleSaveUser} disabled={saving}>
                     <Save className="h-4 w-4 mr-1" />
                     {saving ? 'Сохранение...' : 'Сохранить'}
                   </Button>
@@ -277,13 +278,14 @@ export default function AdminUsers() {
 
   return (
     <div className="space-y-6">
+      <SEO title="Пользователи" description="Управление пользователями NexaTrade." noindex nofollow />
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h2 className="text-2xl font-bold text-[#0f172a]">Управление пользователями</h2>
-        <span className="text-sm text-[#64748b]">Найдено: {users.length}</span>
+        <h1 className="text-2xl font-bold text-foreground">Управление пользователями</h1>
+        <span className="text-sm text-muted-foreground">Найдено: {users.length}</span>
       </div>
 
       {error && (
-        <Alert variant="destructive" className="bg-[#fee2e2] text-[#ef4444] border-[#fecaca]">
+        <Alert variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
@@ -291,28 +293,28 @@ export default function AdminUsers() {
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94a3b8]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
           <Input
             placeholder="Поиск по email или компании..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1) }}
-            className="pl-9 border-[#e2e8f0]"
+            className="pl-9 border-border"
           />
         </div>
       </div>
 
-      <Card className="border border-[#e2e8f0] bg-white overflow-hidden">
+      <Card className="border border-border bg-card overflow-hidden">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#e2e8f0] bg-[#f8fafc]">
-                  <th className="text-left px-4 py-3 font-semibold text-[#64748b]">Email</th>
-                  <th className="text-left px-4 py-3 font-semibold text-[#64748b]">Компания</th>
-                  <th className="text-left px-4 py-3 font-semibold text-[#64748b]">Админ</th>
-                  <th className="text-left px-4 py-3 font-semibold text-[#64748b]">Активен</th>
-                  <th className="text-left px-4 py-3 font-semibold text-[#64748b]">Дата</th>
-                  <th className="text-left px-4 py-3 font-semibold text-[#64748b] w-[80px]">Действия</th>
+                <tr className="border-b border-border bg-muted">
+                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Email</th>
+                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Компания</th>
+                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Админ</th>
+                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Активен</th>
+                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Дата</th>
+                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground w-[80px]">Действия</th>
                 </tr>
               </thead>
               <tbody>
@@ -320,28 +322,28 @@ export default function AdminUsers() {
                   <tr
                     key={user.id}
                     onClick={() => openUserDetail(user.id)}
-                    className="border-b border-[#f1f5f9] hover:bg-[#f8fafc] cursor-pointer transition-colors"
+                    className="border-b border-border hover:bg-muted cursor-pointer transition-colors"
                   >
-                    <td className="px-4 py-3 text-[#0f172a]">{user.email}</td>
-                    <td className="px-4 py-3 text-[#0f172a]">{user.tenant?.name || '—'}</td>
+                    <td className="px-4 py-3 text-foreground">{user.email}</td>
+                    <td className="px-4 py-3 text-foreground">{user.tenant?.name || '—'}</td>
                     <td className="px-4 py-3">
-                      <Badge variant={user.isAdmin ? 'default' : 'outline'} className={user.isAdmin ? 'bg-[#005BAC] text-white' : 'text-[#64748b]'}>
+                      <Badge variant={user.isAdmin ? 'default' : 'outline'} className={user.isAdmin ? 'bg-primary text-white' : 'text-muted-foreground'}>
                         {user.isAdmin ? 'Да' : 'Нет'}
                       </Badge>
                     </td>
                     <td className="px-4 py-3">
-                      <Badge variant={user.isActive ? 'default' : 'destructive'} className={user.isActive ? 'bg-[#22c55e] text-white' : ''}>
+                      <Badge variant={user.isActive ? 'default' : 'destructive'} className={user.isActive ? 'bg-green-500 text-white' : ''}>
                         {user.isActive ? 'Да' : 'Нет'}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3 text-[#64748b] whitespace-nowrap">
+                    <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
                       {new Date(user.createdAt).toLocaleDateString('ru-RU')}
                     </td>
                     <td className="px-4 py-3">
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-[#64748b] hover:text-[#005BAC]"
+                        className="h-8 w-8 text-muted-foreground hover:text-primary"
                         onClick={(e) => { e.stopPropagation(); openUserDetail(user.id) }}
                       >
                         <Eye className="h-4 w-4" />
@@ -351,14 +353,14 @@ export default function AdminUsers() {
                 ))}
                 {users.length === 0 && !loading && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-12 text-center text-[#64748b]">
+                    <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
                       Пользователи не найдены
                     </td>
                   </tr>
                 )}
                 {loading && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-12 text-center text-[#64748b]">
+                    <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
                       Загрузка...
                     </td>
                   </tr>
@@ -374,19 +376,19 @@ export default function AdminUsers() {
           <Button
             variant="outline"
             size="sm"
-            className="border-[#e2e8f0]"
+            className="border-border"
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <span className="text-sm text-[#64748b]">
+          <span className="text-sm text-muted-foreground">
             Стр. {page} из {pagination.pages}
           </span>
           <Button
             variant="outline"
             size="sm"
-            className="border-[#e2e8f0]"
+            className="border-border"
             onClick={() => setPage((p) => Math.min(pagination.pages, p + 1))}
             disabled={page === pagination.pages}
           >
