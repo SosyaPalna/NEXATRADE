@@ -20,7 +20,18 @@ app.set('trust proxy', 1);
 
 // Middleware
 app.use(helmet({
-  contentSecurityPolicy: process.env.NODE_ENV === 'production' ? undefined : false,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://mc.yandex.ru"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "blob:", "https://mc.yandex.ru"],
+      connectSrc: ["'self'", "https://mc.yandex.ru"],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
+    },
+  },
 }));
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
