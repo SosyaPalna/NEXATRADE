@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 
 router.get('/', authenticate, async (req, res) => {
   try {
-    const { role } = await prisma.tenant.findUnique({ 
+    const { role } = await prisma.tenant.findUnique({
       where: { id: req.tenantId },
       select: { role: true }
     });
@@ -20,10 +20,17 @@ router.get('/', authenticate, async (req, res) => {
       where = { status: 'open' };
     }
 
+    // Фильтр по категории
+    const { categoryId } = req.query;
+    if (categoryId) {
+      where.categoryId = categoryId;
+    }
+
     const rfqs = await prisma.rfq.findMany({
       where,
       include: {
         buyer: { select: { name: true, role: true } },
+        category: { select: { id: true, name: true, slug: true } },
         _count: { select: { quotes: true } }
       },
       orderBy: { createdAt: 'desc' }
@@ -41,6 +48,7 @@ router.get('/:id', authenticate, async (req, res) => {
       where: { id: req.params.id },
       include: {
         buyer: { select: { name: true, role: true } },
+        category: { select: { id: true, name: true, slug: true } },
         quotes: {
           include: {
             seller: { select: { name: true, role: true } }
@@ -51,13 +59,13 @@ router.get('/:id', authenticate, async (req, res) => {
     });
 
     if (!rfq) return res.status(404).json({ error: 'RFQ не найден' });
-    
+
     // Проверка доступа
-    const { role } = await prisma.tenant.findUnique({ 
+    const { role } = await prisma.tenant.findUnique({
       where: { id: req.tenantId },
       select: { role: true }
     });
-    
+
     if (role === 'buyer' && rfq.buyerId !== req.tenantId) {
       return res.status(403).json({ error: 'Нет доступа' });
     }
@@ -71,7 +79,7 @@ router.get('/:id', authenticate, async (req, res) => {
 // 🔹 Создать RFQ (только buyer)
 router.post('/', authenticate, async (req, res) => {
   try {
-    const { role } = await prisma.tenant.findUnique({ 
+    const { role } = await prisma.tenant.findUnique({
       where: { id: req.tenantId },
       select: { role: true }
     });
@@ -80,21 +88,27 @@ router.post('/', authenticate, async (req, res) => {
       return res.status(403).json({ error: 'Только покупатели могут создавать RFQ' });
     }
 
-    const { title, description, quantity, budget, deadline } = req.body;
+    const { title, description, quantity, unit, budget, deadline, categoryId } = req.body;
     if (!title || !description || !quantity) {
       return res.status(400).json({ error: 'Заполните обязательные поля' });
     }
 
-    const rfq = await prisma.rfq.create({
-      data: {
-        title,
-        description,
-        quantity: parseInt(quantity),
-        budget: budget ? parseFloat(budget) : null,
-        deadline: deadline ? new Date(deadline) : null,
-        buyerId: req.tenantId
-      }
-    });
+    const data = {
+      title,
+      description,
+      quantity: parseInt(quantity),
+      unit: unit || 'шт.',
+      budget: budget ? parseFloat(budget) : null,
+      deadline: deadline ? new Date(deadline) : null,
+      buyerId: req.tenantId
+    };
+
+    if (categoryId) {
+      const cat = await prisma.category.findUnique({ where: { id: categoryId } });
+      if (cat) data.categoryId = categoryId;
+    }
+
+    const rfq = await prisma.rfq.create({ data });
     res.status(201).json(rfq);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -104,7 +118,7 @@ router.post('/', authenticate, async (req, res) => {
 // 🔹 Отправить предложение (только seller)
 router.post('/:id/quotes', authenticate, async (req, res) => {
   try {
-    const { role } = await prisma.tenant.findUnique({ 
+    const { role } = await prisma.tenant.findUnique({
       where: { id: req.tenantId },
       select: { role: true }
     });

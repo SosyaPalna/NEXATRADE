@@ -1,9 +1,31 @@
-// frontend/src/pages/AdminRfqs.jsx
 import { useEffect, useState } from 'react'
 import { api } from '../api'
-import '../styles/Admin.css'
+import { useNavigate } from 'react-router-dom'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Label } from '@/components/ui/label'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Search, ChevronLeft, ChevronRight, Settings, Trash2, AlertCircle } from 'lucide-react'
 
 export default function AdminRfqs() {
+  const navigate = useNavigate()
   const [rfqs, setRfqs] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -22,7 +44,7 @@ export default function AdminRfqs() {
       setRfqs(res.data.rfqs)
       setPagination({ pages: res.data.pages })
     } catch {
-      setError('Ошибка загрузки')
+      setError('Ошибка загрузки заявок')
     } finally {
       setLoading(false)
     }
@@ -34,87 +56,224 @@ export default function AdminRfqs() {
   const handleStatusChange = async (status) => {
     try {
       await api.patch(`/admin/rfqs/${modal.rfq.id}`, { status })
-      setModal(null); loadRfqs()
+      setModal(null)
+      loadRfqs()
     } catch (err) {
-      setError(err.response?.data?.error || 'Ошибка')
+      setError(err.response?.data?.error || 'Ошибка изменения статуса')
     }
   }
 
   const handleDelete = async () => {
     try {
       await api.delete(`/admin/rfqs/${modal.rfq.id}`)
-      setModal(null); loadRfqs()
+      setModal(null)
+      loadRfqs()
     } catch (err) {
-      setError(err.response?.data?.error || 'Ошибка')
+      setError(err.response?.data?.error || 'Ошибка удаления')
     }
   }
 
-  if (loading && !rfqs.length) return <div className="auth-wrapper">Загрузка...</div>
+  const statusVariant = (status) => {
+    switch (status) {
+      case 'open': return 'default'
+      case 'in_progress': return 'secondary'
+      case 'closed': return 'outline'
+      case 'cancelled': return 'destructive'
+      default: return 'outline'
+    }
+  }
+
+  const statusLabel = (status) => {
+    switch (status) {
+      case 'open': return 'Открыта'
+      case 'in_progress': return 'В работе'
+      case 'closed': return 'Закрыта'
+      case 'cancelled': return 'Отменена'
+      default: return status
+    }
+  }
 
   return (
-    <div>
-      <div className="admin-header"><h2>📝 Управление запросами (RFQ)</h2></div>
-      <div className="admin-filters">
-        <input className="input-field" placeholder="Поиск..." value={search} onChange={e => { setSearch(e.target.value); setPage(1) }} style={{ maxWidth: 300 }} />
-        <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(1) }}>
-          <option value="all">Все статусы</option>
-          <option value="open">Открытые</option>
-          <option value="in_progress">В работе</option>
-          <option value="closed">Закрытые</option>
-          <option value="cancelled">Отменённые</option>
-        </select>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h2 className="text-2xl font-bold text-[#0f172a]">Управление заявками</h2>
+        <span className="text-sm text-[#64748b]">Всего: {rfqs.length}</span>
       </div>
-      {error && <div className="alert alert-error">{error}</div>}
-      <table className="admin-table">
-        <thead><tr><th>Название</th><th>Покупатель</th><th>Статус</th><th>Предложений</th><th>Дата</th><th style={{ width: '140px' }}>Действия</th></tr></thead>
-        <tbody>
-          {rfqs.map(rfq => (
-            <tr key={rfq.id}>
-              <td><strong>{rfq.title}</strong><div style={{ fontSize: '0.85rem', color: 'var(--secondary)' }}>{rfq.description?.substring(0, 50)}...</div></td>
-              <td>{rfq.buyer?.name}</td>
-              <td><span className={`status-badge status-${rfq.status}`}>{rfq.status}</span></td>
-              <td>{rfq._count?.quotes || 0}</td>
-              <td>{new Date(rfq.createdAt).toLocaleDateString('ru-RU')}</td>
-              <td className="actions">
-                <button className="btn btn-sm btn-edit" onClick={() => openStatusModal(rfq)}>⚙️</button>
-                <button className="btn btn-sm btn-delete" onClick={() => openDeleteModal(rfq)}>🗑</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+
+      {error && (
+        <Alert variant="destructive" className="bg-[#fee2e2] text-[#ef4444] border-[#fecaca]">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94a3b8]" />
+          <Input
+            placeholder="Поиск по названию..."
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1) }}
+            className="pl-9 border-[#e2e8f0]"
+          />
+        </div>
+        <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1) }}>
+          <SelectTrigger className="w-[180px] border-[#e2e8f0]">
+            <SelectValue placeholder="Все статусы" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Все статусы</SelectItem>
+            <SelectItem value="open">Открытые</SelectItem>
+            <SelectItem value="in_progress">В работе</SelectItem>
+            <SelectItem value="closed">Закрытые</SelectItem>
+            <SelectItem value="cancelled">Отменённые</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <Card className="border border-[#e2e8f0] bg-white overflow-hidden">
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-[#e2e8f0] bg-[#f8fafc]">
+                  <th className="text-left px-4 py-3 font-semibold text-[#64748b]">Название</th>
+                  <th className="text-left px-4 py-3 font-semibold text-[#64748b]">Покупатель</th>
+                  <th className="text-left px-4 py-3 font-semibold text-[#64748b]">Статус</th>
+                  <th className="text-left px-4 py-3 font-semibold text-[#64748b]">Предложений</th>
+                  <th className="text-left px-4 py-3 font-semibold text-[#64748b]">Дата</th>
+                  <th className="text-left px-4 py-3 font-semibold text-[#64748b] w-[120px]">Действия</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rfqs.map((rfq) => (
+                  <tr key={rfq.id} className="border-b border-[#f1f5f9] hover:bg-[#f8fafc] transition-colors">
+                    <td className="px-4 py-3">
+                      <div className="font-medium text-[#0f172a]">{rfq.title}</div>
+                      <div className="text-[#64748b] text-xs mt-0.5 truncate max-w-[200px]">
+                        {rfq.description?.substring(0, 60)}...
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-[#0f172a]">{rfq.buyer?.name || '—'}</td>
+                    <td className="px-4 py-3">
+                      <Badge variant={statusVariant(rfq.status)} className="text-xs">
+                        {statusLabel(rfq.status)}
+                      </Badge>
+                    </td>
+                    <td className="px-4 py-3 text-[#0f172a]">{rfq._count?.quotes || 0}</td>
+                    <td className="px-4 py-3 text-[#64748b] whitespace-nowrap">
+                      {new Date(rfq.createdAt).toLocaleDateString('ru-RU')}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-[#64748b] hover:text-[#005BAC]"
+                          onClick={() => openStatusModal(rfq)}
+                        >
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-[#64748b] hover:text-[#ef4444]"
+                          onClick={() => openDeleteModal(rfq)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {rfqs.length === 0 && !loading && (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-12 text-center text-[#64748b]">
+                      Заявок не найдено
+                    </td>
+                  </tr>
+                )}
+                {loading && (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-12 text-center text-[#64748b]">
+                      Загрузка...
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
       {pagination.pages > 1 && (
-        <div className="admin-pagination">
-          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>←</button>
-          <span>{page} / {pagination.pages}</span>
-          <button onClick={() => setPage(p => Math.min(pagination.pages, p + 1))} disabled={page === pagination.pages}>→</button>
+        <div className="flex items-center justify-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-[#e2e8f0]"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <span className="text-sm text-[#64748b]">
+            Стр. {page} из {pagination.pages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-[#e2e8f0]"
+            onClick={() => setPage((p) => Math.min(pagination.pages, p + 1))}
+            disabled={page === pagination.pages}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
         </div>
       )}
-      {modal?.type === 'status' && (
-        <div className="modal-overlay" onClick={() => setModal(null)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <div className="modal-header"><h3>⚙️ Статус</h3><button className="modal-close" onClick={() => setModal(null)}>×</button></div>
-            <p><strong>{modal.rfq.title}</strong></p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', margin: '1rem 0' }}>
-              {['open', 'in_progress', 'closed', 'cancelled'].map(s => (
-                <button key={s} className={`btn ${modal.rfq.status === s ? 'btn-primary' : 'btn-danger'}`} onClick={() => handleStatusChange(s)} disabled={modal.rfq.status === s}>{s}</button>
-              ))}
-            </div>
+
+      {/* Status Dialog */}
+      <Dialog open={modal?.type === 'status'} onOpenChange={() => setModal(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Изменить статус</DialogTitle>
+            <DialogDescription>{modal?.rfq?.title}</DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-2 py-4">
+            {['open', 'in_progress', 'closed', 'cancelled'].map((s) => (
+              <Button
+                key={s}
+                variant={modal?.rfq?.status === s ? 'default' : 'outline'}
+                className={modal?.rfq?.status === s ? 'bg-[#005BAC] text-white' : 'border-[#e2e8f0]'}
+                onClick={() => handleStatusChange(s)}
+                disabled={modal?.rfq?.status === s}
+              >
+                {statusLabel(s)}
+              </Button>
+            ))}
           </div>
-        </div>
-      )}
-      {modal?.type === 'delete' && (
-        <div className="modal-overlay" onClick={() => setModal(null)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <div className="modal-header"><h3>🗑 Удаление</h3><button className="modal-close" onClick={() => setModal(null)}>×</button></div>
-            <p>Удалить <strong>{modal.rfq.title}</strong>?</p>
-            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
-              <button className="btn btn-danger" onClick={() => setModal(null)}>Отмена</button>
-              <button className="btn btn-delete" onClick={handleDelete}>Удалить</button>
-            </div>
-          </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Dialog */}
+      <Dialog open={modal?.type === 'delete'} onOpenChange={() => setModal(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Удалить заявку</DialogTitle>
+            <DialogDescription>
+              Вы уверены, что хотите удалить заявку «{modal?.rfq?.title}»? Это действие нельзя отменить.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" className="border-[#e2e8f0]" onClick={() => setModal(null)}>
+              Отмена
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              Удалить
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

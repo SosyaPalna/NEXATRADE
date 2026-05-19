@@ -42,9 +42,8 @@ const initSocket = (server) => {
       if (!content?.trim()) return;
 
       try {
-        // Сохраняем в БД
         const message = await prisma.message.create({
-          data: {  // ← КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ
+          data: {
             content: content.trim(),
             senderId: socket.tenantId,
             rfqId,
@@ -52,11 +51,49 @@ const initSocket = (server) => {
           include: { sender: { select: { name: true } } }
         });
 
-        // Рассылаем всем в комнате
         io.to(`rfq:${rfqId}`).emit('message:receive', message);
       } catch (err) {
         console.error('❌ Message error:', err.message);
         socket.emit('error', { message: 'Failed to send message' });
+      }
+    });
+
+    // Редактирование сообщения
+    socket.on('message:edit', async ({ messageId, content }) => {
+      if (!content?.trim()) return;
+      try {
+        const message = await prisma.message.findUnique({ where: { id: messageId } });
+        if (!message || message.senderId !== socket.tenantId) {
+          return socket.emit('error', { message: 'Нет доступа' });
+        }
+        const updated = await prisma.message.update({
+          where: { id: messageId },
+          data: { content: content.trim(), isEdited: true, editedAt: new Date() },
+          include: { sender: { select: { name: true } } }
+        });
+        io.to(`rfq:${message.rfqId}`).emit('message:edited', updated);
+      } catch (err) {
+        console.error('❌ Edit error:', err.message);
+        socket.emit('error', { message: 'Failed to edit message' });
+      }
+    });
+
+    // Удаление сообщения (мягкое)
+    socket.on('message:delete', async ({ messageId }) => {
+      try {
+        const message = await prisma.message.findUnique({ where: { id: messageId } });
+        if (!message || message.senderId !== socket.tenantId) {
+          return socket.emit('error', { message: 'Нет доступа' });
+        }
+        const updated = await prisma.message.update({
+          where: { id: messageId },
+          data: { isDeleted: true },
+          include: { sender: { select: { name: true } } }
+        });
+        io.to(`rfq:${message.rfqId}`).emit('message:deleted', updated);
+      } catch (err) {
+        console.error('❌ Delete error:', err.message);
+        socket.emit('error', { message: 'Failed to delete message' });
       }
     });
 
