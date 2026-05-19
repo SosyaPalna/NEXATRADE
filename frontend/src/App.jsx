@@ -1,10 +1,10 @@
 // frontend/src/App.jsx
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
-import YandexMetrika from './components/YandexMetrika'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { NotificationProvider } from './context/NotificationContext'
 
-// 🔹 Страницы
+// 🔹 Страницы (синхронные)
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
@@ -15,17 +15,20 @@ import RfqCreate from './pages/RfqCreate'
 import Profile from './pages/Profile'
 import CompanyPage from './pages/CompanyPage'
 import CategoryPage from './pages/CategoryPage'
-import AdminLayout from './pages/AdminLayout'
-import AdminDashboard from './pages/AdminDashboard'
-import AdminUsers from './pages/AdminUsers'
-import AdminRfqs from './pages/AdminRfqs'
-import AdminReports from './pages/AdminReports'
-import AdminCategories from './pages/AdminCategories'
+
+// 🔹 Админка (ленивая загрузка)
+const AdminLayout = lazy(() => import('./pages/AdminLayout'))
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
+const AdminUsers = lazy(() => import('./pages/AdminUsers'))
+const AdminRfqs = lazy(() => import('./pages/AdminRfqs'))
+const AdminReports = lazy(() => import('./pages/AdminReports'))
+const AdminCategories = lazy(() => import('./pages/AdminCategories'))
 
 // 🔹 Компоненты и лейауты
 import NavBar from './components/NavBar'
 import MarketLayout from './layouts/MarketLayout'
 import CookieConsent from './components/CookieConsent'
+import YandexMetrika from './components/YandexMetrika'
 
 const queryClient = new QueryClient()
 
@@ -87,15 +90,15 @@ export default function App() {
                   <Route path="/rfq/:id" element={<RfqDetail />} />
                 </Route>
 
-                {/* ⚙️ Админ-панель (отдельный лейаут) */}
+                {/* ⚙️ Админ-панель (ленивая загрузка) */}
                 <Route path="/admin/*" element={<AdminOnly />}>
-                  <Route element={<AdminLayout />}>
+                  <Route element={<Suspense fallback={<div className="flex items-center justify-center h-screen text-[#64748b]">Загрузка админ-панели...</div>}><AdminLayout /></Suspense>}>
                     <Route index element={<Navigate to="dashboard" replace />} />
-                    <Route path="dashboard" element={<AdminDashboard />} />
-                    <Route path="users" element={<AdminUsers />} />
-                    <Route path="rfqs" element={<AdminRfqs />} />
-                    <Route path="reports" element={<AdminReports />} />
-                    <Route path="categories" element={<AdminCategories />} />
+                    <Route path="dashboard" element={<Suspense fallback={<div className="flex items-center justify-center h-64 text-[#64748b]">Загрузка...</div>}><AdminDashboard /></Suspense>} />
+                    <Route path="users" element={<Suspense fallback={<div className="flex items-center justify-center h-64 text-[#64748b]">Загрузка...</div>}><AdminUsers /></Suspense>} />
+                    <Route path="rfqs" element={<Suspense fallback={<div className="flex items-center justify-center h-64 text-[#64748b]">Загрузка...</div>}><AdminRfqs /></Suspense>} />
+                    <Route path="reports" element={<Suspense fallback={<div className="flex items-center justify-center h-64 text-[#64748b]">Загрузка...</div>}><AdminReports /></Suspense>} />
+                    <Route path="categories" element={<Suspense fallback={<div className="flex items-center justify-center h-64 text-[#64748b]">Загрузка...</div>}><AdminCategories /></Suspense>} />
                   </Route>
                 </Route>
 
