@@ -129,7 +129,7 @@ mkdir -p /var/www
 cd /var/www
 
 # Клонируем репозиторий (замени на свой URL)
-git clone https://github.com/ТВОЙ_НИК/nexatrade.git
+git clone https://github.com/SosyaPalna/NEXATRADE.git
 
 cd nexatrade
 ```
@@ -163,7 +163,7 @@ FRONTEND_URL="https://твой-домен.ru"
 
 **Как сгенерировать JWT_SECRET:**
 ```bash
-openssl rand -base64 32
+sOUbEZUVqPX+z6Xo7ahVD/QYaxNyXwYmUJp1yLHZ6jw=
 ```
 
 Сохрани файл в nano: `Ctrl+O`, затем `Enter`, затем `Ctrl+X`.
