@@ -40,6 +40,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Plus, Pencil, Trash2, FolderTree, Tag, Search, X } from 'lucide-react'
+import SEO from '../components/SEO'
 
 export default function AdminCategories() {
   const [categories, setCategories] = useState([])
