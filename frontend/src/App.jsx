@@ -1,5 +1,6 @@
 // frontend/src/App.jsx
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
+import YandexMetrika from './components/YandexMetrika'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { NotificationProvider } from './context/NotificationContext'
 
@@ -60,6 +61,7 @@ export default function App() {
     <NotificationProvider>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
+          <YandexMetrika />
           <Routes>
             {/* 🔓 Публичные маршруты */}
             <Route path="/login" element={<Login />} />
