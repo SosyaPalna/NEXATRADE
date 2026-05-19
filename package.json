@@ -1,0 +1,18 @@
+{
+  "name": "nexatrade",
+  "version": "1.0.0",
+  "description": "NexaTrade — B2B marketplace platform",
+  "scripts": {
+    "build": "cd frontend && npm run build",
+    "start": "cd backend && npm start",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "prisma:generate": "cd backend && npx prisma generate",
+    "prisma:migrate": "cd backend && npx prisma migrate deploy",
+    "prisma:push": "cd backend && npx prisma db push"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "private": true
+}

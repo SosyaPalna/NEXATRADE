@@ -1,0 +1,84 @@
+/* frontend/src/styles/NavBar.css */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 2rem;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-brand a {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.navbar-menu {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.navbar-item {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: var(--secondary);
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.navbar-item:hover,
+.navbar-item.active {
+  background: var(--primary);
+  color: white;
+}
+
+.navbar-user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.navbar-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  object-fit: cover;
+}
+
+.navbar-username {
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+/* Адаптив для мобильных */
+@media (max-width: 768px) {
+  .navbar {
+    flex-wrap: wrap;
+    padding: 0.75rem 1rem;
+  }
+  .navbar-menu {
+    order: 3;
+    width: 100%;
+    margin-top: 0.75rem;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+  }
+  .navbar-item {
+    white-space: nowrap;
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+  }
+}
