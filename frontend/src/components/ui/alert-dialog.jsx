@@ -29,7 +29,7 @@ function AlertDialogContent({ className, children, ...props }) {
       <DialogPrimitive.Popup
         data-slot="alert-dialog-content"
         className={cn(
-          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom fixed z-50 grid w-full max-w-lg gap-4 border p-6 shadow-lg duration-200 sm:rounded-lg",
+          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom fixed z-50 grid w-full max-w-lg gap-4 border border-border p-6 shadow-lg duration-200 sm:rounded-lg",
           className
         )}
         {...props}

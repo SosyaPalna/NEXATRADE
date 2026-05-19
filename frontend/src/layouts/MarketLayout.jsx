@@ -22,7 +22,7 @@ export default function MarketLayout() {
     <div className="flex flex-col lg:flex-row gap-6">
       {/* Sidebar */}
       <aside className="w-full lg:w-64 shrink-0">
-        <div className="bg-card border rounded-lg p-4">
+        <div className="bg-card border border-border rounded-lg p-4">
           <h3 className="font-semibold mb-3 flex items-center gap-2">
             <FolderOpen className="h-4 w-4 text-primary" />
             Каталог
@@ -85,7 +85,7 @@ function CategoryItem({ category, currentPath }) {
       </div>
 
       {isOpen && hasChildren && (
-        <div className="ml-6 border-l pl-2 space-y-1 mt-1">
+        <div className="ml-6 border-l border-border pl-2 space-y-1 mt-1">
           {category.children.map(child => (
             <Link
               key={child.id}

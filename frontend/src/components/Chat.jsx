@@ -171,7 +171,7 @@ export default function Chat({ rfqId, currentTenantId }) {
                         <Input
                           value={editContent}
                           onChange={(e) => setEditContent(e.target.value)}
-                          className="h-7 text-sm bg-white/20 border-0 text-inherit placeholder:text-inherit/50"
+                          className="h-7 text-sm bg-card/20 border-0 text-inherit placeholder:text-inherit/50"
                           autoFocus
                         />
                         <div className="flex gap-1 justify-end">
@@ -244,7 +244,7 @@ export default function Chat({ rfqId, currentTenantId }) {
           </DialogHeader>
           <div className="space-y-3 py-2">
             <Select value={reportReason} onValueChange={setReportReason}>
-              <SelectTrigger className="border-[#e2e8f0]">
+              <SelectTrigger className="border-border">
                 <SelectValue placeholder="Причина жалобы" />
               </SelectTrigger>
               <SelectContent>
@@ -256,15 +256,15 @@ export default function Chat({ rfqId, currentTenantId }) {
               </SelectContent>
             </Select>
             <textarea
-              className="w-full rounded-md border border-[#e2e8f0] bg-white p-3 text-sm min-h-[80px]"
+              className="w-full rounded-md border border-border bg-card p-3 text-sm min-h-[80px]"
               placeholder="Дополнительное описание (необязательно)"
               value={reportDescription}
               onChange={(e) => setReportDescription(e.target.value)}
             />
           </div>
           <DialogFooter className="gap-2">
-            <Button variant="outline" className="border-[#e2e8f0]" onClick={() => setReportModal(null)}>Отмена</Button>
-            <Button className="bg-[#005BAC] text-white hover:bg-[#004a8d]" onClick={submitReport} disabled={!reportReason}>
+            <Button variant="outline" className="border-border" onClick={() => setReportModal(null)}>Отмена</Button>
+            <Button className="bg-primary text-white hover:bg-primary/90" onClick={submitReport} disabled={!reportReason}>
               Отправить
             </Button>
           </DialogFooter>

@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/select'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Search, ChevronLeft, ChevronRight, CheckCircle2, XCircle, AlertCircle, Flag } from 'lucide-react'
+import SEO from '../components/SEO'
 
 export default function AdminReports() {
   const [reports, setReports] = useState([])
@@ -51,9 +52,9 @@ export default function AdminReports() {
 
   const statusBadge = (status) => {
     switch (status) {
-      case 'pending': return <Badge variant="outline" className="border-[#f59e0b] text-[#f59e0b]">В ожидании</Badge>
-      case 'resolved': return <Badge className="bg-[#22c55e] text-white hover:bg-[#22c55e]">Решена</Badge>
-      case 'dismissed': return <Badge variant="outline" className="border-[#64748b] text-[#64748b]">Отклонена</Badge>
+      case 'pending': return <Badge variant="outline" className="border-amber-500 text-amber-500">В ожидании</Badge>
+      case 'resolved': return <Badge className="bg-green-500 text-white hover:bg-green-500">Решена</Badge>
+      case 'dismissed': return <Badge variant="outline" className="border-muted-foreground text-muted-foreground">Отклонена</Badge>
       default: return <Badge variant="outline">{status}</Badge>
     }
   }
@@ -70,13 +71,14 @@ export default function AdminReports() {
 
   return (
     <div className="space-y-6">
+      <SEO title="Жалобы" description="Управление жалобами пользователей в админ-панели NexaTrade." noindex nofollow />
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h2 className="text-2xl font-bold text-[#0f172a]">Жалобы</h2>
-        <span className="text-sm text-[#64748b]">Всего: {reports.length}</span>
+        <h1 className="text-2xl font-bold text-foreground">Жалобы</h1>
+        <span className="text-sm text-muted-foreground">Всего: {reports.length}</span>
       </div>
 
       {error && (
-        <Alert variant="destructive" className="bg-[#fee2e2] text-[#ef4444] border-[#fecaca]">
+        <Alert variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
@@ -84,7 +86,7 @@ export default function AdminReports() {
 
       <div className="flex flex-col sm:flex-row gap-3">
         <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1) }}>
-          <SelectTrigger className="w-[180px] border-[#e2e8f0]">
+          <SelectTrigger className="w-[180px] border-border">
             <SelectValue placeholder="Все статусы" />
           </SelectTrigger>
           <SelectContent>
@@ -95,7 +97,7 @@ export default function AdminReports() {
           </SelectContent>
         </Select>
         <Select value={typeFilter} onValueChange={(v) => { setTypeFilter(v); setPage(1) }}>
-          <SelectTrigger className="w-[180px] border-[#e2e8f0]">
+          <SelectTrigger className="w-[180px] border-border">
             <SelectValue placeholder="Все типы" />
           </SelectTrigger>
           <SelectContent>
@@ -108,34 +110,34 @@ export default function AdminReports() {
         </Select>
       </div>
 
-      <Card className="border border-[#e2e8f0] bg-white overflow-hidden">
+      <Card className="border border-border bg-card overflow-hidden">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#e2e8f0] bg-[#f8fafc]">
-                  <th className="text-left px-4 py-3 font-semibold text-[#64748b]">Тип</th>
-                  <th className="text-left px-4 py-3 font-semibold text-[#64748b]">Цель</th>
-                  <th className="text-left px-4 py-3 font-semibold text-[#64748b]">Причина</th>
-                  <th className="text-left px-4 py-3 font-semibold text-[#64748b]">Описание</th>
-                  <th className="text-left px-4 py-3 font-semibold text-[#64748b]">Статус</th>
-                  <th className="text-left px-4 py-3 font-semibold text-[#64748b]">Дата</th>
-                  <th className="text-left px-4 py-3 font-semibold text-[#64748b] w-[140px]">Действия</th>
+                <tr className="border-b border-border bg-muted">
+                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Тип</th>
+                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Цель</th>
+                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Причина</th>
+                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Описание</th>
+                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Статус</th>
+                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Дата</th>
+                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground w-[140px]">Действия</th>
                 </tr>
               </thead>
               <tbody>
                 {reports.map((report) => (
-                  <tr key={report.id} className="border-b border-[#f1f5f9] hover:bg-[#f8fafc] transition-colors">
+                  <tr key={report.id} className="border-b border-border hover:bg-muted transition-colors">
                     <td className="px-4 py-3">
-                      <Badge variant="outline" className="border-[#e2e8f0] text-[#0f172a]">
+                      <Badge variant="outline" className="border-border text-foreground">
                         {typeLabel(report.type)}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3 text-[#0f172a] font-mono text-xs">{report.targetId.slice(0, 8)}...</td>
-                    <td className="px-4 py-3 text-[#0f172a]">{report.reason}</td>
-                    <td className="px-4 py-3 text-[#64748b] max-w-[200px] truncate">{report.description || '—'}</td>
+                    <td className="px-4 py-3 text-foreground font-mono text-xs">{report.targetId.slice(0, 8)}...</td>
+                    <td className="px-4 py-3 text-foreground">{report.reason}</td>
+                    <td className="px-4 py-3 text-muted-foreground max-w-[200px] truncate">{report.description || '—'}</td>
                     <td className="px-4 py-3">{statusBadge(report.status)}</td>
-                    <td className="px-4 py-3 text-[#64748b] whitespace-nowrap">
+                    <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
                       {new Date(report.createdAt).toLocaleDateString('ru-RU')}
                     </td>
                     <td className="px-4 py-3">
@@ -144,7 +146,7 @@ export default function AdminReports() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-[#22c55e] hover:text-[#16a34a]"
+                            className="h-8 w-8 text-green-500 hover:text-green-600"
                             onClick={() => handleUpdateStatus(report.id, 'resolved')}
                             title="Решить"
                           >
@@ -153,7 +155,7 @@ export default function AdminReports() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-[#64748b] hover:text-[#ef4444]"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
                             onClick={() => handleUpdateStatus(report.id, 'dismissed')}
                             title="Отклонить"
                           >
@@ -166,15 +168,15 @@ export default function AdminReports() {
                 ))}
                 {reports.length === 0 && !loading && (
                   <tr>
-                    <td colSpan={7} className="px-4 py-12 text-center text-[#64748b]">
-                      <Flag className="h-8 w-8 mx-auto mb-2 text-[#e2e8f0]" />
+                    <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
+                      <Flag className="h-8 w-8 mx-auto mb-2 text-border" />
                       Жалоб не найдено
                     </td>
                   </tr>
                 )}
                 {loading && (
                   <tr>
-                    <td colSpan={7} className="px-4 py-12 text-center text-[#64748b]">Загрузка...</td>
+                    <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">Загрузка...</td>
                   </tr>
                 )}
               </tbody>
@@ -185,11 +187,11 @@ export default function AdminReports() {
 
       {pagination.pages > 1 && (
         <div className="flex items-center justify-center gap-2">
-          <Button variant="outline" size="sm" className="border-[#e2e8f0]" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
+          <Button variant="outline" size="sm" className="border-border" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <span className="text-sm text-[#64748b]">Стр. {page} из {pagination.pages}</span>
-          <Button variant="outline" size="sm" className="border-[#e2e8f0]" onClick={() => setPage(p => Math.min(pagination.pages, p + 1))} disabled={page === pagination.pages}>
+          <span className="text-sm text-muted-foreground">Стр. {page} из {pagination.pages}</span>
+          <Button variant="outline" size="sm" className="border-border" onClick={() => setPage(p => Math.min(pagination.pages, p + 1))} disabled={page === pagination.pages}>
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
