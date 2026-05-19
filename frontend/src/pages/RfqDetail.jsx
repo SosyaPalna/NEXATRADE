@@ -1,8 +1,18 @@
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { api } from '../api'
-import '../styles/Rfq.css'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
+import { Textarea } from '@/components/ui/textarea'
 import Chat from '../components/Chat'
+import {
+  ArrowLeft, Package, Banknote, CalendarDays, Truck,
+  CheckCircle2, XCircle, Building2, Send, MessageSquare, Tag
+} from 'lucide-react'
 
 export default function RfqDetail() {
   const { id } = useParams()
@@ -14,9 +24,7 @@ export default function RfqDetail() {
   const [userRole, setUserRole] = useState(null)
   const [currentTenantId, setCurrentTenantId] = useState(null)
 
-  useEffect(() => {
-    loadData()
-  }, [id])
+  useEffect(() => { loadData() }, [id])
 
   const loadData = async () => {
     try {
@@ -25,9 +33,9 @@ export default function RfqDetail() {
         api.get('/auth/me')
       ])
       setRfq(rfqRes.data)
-      setUserRole(meRes.data.tenant.role)
-      setCurrentTenantId(meRes.data.tenantId) // ← ВАЖНО!
-    } catch (err) {
+      setUserRole(meRes.data.tenant?.role)
+      setCurrentTenantId(meRes.data.tenant?.id || meRes.data.tenantId)
+    } catch {
       setError('Ошибка загрузки')
     } finally {
       setLoading(false)
@@ -64,137 +72,197 @@ export default function RfqDetail() {
     }
   }
 
-  if (loading) return <div className="auth-wrapper">Загрузка...</div>
-  if (!rfq) return <div className="auth-wrapper">RFQ не найден</div>
+  if (loading) return <div className="flex items-center justify-center h-64 text-[#64748b]">Загрузка...</div>
+  if (!rfq) return <div className="flex items-center justify-center h-64 text-[#64748b]">Заявка не найдена</div>
 
-  const isBuyer = rfq.buyerId === localStorage.getItem('tenantId') || userRole === 'buyer'
+  const isBuyer = rfq.buyerId === currentTenantId || userRole === 'buyer'
+  const statusLabel = { open: 'Открыт', in_progress: 'В работе', closed: 'Закрыт', cancelled: 'Отменён' }
 
   return (
-    <div className="dashboard-content container">
-      <button onClick={() => navigate('/rfq')} className="btn btn-danger" style={{ marginBottom: '1rem' }}>
-        ← Назад
-      </button>
+    <div className="space-y-6">
+      <Button variant="ghost" size="sm" onClick={() => navigate('/requests')} className="flex items-center gap-1 text-[#64748b] hover:text-[#0f172a]">
+        <ArrowLeft className="h-4 w-4" />
+        Назад к заявкам
+      </Button>
 
-      <div className="card" style={{ marginBottom: '2rem' }}>
-        <div className="rfq-header">
-          <div>
-            <h2 style={{ marginBottom: '0.5rem' }}>{rfq.title}</h2>
-            <div className="rfq-meta">
-              {rfq.buyer?.name} • Создан: {new Date(rfq.createdAt).toLocaleDateString('ru-RU')}
+      <Card className="border-[#e2e8f0] shadow-sm">
+        <CardHeader>
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+            <div>
+              <CardTitle className="text-xl text-[#0f172a]">{rfq.title}</CardTitle>
+              <div className="flex items-center gap-2 mt-1 text-sm text-[#64748b]">
+                <Building2 className="h-3.5 w-3.5" />
+                {rfq.buyer?.name} • {new Date(rfq.createdAt).toLocaleDateString('ru-RU')}
+              </div>
+            </div>
+            <Badge className={
+              rfq.status === 'open' ? 'bg-[#005BAC] text-white hover:bg-[#005BAC]' :
+              rfq.status === 'in_progress' ? 'bg-[#f59e0b] text-white hover:bg-[#f59e0b]' :
+              rfq.status === 'closed' ? 'bg-[#22c55e] text-white hover:bg-[#22c55e]' :
+              'bg-[#ef4444] text-white hover:bg-[#ef4444]'
+            }>
+              {statusLabel[rfq.status]}
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-[#0f172a]">{rfq.description}</p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-[#f8fafc] rounded-lg p-3 flex items-center gap-3">
+              <Package className="h-5 w-5 text-[#005BAC]" />
+              <div>
+                <div className="text-xs text-[#64748b]">Количество</div>
+                <div className="font-semibold text-[#0f172a]">{rfq.quantity} {rfq.unit || 'шт.'}</div>
+              </div>
+            </div>
+            <div className="bg-[#f8fafc] rounded-lg p-3 flex items-center gap-3">
+              <Banknote className="h-5 w-5 text-[#005BAC]" />
+              <div>
+                <div className="text-xs text-[#64748b]">Бюджет</div>
+                <div className="font-semibold text-[#0f172a]">
+                  {rfq.budget ? `${Number(rfq.budget).toLocaleString('ru-RU')} ₽` : 'Договорная'}
+                </div>
+              </div>
+            </div>
+            <div className="bg-[#f8fafc] rounded-lg p-3 flex items-center gap-3">
+              <CalendarDays className="h-5 w-5 text-[#005BAC]" />
+              <div>
+                <div className="text-xs text-[#64748b]">Дедлайн</div>
+                <div className="font-semibold text-[#0f172a]">
+                  {rfq.deadline ? new Date(rfq.deadline).toLocaleDateString('ru-RU') : 'Не указан'}
+                </div>
+              </div>
+            </div>
+            <div className="bg-[#f8fafc] rounded-lg p-3 flex items-center gap-3">
+              <Tag className="h-5 w-5 text-[#005BAC]" />
+              <div>
+                <div className="text-xs text-[#64748b]">Категория</div>
+                <div className="font-semibold text-[#0f172a]">
+                  {rfq.category?.name || 'Не указана'}
+                </div>
+              </div>
             </div>
           </div>
-          <span className={`status-badge status-${rfq.status}`}>
-            {rfq.status === 'open' ? 'Открыт' : rfq.status === 'in_progress' ? 'Есть предложения' : 'Закрыт'}
-          </span>
+
+          {error && (
+            <div className="bg-[#fee2e2] text-[#ef4444] border border-[#fecaca] rounded-lg px-4 py-3 text-sm">
+              {error}
+            </div>
+          )}
+
+          {isBuyer && rfq.status === 'open' && (
+            <div className="flex gap-2">
+              <Button variant="outline" className="border-[#e2e8f0] hover:bg-[#f1f5f9]" onClick={() => handleCloseRfq('closed')}>
+                <CheckCircle2 className="h-4 w-4 mr-1" />
+                Закрыть заявку
+              </Button>
+              <Button variant="destructive" className="bg-[#ef4444] text-white hover:bg-[#dc2626]" onClick={() => handleCloseRfq('cancelled')}>
+                <XCircle className="h-4 w-4 mr-1" />
+                Отменить
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2 space-y-4">
+          <h2 className="text-lg font-semibold flex items-center gap-2 text-[#0f172a]">
+            <MessageSquare className="h-5 w-5 text-[#005BAC]" />
+            Предложения поставщиков ({rfq.quotes?.length || 0})
+          </h2>
+
+          {rfq.quotes?.length === 0 ? (
+            <Card className="border-[#e2e8f0] shadow-sm">
+              <CardContent className="flex flex-col items-center justify-center py-10 text-center">
+                <Send className="h-10 w-10 text-[#cbd5e1] mb-3" />
+                <p className="text-[#64748b]">Пока нет предложений от поставщиков</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-3">
+              {rfq.quotes.map(quote => (
+                <Card key={quote.id} className="border-[#e2e8f0] shadow-sm">
+                  <CardContent className="p-4">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-[#0f172a]">{quote.seller?.name}</div>
+                        {quote.deliveryTime && (
+                          <div className="text-sm text-[#64748b] flex items-center gap-1 mt-0.5">
+                            <Truck className="h-3.5 w-3.5" />
+                            Срок поставки: {quote.deliveryTime}
+                          </div>
+                        )}
+                        {quote.message && (
+                          <p className="text-sm text-[#0f172a] mt-2 bg-[#f8fafc] p-2 rounded-md">{quote.message}</p>
+                        )}
+                        <div className="mt-2">
+                          <Badge variant={quote.status === 'pending' ? 'secondary' : quote.status === 'accepted' ? 'default' : 'destructive'}>
+                            {quote.status === 'pending' ? 'На рассмотрении' : quote.status === 'accepted' ? 'Принято' : 'Отклонено'}
+                          </Badge>
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="text-xl font-bold text-[#005BAC]">
+                          {Number(quote.price).toLocaleString('ru-RU')} ₽
+                        </div>
+                      </div>
+                    </div>
+
+                    {isBuyer && quote.status === 'pending' && (
+                      <div className="flex gap-2 mt-3 pt-3 border-t border-[#e2e8f0]">
+                        <Button size="sm" className="bg-[#22c55e] text-white hover:bg-[#16a34a]" onClick={() => handleQuoteAction(quote.id, 'accepted')}>
+                          <CheckCircle2 className="h-4 w-4 mr-1" />
+                          Принять
+                        </Button>
+                        <Button size="sm" variant="outline" className="border-[#e2e8f0] hover:bg-[#f1f5f9]" onClick={() => handleQuoteAction(quote.id, 'rejected')}>
+                          <XCircle className="h-4 w-4 mr-1" />
+                          Отклонить
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
 
-        <p style={{ marginBottom: '1rem' }}>{rfq.description}</p>
+        <div className="space-y-4">
+          {rfq.status !== 'cancelled' && (
+            <Chat rfqId={rfq.id} currentTenantId={currentTenantId} />
+          )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1rem' }}>
-          <div><strong>📦 Количество:</strong> {rfq.quantity}</div>
-          <div><strong>💰 Бюджет:</strong> {rfq.budget ? `${rfq.budget} ₽` : 'не указан'}</div>
-          <div><strong>📅 Дедлайн:</strong> {rfq.deadline ? new Date(rfq.deadline).toLocaleDateString('ru-RU') : 'не указан'}</div>
-        </div>
-
-        {error && <div className="alert alert-error">{error}</div>}
-
-        {/* Кнопки управления для покупателя */}
-        {isBuyer && rfq.status === 'open' && (
-          <div className="rfq-actions">
-            <button onClick={() => handleCloseRfq('closed')} className="btn btn-primary">Закрыть RFQ</button>
-            <button onClick={() => handleCloseRfq('cancelled')} className="btn btn-danger">Отменить</button>
-          </div>
-        )}
-      </div>
-
-      <h3 style={{ marginBottom: '1rem' }}>💬 Предложения ({rfq.quotes?.length || 0})</h3>
-      {rfq.status !== 'cancelled' && (
-        <div style={{ marginTop: '2rem' }}>
-          <Chat rfqId={rfq.id} currentTenantId={currentTenantId} />
-        </div>
-      )}
-
-      {rfq.quotes?.length === 0 ? (
-        <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
-          <p style={{ color: 'var(--secondary)' }}>Пока нет предложений</p>
-        </div>
-      ) : (
-        <div>
-          {rfq.quotes.map(quote => (
-            <div key={quote.id} className="quote-item">
-              <div className="quote-header">
-                <div>
-                  <div className="quote-seller">{quote.seller?.name}</div>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--secondary)' }}>
-                    {quote.deliveryTime && `⏱ Срок: ${quote.deliveryTime}`}
+          {!isBuyer && rfq.status === 'open' && (
+            <Card className="border-[#e2e8f0] shadow-sm">
+              <CardHeader className="py-3">
+                <CardTitle className="text-sm text-[#0f172a]">Отправить предложение</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmitQuote} className="space-y-3">
+                  <div className="space-y-1">
+                    <Label htmlFor="q-price" className="text-xs">Цена (₽) *</Label>
+                    <Input id="q-price" type="number" step="0.01" value={quoteForm.price} onChange={e => setQuoteForm({ ...quoteForm, price: e.target.value })} required className="border-[#e2e8f0]" />
                   </div>
-                </div>
-                <div className="quote-price">{quote.price} ₽</div>
-              </div>
-              {quote.message && <p style={{ marginBottom: '0.5rem' }}>{quote.message}</p>}
-              <div style={{ fontSize: '0.85rem', marginBottom: '0.5rem' }}>
-                Статус: <strong>
-                  {quote.status === 'pending' ? '⏳ На рассмотрении' : 
-                   quote.status === 'accepted' ? '✅ Принято' : '❌ Отклонено'}
-                </strong>
-              </div>
-              
-              {/* Кнопки для покупателя */}
-              {isBuyer && quote.status === 'pending' && (
-                <div className="rfq-actions">
-                  <button onClick={() => handleQuoteAction(quote.id, 'accepted')} className="btn btn-sm btn-accept">
-                    Принять
-                  </button>
-                  <button onClick={() => handleQuoteAction(quote.id, 'rejected')} className="btn btn-sm btn-reject">
-                    Отклонить
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
+                  <div className="space-y-1">
+                    <Label htmlFor="q-time" className="text-xs">Срок доставки</Label>
+                    <Input id="q-time" value={quoteForm.deliveryTime} onChange={e => setQuoteForm({ ...quoteForm, deliveryTime: e.target.value })} placeholder="Например: 5 дней" className="border-[#e2e8f0]" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="q-msg" className="text-xs">Комментарий</Label>
+                    <Textarea id="q-msg" rows={3} value={quoteForm.message} onChange={e => setQuoteForm({ ...quoteForm, message: e.target.value })} className="border-[#e2e8f0]" />
+                  </div>
+                  <Button type="submit" className="w-full bg-[#005BAC] text-white hover:bg-[#004a8d]" size="sm">
+                    <Send className="h-4 w-4 mr-1" />
+                    Отправить
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          )}
         </div>
-      )}
-
-      {/* Форма отправки предложения для продавцов */}
-      {!isBuyer && rfq.status === 'open' && !rfq.quotes?.some(q => q.sellerId === rfq.buyerId) && (
-        <div className="card rfq-sidebar" style={{ marginTop: '2rem' }}>
-          <h3>📤 Отправить предложение</h3>
-          <form onSubmit={handleSubmitQuote}>
-            <div className="input-group">
-              <label>Цена (₽) *</label>
-              <input 
-                type="number" 
-                step="0.01" 
-                className="input-field" 
-                value={quoteForm.price}
-                onChange={e => setQuoteForm({...quoteForm, price: e.target.value})}
-                required
-              />
-            </div>
-            <div className="input-group">
-              <label>Срок доставки</label>
-              <input 
-                className="input-field" 
-                value={quoteForm.deliveryTime}
-                onChange={e => setQuoteForm({...quoteForm, deliveryTime: e.target.value})}
-                placeholder="Например: 5 дней"
-              />
-            </div>
-            <div className="input-group">
-              <label>Комментарий</label>
-              <textarea 
-                className="input-field" 
-                rows="3"
-                value={quoteForm.message}
-                onChange={e => setQuoteForm({...quoteForm, message: e.target.value})}
-              />
-            </div>
-            <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
-              Отправить предложение
-            </button>
-          </form>
-        </div>
-      )}
+      </div>
     </div>
   )
 }

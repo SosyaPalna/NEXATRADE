@@ -1,14 +1,16 @@
-// frontend/src/components/RfqFeed.jsx
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api'
+import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { FileText, MessageSquare, ArrowRight } from 'lucide-react'
 
 export default function RfqFeed({ limit = 5 }) {
   const [rfqs, setRfqs] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Загружаем только открытые RFQ от других компаний
     api.get('/rfq')
       .then(res => {
         const openRfqs = res.data
@@ -20,51 +22,66 @@ export default function RfqFeed({ limit = 5 }) {
       .catch(() => setLoading(false))
   }, [limit])
 
-  if (loading) return <div style={{ textAlign: 'center', padding: '2rem' }}>Загрузка предложений...</div>
-  if (rfqs.length === 0) return <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--secondary)' }}>Активных предложений пока нет</div>
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-24 text-sm text-muted-foreground">
+        Загрузка предложений...
+      </div>
+    )
+  }
+
+  if (rfqs.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-24 text-sm text-muted-foreground gap-2">
+        <FileText className="h-8 w-8 opacity-50" />
+        <span>Активных предложений пока нет</span>
+      </div>
+    )
+  }
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h3 style={{ margin: 0 }}>📋 Активные запросы на закупку</h3>
-        <Link to="/rfq" style={{ fontSize: '0.9rem', color: 'var(--primary)' }}>Все запросы →</Link>
-      </div>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        {rfqs.map(rfq => (
-          <Link to={`/rfq/${rfq.id}`} key={rfq.id} style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div className="rfq-card" style={{ padding: '1rem', marginBottom: 0 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>{rfq.title}</div>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--secondary)', marginBottom: '0.5rem' }}>
+    <div className="space-y-3">
+      {rfqs.map(rfq => (
+        <Link to={`/rfq/${rfq.id}`} key={rfq.id} className="block">
+          <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-foreground truncate">{rfq.title}</div>
+                  <div className="text-xs text-muted-foreground mt-1">
                     {rfq.buyer?.name} • {new Date(rfq.createdAt).toLocaleDateString('ru-RU')}
                   </div>
-                  <p style={{ fontSize: '0.9rem', color: 'var(--secondary)', margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                  <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
                     {rfq.description}
                   </p>
                 </div>
-                <div style={{ textAlign: 'right', marginLeft: '1rem' }}>
-                  <div style={{ fontWeight: 700, color: 'var(--primary)', fontSize: '1.1rem' }}>
-                    {rfq.budget ? `${rfq.budget} ₽` : 'Договорная'}
+                <div className="text-right shrink-0">
+                  <div className="font-bold text-primary">
+                    {rfq.budget ? `${Number(rfq.budget).toLocaleString('ru-RU')} ₽` : 'Договорная'}
                   </div>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--secondary)' }}>
-                    📦 {rfq.quantity} шт.
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {rfq.quantity} шт.
                   </div>
                 </div>
               </div>
-              <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <span className="status-badge status-open">Открыт</span>
+              <div className="flex items-center gap-2 mt-3">
+                <Badge variant="default">Открыт</Badge>
                 {rfq._count?.quotes > 0 && (
-                  <span style={{ fontSize: '0.8rem', background: '#e2e8f0', padding: '0.2rem 0.5rem', borderRadius: '99px' }}>
-                    💬 {rfq._count.quotes} предл.
-                  </span>
+                  <Badge variant="secondary" className="flex items-center gap-1">
+                    <MessageSquare className="h-3 w-3" />
+                    {rfq._count.quotes} предложений
+                  </Badge>
                 )}
               </div>
-            </div>
-          </Link>
-        ))}
-      </div>
+            </CardContent>
+          </Card>
+        </Link>
+      ))}
+      <Button variant="ghost" size="sm" className="w-full" asChild>
+        <Link to="/requests" className="flex items-center justify-center gap-1">
+          Все заявки <ArrowRight className="h-4 w-4" />
+        </Link>
+      </Button>
     </div>
   )
 }
