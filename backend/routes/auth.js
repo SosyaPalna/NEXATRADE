@@ -7,11 +7,25 @@ const authenticate = require('../middleware/auth');
 const router = express.Router();
 const prisma = new PrismaClient();
 
+function validatePassword(password) {
+  if (password.length < 8) return 'Пароль должен содержать минимум 8 символов';
+  if (!/[a-z]/.test(password)) return 'Пароль должен содержать хотя бы одну строчную латинскую букву';
+  if (!/[A-Z]/.test(password)) return 'Пароль должен содержать хотя бы одну заглавную латинскую букву';
+  if (!/\d/.test(password)) return 'Пароль должен содержать хотя бы одну цифру';
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) return 'Пароль должен содержать хотя бы один спецсимвол';
+  return null;
+}
+
 router.post('/register', async (req, res) => {
   try {
     const { email, password, tenant } = req.body;
     if (!email || !password || !tenant?.name) {
       return res.status(400).json({ error: 'Заполните все поля' });
+    }
+
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      return res.status(400).json({ error: passwordError });
     }
 
     const exists = await prisma.user.findUnique({ where: { email } });

@@ -10,11 +10,19 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { AlertCircle, Building2, Mail, Lock } from 'lucide-react'
 
 export default function Register() {
-  const [form, setForm] = useState({ email: '', password: '', companyName: '', role: 'buyer' })
+  const [form, setForm] = useState({ email: '', password: '', confirmPassword: '', companyName: '', role: 'buyer' })
   const [agreed, setAgreed] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+
+  const passwordChecks = [
+    { test: form.password.length >= 8, label: 'Минимум 8 символов' },
+    { test: /[a-z]/.test(form.password), label: 'Хотя бы одна строчная латинская буква' },
+    { test: /[A-Z]/.test(form.password), label: 'Хотя бы одна заглавная латинская буква' },
+    { test: /\d/.test(form.password), label: 'Хотя бы одна цифра' },
+    { test: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(form.password), label: 'Хотя бы один спецсимвол' },
+  ]
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -23,6 +31,18 @@ export default function Register() {
     if (!agreed) {
       setError('Необходимо согласие на обработку персональных данных')
       return
+    }
+
+    if (form.password !== form.confirmPassword) {
+      setError('Пароли не совпадают')
+      return
+    }
+
+    for (const c of passwordChecks) {
+      if (!c.test) {
+        setError(c.label)
+        return
+      }
     }
 
     setLoading(true)
@@ -120,6 +140,33 @@ export default function Register() {
                     placeholder="••••••••"
                     value={form.password}
                     onChange={e => setForm({ ...form, password: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground font-medium">Требования к паролю:</p>
+                  <ul className="space-y-0.5">
+                    {passwordChecks.map((item, i) => (
+                      <li key={i} className={`flex items-center gap-1.5 text-xs ${item.test ? 'text-green-600' : 'text-muted-foreground'}`}>
+                        <span className="leading-none">{item.test ? '✓' : '•'}</span>
+                        {item.label}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword" className="text-foreground">Подтвердите пароль</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    className="pl-9 border-border text-foreground"
+                    placeholder="••••••••"
+                    value={form.confirmPassword}
+                    onChange={e => setForm({ ...form, confirmPassword: e.target.value })}
                     required
                   />
                 </div>
