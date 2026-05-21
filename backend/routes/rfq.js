@@ -93,12 +93,22 @@ router.post('/', authenticate, async (req, res) => {
       return res.status(400).json({ error: 'Заполните обязательные поля' });
     }
 
+    const parsedQuantity = parseInt(quantity, 10);
+    if (!Number.isFinite(parsedQuantity) || parsedQuantity < 1 || parsedQuantity > 2147483647) {
+      return res.status(400).json({ error: 'Количество должно быть целым числом от 1 до 2 147 483 647' });
+    }
+
+    const parsedBudget = budget ? parseFloat(budget) : null;
+    if (parsedBudget !== null && (!Number.isFinite(parsedBudget) || parsedBudget < 0 || parsedBudget > 99999999.99)) {
+      return res.status(400).json({ error: 'Бюджет должен быть от 0 до 99 999 999.99 ₽' });
+    }
+
     const data = {
       title,
       description,
-      quantity: parseInt(quantity),
+      quantity: parsedQuantity,
       unit: unit || 'шт.',
-      budget: budget ? parseFloat(budget) : null,
+      budget: parsedBudget,
       deadline: deadline ? new Date(deadline) : null,
       buyerId: req.tenantId
     };
