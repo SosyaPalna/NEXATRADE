@@ -56,10 +56,18 @@ export default function RfqCreate() {
     setError('')
     try {
       if (!formData.title || !formData.quantity) throw new Error('Заполните обязательные поля')
+      const quantity = parseInt(formData.quantity, 10)
+      if (!Number.isFinite(quantity) || quantity < 1 || quantity > 2147483647) {
+        throw new Error('Количество должно быть целым числом от 1 до 2 147 483 647')
+      }
+      const budget = formData.budgetType === 'fixed' && formData.budget ? parseFloat(formData.budget) : null
+      if (budget !== null && (!Number.isFinite(budget) || budget < 0 || budget > 99999999.99)) {
+        throw new Error('Бюджет должен быть от 0 до 99 999 999.99 ₽')
+      }
       const payload = {
         title: formData.title, description: formData.description, categoryId: formData.categoryId,
-        quantity: parseFloat(formData.quantity), unit: formData.unit,
-        budget: formData.budgetType === 'fixed' && formData.budget ? parseFloat(formData.budget) : null,
+        quantity, unit: formData.unit,
+        budget,
         deadline: formData.deadline || null, deliveryDate: formData.deliveryDate || null,
         deliveryAddress: formData.deliveryAddress, deliveryType: formData.deliveryType,
         requirements: formData.requirements ? formData.requirements.split('\n').filter(r => r.trim()) : [],
@@ -140,7 +148,7 @@ export default function RfqCreate() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="quantity">Количество *</Label>
-                  <Input id="quantity" type="number" min="0.01" step="0.01" value={formData.quantity} onChange={e => handleChange('quantity', e.target.value)} placeholder="100" required className="border-border" />
+                  <Input id="quantity" type="number" min="1" step="1" value={formData.quantity} onChange={e => handleChange('quantity', e.target.value)} placeholder="100" required className="border-border" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="unit">Единица измерения</Label>

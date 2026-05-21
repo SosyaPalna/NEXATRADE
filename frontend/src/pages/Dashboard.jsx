@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import {
   Package, FileText, Building2, TrendingUp, ArrowRight,
-  PlusCircle, ShoppingCart, Users
+  PlusCircle, ShoppingCart, Users, Shield
 } from 'lucide-react'
 import RfqFeed from '../components/RfqFeed'
 import SEO from '../components/SEO'
@@ -80,6 +80,14 @@ export default function Dashboard() {
               {isSeller ? 'Добавить товар' : 'Создать заявку'}
             </Link>
           </Button>
+          {user.isAdmin && (
+            <Button variant="outline" className="flex items-center gap-2 border-border hover:bg-muted" asChild>
+              <Link to="/admin">
+                <Shield className="h-4 w-4" />
+                Админ-панель
+              </Link>
+            </Button>
+          )}
           <Button variant="outline" className="flex items-center gap-2 border-border hover:bg-muted" asChild>
             <Link to={`/company/${user.tenant?.id || user.tenantId}`}>
               <Building2 className="h-4 w-4" />
