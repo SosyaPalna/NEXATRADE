@@ -287,19 +287,21 @@ export default function Products() {
               <Card className="border-border shadow-sm overflow-hidden hover:shadow-md transition-shadow">
                 <CardContent className="p-0">
                 <div className="flex flex-col sm:flex-row">
-                  <div className="w-full sm:w-32 h-32 bg-muted flex items-center justify-center shrink-0">
+                  <Link to={`/product/${product.id}`} className="w-full sm:w-32 h-32 bg-muted flex items-center justify-center shrink-0">
                     {product.images?.[0] ? (
                       <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
                     ) : (
                       <Package className="h-8 w-8 text-muted-foreground/50" />
                     )}
-                  </div>
+                  </Link>
                   <div className="flex-1 p-4 flex flex-col sm:flex-row gap-4">
                     <div className="flex-1 min-w-0">
                       <Link to={`/company/${product.tenantId}`} className="text-sm text-primary hover:underline font-medium">
                         {product.tenant?.name || 'Поставщик'}
                       </Link>
-                      <h3 className="text-lg font-bold text-foreground mt-1">{product.name}</h3>
+                      <Link to={`/product/${product.id}`} className="hover:text-primary transition-colors">
+                        <h3 className="text-lg font-bold text-foreground mt-1">{product.name}</h3>
+                      </Link>
                       <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{product.description}</p>
                       <div className="flex items-center gap-2 mt-2 flex-wrap">
                         <Badge className={product.stock > 0 ? 'bg-green-500 text-white hover:bg-green-500' : 'bg-amber-500 text-white hover:bg-amber-500'}>

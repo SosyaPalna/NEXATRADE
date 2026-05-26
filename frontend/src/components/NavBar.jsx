@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { Menu, User, LogOut, Building2, LayoutDashboard, Package, FileText, Sun, Moon } from 'lucide-react'
+import { Menu, User, LogOut, Building2, LayoutDashboard, Package, FileText, Sun, Moon, Bell, Check, Trash2 } from 'lucide-react'
 import { useTheme } from './ThemeProvider'
 
 export default function NavBar() {
@@ -21,6 +21,9 @@ export default function NavBar() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [notifications, setNotifications] = useState([])
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [notifOpen, setNotifOpen] = useState(false)
   const { theme, toggleTheme } = useTheme()
 
   useEffect(() => {
@@ -37,6 +40,42 @@ export default function NavBar() {
       })
       .finally(() => setLoading(false))
   }, [location.pathname])
+
+  useEffect(() => {
+    if (!user) return
+    loadNotifications()
+    const interval = setInterval(loadNotifications, 30000)
+    return () => clearInterval(interval)
+  }, [user])
+
+  const loadNotifications = async () => {
+    try {
+      const [res, countRes] = await Promise.all([
+        api.get('/notifications', { params: { limit: 10 } }),
+        api.get('/notifications/unread-count')
+      ])
+      setNotifications(res.data.notifications || [])
+      setUnreadCount(countRes.data.count || 0)
+    } catch {
+      // silent fail
+    }
+  }
+
+  const markAllRead = async () => {
+    try {
+      await api.patch('/notifications/read-all')
+      setUnreadCount(0)
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })))
+    } catch {}
+  }
+
+  const deleteNotification = async (id, e) => {
+    e.stopPropagation()
+    try {
+      await api.delete(`/notifications/${id}`)
+      setNotifications(prev => prev.filter(n => n.id !== id))
+    } catch {}
+  }
 
   const handleLogout = () => {
     localStorage.removeItem('token')
@@ -57,7 +96,7 @@ export default function NavBar() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Лого слева */}
-          <Link to="/dashboard" className="flex items-center gap-2 shrink-0">
+          <Link to="/" className="flex items-center gap-2 shrink-0">
             <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold text-lg">
               N
             </div>
@@ -89,6 +128,59 @@ export default function NavBar() {
             <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={toggleTheme}>
               {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
+
+            {user && (
+              <DropdownMenu open={notifOpen} onOpenChange={setNotifOpen}>
+                <DropdownMenuTrigger className="outline-none relative">
+                  <div className="inline-flex items-center justify-center rounded-md h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer relative">
+                    <Bell className="h-4 w-4" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] text-white font-medium">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-80" align="end">
+                  <DropdownMenuLabel className="flex items-center justify-between">
+                    <span>Уведомления</span>
+                    {unreadCount > 0 && (
+                      <Button variant="ghost" size="sm" className="h-6 text-xs gap-1" onClick={markAllRead}>
+                        <Check className="h-3 w-3" />
+                        Все прочитаны
+                      </Button>
+                    )}
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {notifications.length === 0 ? (
+                    <div className="px-2 py-4 text-sm text-muted-foreground text-center">Нет уведомлений</div>
+                  ) : (
+                    notifications.map(n => (
+                      <DropdownMenuItem key={n.id} className="flex flex-col items-start gap-1 cursor-pointer p-2" asChild>
+                        <Link to={n.link || '#'} onClick={() => !n.isRead && api.patch(`/notifications/${n.id}/read`).then(() => { setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, isRead: true } : x)); setUnreadCount(c => Math.max(0, c - 1)) })}>
+                          <div className="flex items-start justify-between w-full gap-2">
+                            <span className={`text-sm ${n.isRead ? 'text-muted-foreground' : 'text-foreground font-medium'}`}>
+                              {n.title}
+                            </span>
+                            <div
+                              className="inline-flex items-center justify-center rounded-md h-5 w-5 shrink-0 hover:bg-muted cursor-pointer text-muted-foreground"
+                              onClick={(e) => deleteNotification(n.id, e)}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </div>
+                          </div>
+                          <p className="text-xs text-muted-foreground line-clamp-2">{n.message}</p>
+                          <span className="text-[10px] text-muted-foreground">
+                            {new Date(n.createdAt).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </Link>
+                      </DropdownMenuItem>
+                    ))
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+
             {loading ? (
               <span className="text-sm text-muted-foreground">Загрузка...</span>
             ) : user ? (
@@ -146,7 +238,7 @@ export default function NavBar() {
               </SheetTrigger>
               <SheetContent side="right" className="w-72">
                 <div className="flex flex-col gap-4 mt-4">
-                  <Link to="/dashboard" className="flex items-center gap-2 text-lg font-bold text-foreground" onClick={() => setMobileOpen(false)}>
+                  <Link to="/" className="flex items-center gap-2 text-lg font-bold text-foreground" onClick={() => setMobileOpen(false)}>
                     <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">N</div>
                     NexaTrade
                   </Link>

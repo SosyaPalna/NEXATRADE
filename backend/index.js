@@ -80,6 +80,9 @@ app.use('/api/categories', categoryRoutes);
 const reportRoutes = require('./routes/reports');
 app.use('/api/reports', reportRoutes);
 
+const notificationRoutes = require('./routes/notifications');
+app.use('/api/notifications', notificationRoutes);
+
 // Отдача статики фронтенда (для production деплоя)
 const path = require('path');
 const fs = require('fs');
