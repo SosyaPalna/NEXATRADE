@@ -1,9 +1,8 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('../utils/db');
 const authenticate = require('../middleware/auth');
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 // 🔹 Получить уведомления текущего пользователя
 router.get('/', authenticate, async (req, res) => {
@@ -21,6 +20,7 @@ router.get('/', authenticate, async (req, res) => {
     ]);
     res.json({ notifications, total, unread, page: parseInt(page), pages: Math.ceil(total / limit) });
   } catch (err) {
+    console.error('[notifications] GET / error:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -28,11 +28,15 @@ router.get('/', authenticate, async (req, res) => {
 // 🔹 Количество непрочитанных
 router.get('/unread-count', authenticate, async (req, res) => {
   try {
+    if (!req.tenantId) {
+      return res.status(400).json({ error: 'tenantId отсутствует в токене' });
+    }
     const count = await prisma.notification.count({
       where: { recipientId: req.tenantId, isRead: false }
     });
     res.json({ count });
   } catch (err) {
+    console.error('[notifications] GET /unread-count error:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -46,6 +50,7 @@ router.patch('/:id/read', authenticate, async (req, res) => {
     });
     res.json({ message: 'Прочитано' });
   } catch (err) {
+    console.error('[notifications] PATCH /:id/read error:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -59,6 +64,7 @@ router.patch('/read-all', authenticate, async (req, res) => {
     });
     res.json({ message: 'Все уведомления прочитаны' });
   } catch (err) {
+    console.error('[notifications] PATCH /read-all error:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -71,6 +77,7 @@ router.delete('/:id', authenticate, async (req, res) => {
     });
     res.json({ message: 'Уведомление удалено' });
   } catch (err) {
+    console.error('[notifications] DELETE /:id error:', err);
     res.status(500).json({ error: err.message });
   }
 });
