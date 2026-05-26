@@ -4,7 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const http = require('http'); // ← Важно для Socket.io
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('./utils/db');
 
 const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/products');
@@ -12,7 +12,6 @@ const rfqRoutes = require('./routes/rfq');
 const initSocket = require('./socket');
 
 const app = express();
-const prisma = new PrismaClient();
 const PORT = process.env.PORT || 8000;
 
 // Trust proxy (nginx)
@@ -105,6 +104,15 @@ if (staticPath) {
 } else {
   console.log('⚠️  Static files not found. Frontend will not be served.');
 }
+
+// Глобальный обработчик ошибок Express
+app.use((err, req, res, next) => {
+  console.error(`[Express Error] ${req.method} ${req.path}:`, err);
+  res.status(err.status || 500).json({
+    error: err.message || 'Internal Server Error',
+    path: req.path
+  });
+});
 
 // Graceful error handling
 process.on('uncaughtException', (err) => {
