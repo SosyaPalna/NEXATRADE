@@ -119,11 +119,13 @@ export default function CategoryPage() {
               {/* Product image */}
               <div className="h-44 bg-muted flex items-center justify-center relative overflow-hidden group">
                 {product.images?.[0] ? (
-                  <img
-                    src={product.images[0]}
-                    alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
+                  <Link to={`/product/${product.id}`} className="w-full h-full">
+                    <img
+                      src={product.images[0]}
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </Link>
                 ) : (
                   <Package className="h-10 w-10 text-border" />
                 )}
@@ -148,9 +150,11 @@ export default function CategoryPage() {
                 </Link>
 
                 {/* Title */}
-                <h3 className="text-sm font-bold text-foreground line-clamp-2 mb-1 min-h-[2.5rem]">
-                  {product.name}
-                </h3>
+                <Link to={`/product/${product.id}`} className="hover:text-primary transition-colors">
+                  <h3 className="text-sm font-bold text-foreground line-clamp-2 mb-1 min-h-[2.5rem]">
+                    {product.name}
+                  </h3>
+                </Link>
 
                 {/* Description */}
                 <p className="text-xs text-muted-foreground line-clamp-2 mb-3 min-h-[2rem]">

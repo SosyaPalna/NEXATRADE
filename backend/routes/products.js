@@ -5,6 +5,23 @@ const authenticate = require('../middleware/auth');
 const router = express.Router();
 const prisma = new PrismaClient();
 
+// 🔹 Получить один товар
+router.get('/:id', authenticate, async (req, res) => {
+  try {
+    const product = await prisma.product.findUnique({
+      where: { id: req.params.id },
+      include: {
+        category: { select: { id: true, name: true, slug: true } },
+        tenant: { select: { id: true, name: true, role: true, avatarUrl: true, description: true, website: true, phone: true } }
+      }
+    });
+    if (!product) return res.status(404).json({ error: 'Товар не найден' });
+    res.json(product);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // 🔹 Получить товары (только свои, или все если передать ?all=true)
 router.get('/', authenticate, async (req, res) => {
   try {

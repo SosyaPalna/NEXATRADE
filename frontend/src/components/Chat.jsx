@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/select'
 import { Send, MessageCircle, Pencil, Trash2, Flag, Check, X } from 'lucide-react'
 
-export default function Chat({ rfqId, currentTenantId }) {
+export default function Chat({ roomType, roomId, currentTenantId, title = 'Чат' }) {
   const [messages, setMessages] = useState([])
   const [newMessage, setNewMessage] = useState('')
   const [socket, setSocket] = useState(null)
@@ -46,8 +46,8 @@ export default function Chat({ rfqId, currentTenantId }) {
     })
 
     setSocket(newSocket)
-    newSocket.emit('join:rfq', rfqId)
-    newSocket.emit('messages:load', { rfqId })
+    newSocket.emit('join:room', { type: roomType, id: roomId })
+    newSocket.emit('messages:load', { roomType, roomId })
 
     newSocket.on('message:receive', (message) => {
       setMessages(prev => [...prev, message])
@@ -74,7 +74,7 @@ export default function Chat({ rfqId, currentTenantId }) {
     return () => {
       newSocket.disconnect()
     }
-  }, [rfqId, currentTenantId, addNotification])
+  }, [roomType, roomId, currentTenantId, addNotification])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -83,7 +83,7 @@ export default function Chat({ rfqId, currentTenantId }) {
   const sendMessage = (e) => {
     e.preventDefault()
     if (!newMessage.trim() || !socket) return
-    socket.emit('message:send', { rfqId, content: newMessage.trim() })
+    socket.emit('message:send', { roomType, roomId, content: newMessage.trim() })
     setNewMessage('')
   }
 
@@ -148,7 +148,7 @@ export default function Chat({ rfqId, currentTenantId }) {
         <CardHeader className="py-3 px-4 bg-muted/50 border-b">
           <CardTitle className="text-sm font-medium flex items-center gap-2">
             <MessageCircle className="h-4 w-4 text-primary" />
-            Чат по заявке
+            {title}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">

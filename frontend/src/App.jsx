@@ -7,6 +7,7 @@ import { NotificationProvider } from './context/NotificationContext'
 // 🔹 Страницы (синхронные)
 import Login from './pages/Login'
 import Register from './pages/Register'
+import Home from './pages/Home'
 import Dashboard from './pages/Dashboard'
 import Products from './pages/Products'
 import RfqList from './pages/RfqList'
@@ -15,6 +16,7 @@ import RfqCreate from './pages/RfqCreate'
 import Profile from './pages/Profile'
 import CompanyPage from './pages/CompanyPage'
 import CategoryPage from './pages/CategoryPage'
+import ProductDetail from './pages/ProductDetail'
 
 // 🔹 Админка (ленивая загрузка)
 const AdminLayout = lazy(() => import('./pages/AdminLayout'))
@@ -76,19 +78,22 @@ export default function App() {
         <BrowserRouter>
           <YandexMetrika />
           <Routes>
-            {/* 🔓 Публичные маршруты */}
+            {/* 🔓 Публичные маршруты с общим лейаутом */}
+            <Route element={<AppLayout />}>
+              <Route path="/" element={<Home />} />
+            </Route>
+
+            {/* 🔓 Публичные маршруты без лейаута */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 
             {/* 🔒 Защищённые маршруты */}
             <Route element={<Protected />}>
               <Route element={<AppLayout />}>
-                
-                {/* Главная → редирект на дашборд */}
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/company/:id" element={<CompanyPage />} />
+                <Route path="/product/:id" element={<ProductDetail />} />
 
                 {/* 🛒 Маркетплейс: обёртка с боковым меню категорий */}
                 <Route element={<MarketLayout />}>

@@ -252,7 +252,7 @@ export default function RfqDetail() {
 
         <div className="space-y-4">
           {rfq.status !== 'cancelled' && (
-            <Chat rfqId={rfq.id} currentTenantId={currentTenantId} />
+            <Chat roomType="rfq" roomId={rfq.id} currentTenantId={currentTenantId} title="Чат по заявке" />
           )}
 
           {!isBuyer && rfq.status === 'open' && (

@@ -11,9 +11,10 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 import {
   Building2, Mail, FileText, Save, LogOut,
-  ChevronLeft, ChevronRight, Search, User
+  ChevronLeft, ChevronRight, Search, User, Flag
 } from 'lucide-react'
 import SEO from '../components/SEO'
+import UserReports from '../components/UserReports'
 
 export default function Profile() {
   const navigate = useNavigate()
@@ -135,6 +136,10 @@ export default function Profile() {
               <TabsTrigger value="rfqs" className="flex items-center gap-1">
                 <FileText className="h-4 w-4" />
                 Мои заявки
+              </TabsTrigger>
+              <TabsTrigger value="reports" className="flex items-center gap-1">
+                <Flag className="h-4 w-4" />
+                Обращения
               </TabsTrigger>
             </TabsList>
 
@@ -266,6 +271,10 @@ export default function Profile() {
                   )}
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="reports" className="space-y-4">
+              <UserReports />
             </TabsContent>
           </Tabs>
         </div>
