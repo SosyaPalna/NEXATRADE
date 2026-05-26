@@ -34,6 +34,8 @@ services:
       - "127.0.0.1:8000:8000"
     volumes:
       - app_logs:/app/logs
+    command: >
+      sh -c "npx prisma db push && node index.js"
 
 volumes:
   postgres_data:

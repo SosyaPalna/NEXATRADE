@@ -46,7 +46,12 @@ cd "$PROJECT_DIR/backend"
 npx prisma generate
 
 echo "🔄 Running database migrations..."
-npx prisma migrate deploy
+if [ -d "prisma/migrations" ] && [ "$(ls -A prisma/migrations)" ]; then
+    npx prisma migrate deploy
+else
+    echo "⚠️  No migrations found. Running prisma db push instead..."
+    npx prisma db push
+fi
 
 echo "🚀 Starting application with PM2..."
 cd "$PROJECT_DIR"
