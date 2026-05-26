@@ -3,6 +3,10 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
+function getRoomName(roomType, roomId) {
+  return `${roomType}:${roomId}`;
+}
+
 const initSocket = (server) => {
   const io = new Server(server, {
     cors: {
@@ -31,27 +35,32 @@ const initSocket = (server) => {
   io.on('connection', (socket) => {
     console.log(`🔌 Connected: ${socket.tenantId}`);
 
-    // Присоединение к комнате конкретного RFQ
-    socket.on('join:rfq', (rfqId) => {
-      socket.join(`rfq:${rfqId}`);
-      console.log(`📡 ${socket.tenantId} joined room rfq:${rfqId}`);
+    // Присоединение к универсальной комнате (rfq или product)
+    socket.on('join:room', ({ type, id }) => {
+      const room = getRoomName(type, id);
+      socket.join(room);
+      console.log(`📡 ${socket.tenantId} joined room ${room}`);
     });
 
     // Отправка сообщения
-    socket.on('message:send', async ({ rfqId, content }) => {
-      if (!content?.trim()) return;
+    socket.on('message:send', async ({ roomType, roomId, content }) => {
+      if (!content?.trim() || !roomType || !roomId) return;
 
       try {
+        const data = {
+          content: content.trim(),
+          senderId: socket.tenantId,
+        };
+        if (roomType === 'rfq') data.rfqId = roomId;
+        else if (roomType === 'product') data.productId = roomId;
+        else return;
+
         const message = await prisma.message.create({
-          data: {
-            content: content.trim(),
-            senderId: socket.tenantId,
-            rfqId,
-          },
+          data,
           include: { sender: { select: { name: true } } }
         });
 
-        io.to(`rfq:${rfqId}`).emit('message:receive', message);
+        io.to(getRoomName(roomType, roomId)).emit('message:receive', message);
       } catch (err) {
         console.error('❌ Message error:', err.message);
         socket.emit('error', { message: 'Failed to send message' });
@@ -71,7 +80,9 @@ const initSocket = (server) => {
           data: { content: content.trim(), isEdited: true, editedAt: new Date() },
           include: { sender: { select: { name: true } } }
         });
-        io.to(`rfq:${message.rfqId}`).emit('message:edited', updated);
+        const roomType = updated.rfqId ? 'rfq' : 'product';
+        const roomId = updated.rfqId || updated.productId;
+        io.to(getRoomName(roomType, roomId)).emit('message:edited', updated);
       } catch (err) {
         console.error('❌ Edit error:', err.message);
         socket.emit('error', { message: 'Failed to edit message' });
@@ -90,7 +101,9 @@ const initSocket = (server) => {
           data: { isDeleted: true },
           include: { sender: { select: { name: true } } }
         });
-        io.to(`rfq:${message.rfqId}`).emit('message:deleted', updated);
+        const roomType = updated.rfqId ? 'rfq' : 'product';
+        const roomId = updated.rfqId || updated.productId;
+        io.to(getRoomName(roomType, roomId)).emit('message:deleted', updated);
       } catch (err) {
         console.error('❌ Delete error:', err.message);
         socket.emit('error', { message: 'Failed to delete message' });
@@ -98,10 +111,15 @@ const initSocket = (server) => {
     });
 
     // Загрузка истории сообщений
-    socket.on('messages:load', async ({ rfqId, limit = 50 }) => {
+    socket.on('messages:load', async ({ roomType, roomId, limit = 50 }) => {
       try {
+        const where = {};
+        if (roomType === 'rfq') where.rfqId = roomId;
+        else if (roomType === 'product') where.productId = roomId;
+        else return;
+
         const messages = await prisma.message.findMany({
-          where: { rfqId },
+          where,
           include: { sender: { select: { name: true, role: true } } },
           orderBy: { createdAt: 'asc' },
           take: limit,
