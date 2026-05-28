@@ -1,0 +1,495 @@
+{
+  "report": {
+    "metadata": {
+      "scan_id": "857e4e7b-690b-4124-bf58-ee841372997f",
+      "domain": "nexatrade.ru",
+      "scan_date": "2026-05-28T19:48:56.590146+00:00",
+      "scan_duration": "00:00:03",
+      "scanner_version": "1.0.0"
+    },
+    "summary": {
+      "total_findings": 59,
+      "critical": 7,
+      "high": 38,
+      "medium": 5,
+      "low": 4,
+      "info": 5,
+      "risk_score": 9,
+      "grade": "F"
+    },
+    "vulnerabilities": [
+      {
+        "id": "1a474749-e455-4b06-87b0-089e21116b77",
+        "title": "Файл окружения в открытом доступе: /.env.bak",
+        "severity": "critical",
+        "cvss_score": 9.1,
+        "affected": "https://nexatrade.ru/.env.bak",
+        "remediation": "Заблокируйте доступ к /.env.bak через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "515e86ec-7851-4181-b64f-fc44eeee34c3",
+        "title": "Файл окружения в открытом доступе: /.env.production",
+        "severity": "critical",
+        "cvss_score": 9.1,
+        "affected": "https://nexatrade.ru/.env.production",
+        "remediation": "Заблокируйте доступ к /.env.production через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "178c0065-20c7-40ca-8524-bafa0c6429d2",
+        "title": "Файл окружения в открытом доступе: /.env",
+        "severity": "critical",
+        "cvss_score": 9.1,
+        "affected": "https://nexatrade.ru/.env",
+        "remediation": "Заблокируйте доступ к /.env через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "014498f9-8e72-4c2c-9358-45196ed1a4b3",
+        "title": "Файл окружения в открытом доступе: /.env.development",
+        "severity": "critical",
+        "cvss_score": 9.1,
+        "affected": "https://nexatrade.ru/.env.development",
+        "remediation": "Заблокируйте доступ к /.env.development через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "4fa0925e-9b9e-405f-8815-831024f87e7a",
+        "title": "Файл окружения в открытом доступе: /.env.local",
+        "severity": "critical",
+        "cvss_score": 9.1,
+        "affected": "https://nexatrade.ru/.env.local",
+        "remediation": "Заблокируйте доступ к /.env.local через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "cdbdf110-45ad-45a0-b510-ef87d0321821",
+        "title": "Git-репозиторий в открытом доступе: /.git/config",
+        "severity": "critical",
+        "cvss_score": 9.1,
+        "affected": "https://nexatrade.ru/.git/config",
+        "remediation": "Заблокируйте доступ к /.git/config через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "2998c634-62e6-4dae-9545-e9deb40f00ce",
+        "title": "Git-репозиторий в открытом доступе: /.git/HEAD",
+        "severity": "critical",
+        "cvss_score": 9.1,
+        "affected": "https://nexatrade.ru/.git/HEAD",
+        "remediation": "Заблокируйте доступ к /.git/HEAD через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "e780d36f-6210-4820-8904-9a64243438a6",
+        "title": "Доступна отладочная эндпоинт: /console",
+        "severity": "high",
+        "cvss_score": 6.5,
+        "affected": "https://nexatrade.ru/console",
+        "remediation": "Удалите или ограничьте доступ к отладочным эндпоинтам в production. Используйте правила файрвола или аутентификацию для ограничения доступа. Отключите режим отладки в конфигурации приложения."
+      },
+      {
+        "id": "8d43a58a-fa8d-4497-bd04-4d6fe23729ee",
+        "title": "Доступна отладочная эндпоинт: /phpinfo.php",
+        "severity": "high",
+        "cvss_score": 6.5,
+        "affected": "https://nexatrade.ru/phpinfo.php",
+        "remediation": "Удалите или ограничьте доступ к отладочным эндпоинтам в production. Используйте правила файрвола или аутентификацию для ограничения доступа. Отключите режим отладки в конфигурации приложения."
+      },
+      {
+        "id": "2518f100-bbe8-4746-970a-8ad72b3045af",
+        "title": "Доступ к конфиденциальному файлу: /cache/",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/cache/",
+        "remediation": "Заблокируйте доступ к /cache/ через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "5479f752-74bf-4636-8e69-3f815c4b07f4",
+        "title": "Доступ к конфиденциальному файлу: /temp/",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/temp/",
+        "remediation": "Заблокируйте доступ к /temp/ через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "d6be9f4a-ec5c-47e8-ac02-d34d29c5933b",
+        "title": "Доступ к конфиденциальному файлу: /web.config",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/web.config",
+        "remediation": "Заблокируйте доступ к /web.config через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "936b2e0c-f8a0-45b7-9253-7021e717f6f6",
+        "title": "Доступ к конфиденциальному файлу: /tmp/",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/tmp/",
+        "remediation": "Заблокируйте доступ к /tmp/ через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "06588f94-a95f-4861-bb3b-272efec80d82",
+        "title": "Доступ к конфиденциальному файлу: /database.yml",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/database.yml",
+        "remediation": "Заблокируйте доступ к /database.yml через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "7ff2db62-1b2c-4045-94a0-2f1af4122a7e",
+        "title": "Файл конфигурации в открытом доступе: /config.json",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/config.json",
+        "remediation": "Заблокируйте доступ к /config.json через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "8301a763-d674-4777-b6cf-be97d2e7708d",
+        "title": "Файл конфигурации в открытом доступе: /config.php",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/config.php",
+        "remediation": "Заблокируйте доступ к /config.php через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "2a5a75fc-e983-44c0-860e-3ba2c1aadbcd",
+        "title": "Доступ к конфиденциальному файлу: /error.log",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/error.log",
+        "remediation": "Заблокируйте доступ к /error.log через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "f9baab7e-fccd-467e-aba6-7b8202f776fb",
+        "title": "Доступ к конфиденциальному файлу: /access.log",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/access.log",
+        "remediation": "Заблокируйте доступ к /access.log через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "607c4a43-7b71-4baa-8153-b95463c98a00",
+        "title": "Доступ к конфиденциальному файлу: /debug.log",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/debug.log",
+        "remediation": "Заблокируйте доступ к /debug.log через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "839f7f3a-577e-423f-8781-d79cd38f335d",
+        "title": "Файл конфигурации в открытом доступе: /config.yml",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/config.yml",
+        "remediation": "Заблокируйте доступ к /config.yml через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "9d972fd9-377e-47d6-9985-b5af71976b5c",
+        "title": "Доступ к конфиденциальному файлу: /log/",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/log/",
+        "remediation": "Заблокируйте доступ к /log/ через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "04b20edd-d8a7-4695-a434-3c608fc5e1fb",
+        "title": "Доступ к конфиденциальному файлу: /.project",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/.project",
+        "remediation": "Заблокируйте доступ к /.project через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "8d3ad00b-649b-4a6b-b171-9aba2fe4fd8e",
+        "title": "Доступ к конфиденциальному файлу: /pom.xml",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/pom.xml",
+        "remediation": "Заблокируйте доступ к /pom.xml через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "44516336-ccb8-4d75-88dd-1ef083566b8e",
+        "title": "Доступ к конфиденциальному файлу: /composer.lock",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/composer.lock",
+        "remediation": "Заблокируйте доступ к /composer.lock через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "62f93e31-0f8b-4ca4-8b1f-3b48ca23f052",
+        "title": "Доступ к конфиденциальному файлу: /package-lock.json",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/package-lock.json",
+        "remediation": "Заблокируйте доступ к /package-lock.json через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "b23b9223-0940-4d11-853f-68f2da29ac4b",
+        "title": "Доступ к конфиденциальному файлу: /yarn.lock",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/yarn.lock",
+        "remediation": "Заблокируйте доступ к /yarn.lock через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "bdc84cad-12d4-4589-b9a3-11fbf472870a",
+        "title": "Файлы логов в открытом доступе: /logs/",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/logs/",
+        "remediation": "Заблокируйте доступ к /logs/ через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "f01d19c9-13c0-4163-bb64-aaff9b95b3a9",
+        "title": "Доступ к конфиденциальному файлу: /.DS_Store",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/.DS_Store",
+        "remediation": "Заблокируйте доступ к /.DS_Store через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "d85f3522-44b9-4eec-9381-240e5b186a69",
+        "title": "Доступ к конфиденциальному файлу: /.vscode/",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/.vscode/",
+        "remediation": "Заблокируйте доступ к /.vscode/ через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "e79f3494-59fc-4789-9a68-fb3a5dc3e381",
+        "title": "Доступ к конфиденциальному файлу: /Thumbs.db",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/Thumbs.db",
+        "remediation": "Заблокируйте доступ к /Thumbs.db через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "7cb1259e-4326-46f2-870d-dcd34bc1c28a",
+        "title": "Доступ к конфиденциальному файлу: /.idea/",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/.idea/",
+        "remediation": "Заблокируйте доступ к /.idea/ через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "fbf72678-ce7b-460b-a37d-62ccd6d9f44b",
+        "title": "Доступ к конфиденциальному файлу: /backup/",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/backup/",
+        "remediation": "Заблокируйте доступ к /backup/ через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "a669dad2-43b4-40da-8c91-d47744402d6d",
+        "title": "Доступ к конфиденциальному файлу: /www.tar.gz",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/www.tar.gz",
+        "remediation": "Заблокируйте доступ к /www.tar.gz через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "c2e5c9f8-3143-458f-a400-e58e0b96cd32",
+        "title": "Доступ к конфиденциальному файлу: /backup.tar.gz",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/backup.tar.gz",
+        "remediation": "Заблокируйте доступ к /backup.tar.gz через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "e73903c2-5052-4bad-abd4-dbd6d6565581",
+        "title": "Резервная копия БД в открытом доступе: /backup.sql",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/backup.sql",
+        "remediation": "Заблокируйте доступ к /backup.sql через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "1ed32f51-3329-4c49-82cc-21192cb7214f",
+        "title": "Резервная копия БД в открытом доступе: /database.sql",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/database.sql",
+        "remediation": "Заблокируйте доступ к /database.sql через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "b5880234-2158-4d7a-86cf-a2bb3606be70",
+        "title": "Резервная копия БД в открытом доступе: /dump.sql",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/dump.sql",
+        "remediation": "Заблокируйте доступ к /dump.sql через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "b4807cc6-e231-465b-8f8c-4b39d3b279bf",
+        "title": "Резервная копия БД в открытом доступе: /db.sql",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/db.sql",
+        "remediation": "Заблокируйте доступ к /db.sql через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "e34211ff-e208-4b91-a784-d8a0c78b205f",
+        "title": "Доступ к конфиденциальному файлу: /site.tar.gz",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/site.tar.gz",
+        "remediation": "Заблокируйте доступ к /site.tar.gz через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "97465cd7-1461-4eb7-a3f8-a5b1e4f71cc7",
+        "title": "Доступ к конфиденциальному файлу: /backup.zip",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/backup.zip",
+        "remediation": "Заблокируйте доступ к /backup.zip через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "d79156ad-40e0-4928-98b4-df3b15e73079",
+        "title": "Доступ к конфиденциальному файлу: /wp-config.php.bak",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/wp-config.php.bak",
+        "remediation": "Заблокируйте доступ к /wp-config.php.bak через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "41f3a21e-3c51-43ac-8f46-d79221527031",
+        "title": "Доступ к конфиденциальному файлу: /.hg/.hgignore",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/.hg/.hgignore",
+        "remediation": "Заблокируйте доступ к /.hg/.hgignore через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "790138ef-bceb-4f8f-9188-0ef76ee803d4",
+        "title": "Файл окружения в открытом доступе: /config/.env",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/config/.env",
+        "remediation": "Заблокируйте доступ к /config/.env через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "470d90c0-402d-43bf-a87a-f894e2cd48e5",
+        "title": "Доступ к конфиденциальному файлу: /.svn/entries",
+        "severity": "high",
+        "cvss_score": 7.5,
+        "affected": "https://nexatrade.ru/.svn/entries",
+        "remediation": "Заблокируйте доступ к /.svn/entries через конфигурацию веб-сервера.\nДобавьте в .htaccess или Nginx:\n  location ~ /\\. { deny all; }\nУдалите конфиденциальные файлы из корня веб-сервера."
+      },
+      {
+        "id": "e7b497be-16e9-4bbc-a50a-43225e46e15b",
+        "title": "Панель администратора может не требовать аутентификации: /admin",
+        "severity": "high",
+        "cvss_score": 8,
+        "affected": "https://nexatrade.ru/admin",
+        "remediation": "Реализуйте строгую аутентификацию для /admin. Используйте ролевой контроль доступа (RBAC). Реализуйте MFA для учётных записей администраторов."
+      },
+      {
+        "id": "dfb7d981-71fa-4edd-81b8-819852295563",
+        "title": "Раскрытие информации: server",
+        "severity": "info",
+        "cvss_score": null,
+        "affected": null,
+        "remediation": "Удалите или замаскируйте заголовок server."
+      },
+      {
+        "id": "fdd700de-e35f-4f80-a6ae-75eb40f08c5e",
+        "title": "Широкое ограничение Disallow в robots.txt",
+        "severity": "info",
+        "cvss_score": null,
+        "affected": null,
+        "remediation": "Проверьте robots.txt, чтобы убедиться, что он не раскрывает конфиденциальные пути."
+      },
+      {
+        "id": "5eb9a7f5-6992-4884-83b9-db7d9bc84f55",
+        "title": "Обнаружена CMS: Magento",
+        "severity": "info",
+        "cvss_score": null,
+        "affected": null,
+        "remediation": "Поддерживайте ядро Magento, плагины и темы в актуальном состоянии. Удалите неиспользуемые плагины/темы. Используйте плагины безопасности (WAF, защита входа)."
+      },
+      {
+        "id": "1d30304e-ac64-4c75-b81c-5723b3b01404",
+        "title": "Заголовок Server раскрывает технологию",
+        "severity": "info",
+        "cvss_score": null,
+        "affected": null,
+        "remediation": "Удалите или замаскируйте заголовок Server."
+      },
+      {
+        "id": "887a109b-4d4d-4bae-a0a6-c5280ed08619",
+        "title": "Отсутствует Cross-Origin-Embedder-Policy",
+        "severity": "info",
+        "cvss_score": null,
+        "affected": null,
+        "remediation": "Установите Cross-Origin-Embedder-Policy: require-corp"
+      },
+      {
+        "id": "04c6c620-51a3-4446-bdd3-c7dd43be7c16",
+        "title": "Страницы могут кэшироваться",
+        "severity": "low",
+        "cvss_score": null,
+        "affected": null,
+        "remediation": "Установите Cache-Control: no-store, no-cache, must-revalidate для аутентифицированных страниц."
+      },
+      {
+        "id": "e857dc22-5c4c-4eb5-917b-c4b70e03bd06",
+        "title": "Не обнаружена защита CAPTCHA",
+        "severity": "low",
+        "cvss_score": null,
+        "affected": null,
+        "remediation": "Добавьте CAPTCHA (reCAPTCHA v3, hCaptcha) к пользовательским формам. Используйте невидимую CAPTCHA для лучшего UX, где возможно."
+      },
+      {
+        "id": "5f76dc7b-661f-4b5c-83f2-4c3039efcfa9",
+        "title": "Отсутствует Permissions-Policy",
+        "severity": "low",
+        "cvss_score": null,
+        "affected": null,
+        "remediation": "Добавьте Permissions-Policy: camera=(), microphone=(), geolocation=()"
+      },
+      {
+        "id": "fa3be2e0-c076-4972-ac36-f3013db2012c",
+        "title": "Отсутствует или некорректный X-Content-Type-Options",
+        "severity": "low",
+        "cvss_score": null,
+        "affected": null,
+        "remediation": "Установите X-Content-Type-Options: nosniff"
+      },
+      {
+        "id": "cea7ae27-ab5f-4b6b-95ee-86731b3c412e",
+        "title": "Доступна отладочная эндпоинт: /info.php",
+        "severity": "medium",
+        "cvss_score": 4.3,
+        "affected": "https://nexatrade.ru/info.php",
+        "remediation": "Удалите или ограничьте доступ к отладочным эндпоинтам в production. Используйте правила файрвола или аутентификацию для ограничения доступа. Отключите режим отладки в конфигурации приложения."
+      },
+      {
+        "id": "eac316eb-f2b9-4c0e-bd61-d0b553228605",
+        "title": "Не обнаружена защита от перебора паролей",
+        "severity": "medium",
+        "cvss_score": null,
+        "affected": null,
+        "remediation": "Реализуйте блокировку аккаунта после неудачных попыток, прогрессивные задержки или CAPTCHA. Мониторьте атаки подбора учётных данных."
+      },
+      {
+        "id": "25a5eac8-dd3e-433a-a078-a4365be8b778",
+        "title": "Отсутствует ограничение частоты запросов на /login",
+        "severity": "medium",
+        "cvss_score": 5.3,
+        "affected": "https://nexatrade.ru/login",
+        "remediation": "Реализуйте ограничение частоты запросов на /login. Используйте алгорит token bucket или sliding window. Рассмотрите CAPTCHA для пользовательских эндпоинтов."
+      },
+      {
+        "id": "46bbc930-5f79-4865-9f10-cdac693eab4f",
+        "title": "HTTP не перенаправляет на HTTPS",
+        "severity": "medium",
+        "cvss_score": null,
+        "affected": null,
+        "remediation": "Настройте автоматическое перенаправление HTTP → HTTPS в конфигурации веб-сервера."
+      },
+      {
+        "id": "ffce4a59-8dcb-400f-a8db-7b7a1e39ce65",
+        "title": "CSP разрешает unsafe-inline в script-src",
+        "severity": "medium",
+        "cvss_score": null,
+        "affected": null,
+        "remediation": "Удалите 'unsafe-inline' из script-src. Используйте nonce или хэши."
+      }
+    ]
+  }
+}

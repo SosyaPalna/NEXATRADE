@@ -5,6 +5,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const http = require('http'); // ← Важно для Socket.io
 const prisma = require('./utils/db');
+const { loginLimiter, apiLimiter } = require('./middleware/rateLimit');
 
 const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/products');
@@ -32,7 +33,19 @@ app.use(helmet({
       upgradeInsecureRequests: [],
     },
   },
+  crossOriginEmbedderPolicy: true,
 }));
+
+// Cache-Control for API: prevent caching authenticated responses
+app.use('/api', (req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  next();
+});
+
+// General API rate limiting
+app.use('/api', apiLimiter);
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true
@@ -41,6 +54,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Роуты
+app.use('/api/auth/login', loginLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/rfq', rfqRoutes);
