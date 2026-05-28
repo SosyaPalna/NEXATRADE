@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Flag, MessageCircle, Send, Archive, AlertCircle, CheckCircle2, Clock, XCircle, Inbox } from 'lucide-react'
+import ImageLightbox from './ImageLightbox'
 
 export default function UserReports() {
   const [activeReports, setActiveReports] = useState([])
@@ -199,8 +200,27 @@ export default function UserReports() {
           </DialogHeader>
 
           <div className="space-y-2 text-sm">
+            {selectedReport?.targetName && (
+              <p><span className="text-muted-foreground">На что жаловались:</span> {selectedReport.targetName}</p>
+            )}
             <p><span className="text-muted-foreground">Причина:</span> {selectedReport?.reason}</p>
             {selectedReport?.description && <p><span className="text-muted-foreground">Описание:</span> {selectedReport.description}</p>}
+            {selectedReport?.screenshots?.length > 0 && (
+              <div className="pt-1">
+                <p className="text-muted-foreground mb-2">Скриншоты:</p>
+                <div className="flex flex-wrap gap-2">
+                  {selectedReport.screenshots.map((src, idx) => (
+                    <ImageLightbox key={idx} images={selectedReport.screenshots}>
+                      <img
+                        src={src}
+                        alt={`Скриншот ${idx + 1}`}
+                        className="h-16 w-16 object-cover rounded-md border border-border hover:border-primary transition-colors"
+                      />
+                    </ImageLightbox>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <Separator className="bg-border" />
