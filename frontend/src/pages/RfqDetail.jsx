@@ -14,6 +14,7 @@ import {
   CheckCircle2, XCircle, Building2, Send, MessageSquare, Tag
 } from 'lucide-react'
 import SEO from '../components/SEO'
+import ReportButton from '../components/ReportButton'
 
 export default function RfqDetail() {
   const { id } = useParams()
@@ -116,6 +117,12 @@ export default function RfqDetail() {
                 {rfq.buyer?.name} • {new Date(rfq.createdAt).toLocaleDateString('ru-RU')}
               </div>
             </div>
+            <ReportButton
+              type="rfq"
+              targetId={rfq.id}
+              targetName={rfq.title}
+              targetLink={`/rfq/${rfq.id}`}
+            />
             <Badge className={
               rfq.status === 'open' ? 'bg-primary text-white hover:bg-primary' :
               rfq.status === 'in_progress' ? 'bg-amber-500 text-white hover:bg-amber-500' :

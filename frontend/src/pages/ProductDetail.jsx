@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator'
 import { Package, Building2, ArrowLeft, ShoppingCart, MessageCircle, Phone, Globe, Mail } from 'lucide-react'
 import SEO from '../components/SEO'
 import Chat from '../components/Chat'
+import ReportButton from '../components/ReportButton'
 
 export default function ProductDetail() {
   const { id } = useParams()
@@ -155,6 +156,12 @@ export default function ProductDetail() {
                         Профиль компании
                       </Link>
                     </Button>
+                    <ReportButton
+                      type="product"
+                      targetId={product.id}
+                      targetName={product.name}
+                      targetLink={`/product/${product.id}`}
+                    />
                   </div>
                 )}
               </CardContent>

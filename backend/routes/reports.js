@@ -1,9 +1,8 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('../utils/db');
 const authenticate = require('../middleware/auth');
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 // 🔐 Middleware: проверка на админа
 const requireAdmin = async (req, res, next) => {
@@ -16,18 +15,41 @@ const requireAdmin = async (req, res, next) => {
   }
 };
 
+// 🔹 Загрузить скриншот (base64)
+router.post('/upload-screenshot', authenticate, async (req, res) => {
+  try {
+    const { image } = req.body;
+    if (!image) return res.status(400).json({ error: 'Нет изображения' });
+    // Для диплома/прототипа: base64 хранится как есть (в реальном проекте — S3/Cloudinary)
+    res.json({ url: image });
+  } catch (err) {
+    console.error('[reports] upload-screenshot error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // 🔹 Создать жалобу (любой авторизованный пользователь)
 router.post('/', authenticate, async (req, res) => {
   try {
-    const { type, targetId, reason, description } = req.body;
+    const { type, targetId, targetName, targetLink, reason, description, screenshots } = req.body;
     if (!type || !targetId || !reason) {
       return res.status(400).json({ error: 'Тип, ID цели и причина обязательны' });
     }
     const report = await prisma.report.create({
-      data: { type, targetId, reason, description, reporterId: req.tenantId }
+      data: {
+        type,
+        targetId,
+        targetName: targetName || null,
+        targetLink: targetLink || null,
+        reason,
+        description: description || null,
+        screenshots: screenshots || [],
+        reporterId: req.tenantId
+      }
     });
     res.status(201).json(report);
   } catch (err) {
+    console.error('[reports] POST / error:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -51,6 +73,7 @@ router.get('/my', authenticate, async (req, res) => {
 
     res.json({ reports, total, page: parseInt(page), pages: Math.ceil(total / limit) });
   } catch (err) {
+    console.error('[reports] GET /my error:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -74,6 +97,7 @@ router.get('/:id', authenticate, async (req, res) => {
     }
     res.json(report);
   } catch (err) {
+    console.error('[reports] GET /:id error:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -105,8 +129,7 @@ router.post('/:id/messages', authenticate, async (req, res) => {
     });
 
     // Уведомление другой стороне
-    const recipientId = user?.isAdmin ? report.reporterId : null; // админ пишет → уведомляем пользователя
-    // Найдём админа, если пишет пользователь
+    const recipientId = user?.isAdmin ? report.reporterId : null;
     let adminRecipientId = null;
     if (!user?.isAdmin) {
       const admins = await prisma.user.findMany({ where: { isAdmin: true }, select: { tenantId: true } });
@@ -129,6 +152,7 @@ router.post('/:id/messages', authenticate, async (req, res) => {
 
     res.status(201).json(message);
   } catch (err) {
+    console.error('[reports] POST /:id/messages error:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -150,6 +174,7 @@ router.get('/:id/messages', authenticate, async (req, res) => {
     });
     res.json(messages);
   } catch (err) {
+    console.error('[reports] GET /:id/messages error:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -174,6 +199,7 @@ router.get('/', authenticate, requireAdmin, async (req, res) => {
 
     res.json({ reports, total, page: parseInt(page), pages: Math.ceil(total / limit) });
   } catch (err) {
+    console.error('[reports] GET / error:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -196,7 +222,6 @@ router.patch('/:id', authenticate, requireAdmin, async (req, res) => {
       }
     });
 
-    // Уведомляем пользователя о смене статуса
     const statusLabels = {
       pending: 'В ожидании',
       in_progress: 'В работе',
@@ -218,6 +243,7 @@ router.patch('/:id', authenticate, requireAdmin, async (req, res) => {
 
     res.json(report);
   } catch (err) {
+    console.error('[reports] PATCH /:id error:', err);
     res.status(500).json({ error: err.message });
   }
 });

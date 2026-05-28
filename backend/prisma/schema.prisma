@@ -135,8 +135,11 @@ model Report {
   id          String   @id @default(uuid())
   type        String
   targetId    String
+  targetName  String?
+  targetLink  String?
   reason      String
   description String?
+  screenshots String[]
   status      String   @default("pending")
   reporterId  String
   createdAt   DateTime @default(now())

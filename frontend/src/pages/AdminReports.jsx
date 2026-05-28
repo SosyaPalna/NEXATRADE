@@ -24,6 +24,7 @@ import {
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Search, ChevronLeft, ChevronRight, CheckCircle2, XCircle, AlertCircle, Flag, MessageCircle, Send, Archive, Play, Eye } from 'lucide-react'
 import SEO from '../components/SEO'
+import ImageLightbox from '../components/ImageLightbox'
 
 export default function AdminReports() {
   const [reports, setReports] = useState([])
@@ -108,9 +109,10 @@ export default function AdminReports() {
   const typeLabel = (type) => {
     switch (type) {
       case 'message': return 'Сообщение'
-      case 'user': return 'Пользователь'
+      case 'user': return 'Компания'
       case 'product': return 'Товар'
       case 'rfq': return 'Заявка'
+      case 'company': return 'Компания'
       default: return type
     }
   }
@@ -183,7 +185,25 @@ export default function AdminReports() {
                         {typeLabel(report.type)}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3 text-foreground font-mono text-xs">{report.targetId.slice(0, 8)}...</td>
+                    <td className="px-4 py-3">
+                      {report.targetName ? (
+                        report.targetLink ? (
+                          <a
+                            href={report.targetLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-primary hover:underline line-clamp-1"
+                            title={report.targetName}
+                          >
+                            {report.targetName}
+                          </a>
+                        ) : (
+                          <span className="text-sm text-foreground line-clamp-1">{report.targetName}</span>
+                        )
+                      ) : (
+                        <span className="text-foreground font-mono text-xs">{report.targetId.slice(0, 8)}...</span>
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-foreground">{report.reason}</td>
                     <td className="px-4 py-3 text-muted-foreground max-w-[200px] truncate">{report.description || '—'}</td>
                     <td className="px-4 py-3">{statusBadge(report.status)}</td>
@@ -306,8 +326,36 @@ export default function AdminReports() {
           <div className="space-y-2 text-sm">
             <p><span className="text-muted-foreground">Reporter ID:</span> {selectedReport?.reporterId}</p>
             <p><span className="text-muted-foreground">Target ID:</span> {selectedReport?.targetId}</p>
+            {selectedReport?.targetName && (
+              <p>
+                <span className="text-muted-foreground">Объект:</span>{' '}
+                {selectedReport.targetLink ? (
+                  <a href={selectedReport.targetLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                    {selectedReport.targetName}
+                  </a>
+                ) : (
+                  selectedReport.targetName
+                )}
+              </p>
+            )}
             <p><span className="text-muted-foreground">Причина:</span> {selectedReport?.reason}</p>
             {selectedReport?.description && <p><span className="text-muted-foreground">Описание:</span> {selectedReport.description}</p>}
+            {selectedReport?.screenshots?.length > 0 && (
+              <div className="pt-1">
+                <p className="text-muted-foreground mb-2">Скриншоты:</p>
+                <div className="flex flex-wrap gap-2">
+                  {selectedReport.screenshots.map((src, idx) => (
+                    <ImageLightbox key={idx} images={selectedReport.screenshots}>
+                      <img
+                        src={src}
+                        alt={`Скриншот ${idx + 1}`}
+                        className="h-20 w-20 object-cover rounded-md border border-border hover:border-primary transition-colors"
+                      />
+                    </ImageLightbox>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <Separator className="bg-border" />
