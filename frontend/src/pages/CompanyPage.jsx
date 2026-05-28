@@ -28,6 +28,7 @@ import {
   MapPin
 } from 'lucide-react'
 import SEO from '../components/SEO'
+import ReportButton from '../components/ReportButton'
 
 export default function CompanyPage() {
   const { id } = useParams()
@@ -229,15 +230,25 @@ export default function CompanyPage() {
                 </span>
               </div>
             </div>
-            {isOwn && (
-              <Button
-                onClick={() => isEditing ? setIsEditing(false) : setIsEditing(true)}
-                variant={isEditing ? 'default' : 'outline'}
-                className={isEditing ? 'bg-primary hover:bg-primary/90 text-white' : 'border-border text-foreground hover:bg-muted'}
-              >
-                {isEditing ? <><X className="h-4 w-4 mr-1" /> Отмена</> : <><Pencil className="h-4 w-4 mr-1" /> Редактировать</>}
-              </Button>
-            )}
+            <div className="flex items-center gap-2">
+              {!isOwn && company && (
+                <ReportButton
+                  type="user"
+                  targetId={company.id}
+                  targetName={company.name}
+                  targetLink={`/company/${company.id}`}
+                />
+              )}
+              {isOwn && (
+                <Button
+                  onClick={() => isEditing ? setIsEditing(false) : setIsEditing(true)}
+                  variant={isEditing ? 'default' : 'outline'}
+                  className={isEditing ? 'bg-primary hover:bg-primary/90 text-white' : 'border-border text-foreground hover:bg-muted'}
+                >
+                  {isEditing ? <><X className="h-4 w-4 mr-1" /> Отмена</> : <><Pencil className="h-4 w-4 mr-1" /> Редактировать</>}
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>
