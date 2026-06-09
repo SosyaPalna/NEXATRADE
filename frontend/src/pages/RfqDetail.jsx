@@ -85,6 +85,7 @@ export default function RfqDetail() {
       <SEO
         title={rfq.title}
         description={rfq.description || `Заявка на закупку: ${rfq.title}`}
+        keywords={`${rfq.title}, заявка на закупку, RFQ, оптовые закупки, ${rfq.category?.name || ''}`}
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'Demand',

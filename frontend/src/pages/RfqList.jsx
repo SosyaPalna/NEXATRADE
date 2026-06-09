@@ -58,7 +58,19 @@ export default function RfqList() {
 
   return (
     <div className="space-y-6">
-      <SEO title="Заявки на закупку" description="Актуальные заявки на закупку от покупателей. Найдите выгодные контракты и откликнитесь на RFQ." />
+      <SEO
+        title="Заявки на закупку"
+        description="Актуальные заявки на закупку от покупателей. Найдите выгодные контракты и откликнитесь на RFQ."
+        keywords="заявки на закупку, RFQ, закупки оптом, тендеры, B2B заявки, поиск поставщиков"
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'WebPage',
+          name: 'Заявки на закупку — NexaTrade',
+          description: 'Актуальные заявки на закупку от покупателей. Найдите выгодные контракты и откликнитесь на RFQ.',
+          url: typeof window !== 'undefined' ? window.location.href : 'https://nexatrade.ru/requests',
+          isPartOf: { '@type': 'WebSite', name: 'NexaTrade', url: 'https://nexatrade.ru' },
+        }}
+      />
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Запросы на закупку</h1>
