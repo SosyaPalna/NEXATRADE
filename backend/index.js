@@ -110,13 +110,40 @@ const staticPath = possibleStaticPaths.find(p => fs.existsSync(p));
 
 if (staticPath) {
   app.use(express.static(staticPath));
-  // Для SPA — отдаём index.html на все остальные GET-запросы (кроме /api)
-  app.get(/^\/(?!api\/)/, (req, res) => {
-    res.sendFile(path.join(staticPath, 'index.html'));
-  });
   console.log(`📁 Serving static files from: ${staticPath}`);
 } else {
   console.log('⚠️  Static files not found. Frontend will not be served.');
+}
+
+// 🔍 Prerender.io — отдаём поисковым ботам отрендеренный HTML вместо пустого SPA-shell
+const prerender = require('prerender-node');
+if (process.env.PRERENDER_TOKEN) {
+  prerender.set('prerenderToken', process.env.PRERENDER_TOKEN);
+  prerender.set('protocol', 'https');
+  app.use((req, res, next) => {
+    // Пропускаем API, WebSocket, health-check и статические файлы
+    if (
+      req.url.startsWith('/api/') ||
+      req.url.startsWith('/socket.io/') ||
+      req.url.startsWith('/health') ||
+      req.url.startsWith('/db/') ||
+      req.url.startsWith('/assets/') ||
+      req.url.startsWith('/.well-known/')
+    ) {
+      return next();
+    }
+    return prerender(req, res, next);
+  });
+  console.log('🔍 Prerender.io enabled');
+} else {
+  console.log('⚠️  PRERENDER_TOKEN not set — prerender.io disabled');
+}
+
+// SPA fallback — отдаём index.html для всех остальных маршрутов
+if (staticPath) {
+  app.get(/^\/(?!api\/)/, (req, res) => {
+    res.sendFile(path.join(staticPath, 'index.html'));
+  });
 }
 
 // Глобальный обработчик ошибок Express

@@ -52,7 +52,34 @@ export default function CategoryPage() {
 
   return (
     <div className="space-y-5">
-      <SEO title={category.name} description={`${category.name} — товары и услуги от B2B-поставщиков на NexaTrade. ${category.description || ''}`} />
+      <SEO
+        title={category.name}
+        description={`${category.name} — товары и услуги от B2B-поставщиков на NexaTrade. ${category.description || ''}`}
+        keywords={`${category.name}, B2B каталог, оптовые закупки, поставщики ${category.name}, товары оптом`}
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@graph': [
+            {
+              '@type': 'CollectionPage',
+              name: `${category.name} — NexaTrade`,
+              description: category.description || `${category.name} — товары и услуги от B2B-поставщиков на NexaTrade.`,
+              url: typeof window !== 'undefined' ? window.location.href : `https://nexatrade.ru/category/${slug}`,
+              isPartOf: { '@type': 'WebSite', name: 'NexaTrade', url: 'https://nexatrade.ru' },
+              about: { '@type': 'Thing', name: category.name },
+            },
+            {
+              '@type': 'BreadcrumbList',
+              itemListElement: [
+                { '@type': 'ListItem', position: 1, name: 'Каталог', item: 'https://nexatrade.ru/products' },
+                ...(category.parent
+                  ? [{ '@type': 'ListItem', position: 2, name: category.parent.name, item: `https://nexatrade.ru/category/${category.parent.slug}` }]
+                  : []),
+                { '@type': 'ListItem', position: category.parent ? 3 : 2, name: category.name, item: `https://nexatrade.ru/category/${slug}` },
+              ],
+            },
+          ],
+        }}
+      />
       {/* Breadcrumbs */}
       <nav className="flex items-center gap-2 text-sm text-muted-foreground">
         <Link to="/products" className="hover:text-foreground hover:underline transition-colors">Каталог</Link>

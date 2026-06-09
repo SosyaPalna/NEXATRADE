@@ -14,8 +14,28 @@ export default function Home() {
   return (
     <div className="space-y-20 pb-12">
       <SEO
-        title="NexaTrade — B2B-платформа для оптовых закупок и продаж"
+        title="B2B-платформа для оптовых закупок и продаж"
         description="Находите надёжных поставщиков и покупателей без посредников. Размещайте заявки на закупку, получайте предложения и заключайте прямые контракты."
+        keywords="B2B маркетплейс, оптовые закупки, поставщики, заявки на закупку, RFQ, торговая площадка, B2B платформа, оптовые продажи, закупки для бизнеса"
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@graph': [
+            {
+              '@type': 'WebSite',
+              name: 'NexaTrade',
+              url: 'https://nexatrade.ru',
+              description: 'Современная B2B-платформа для оптовых закупок и продаж',
+              inLanguage: 'ru-RU',
+            },
+            {
+              '@type': 'Organization',
+              name: 'NexaTrade',
+              url: 'https://nexatrade.ru',
+              logo: 'https://nexatrade.ru/favicon.svg',
+              description: 'B2B маркетплейс для оптовых закупок и прямых контрактов между компаниями',
+            },
+          ],
+        }}
       />
 
       {/* Hero */}

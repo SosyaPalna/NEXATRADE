@@ -1,0 +1,17 @@
+{
+  "name": "NexaTrade — B2B маркетплейс",
+  "short_name": "NexaTrade",
+  "description": "Современная B2B-платформа для оптовых закупок и продаж",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#005BAC",
+  "lang": "ru",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

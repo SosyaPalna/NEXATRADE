@@ -11,7 +11,7 @@ import { AlertCircle, Mail, Lock } from 'lucide-react'
 export default function Login() {
   return (
     <>
-      <SEO title="Вход" description="Войдите в свой аккаунт NexaTrade — B2B-платформа для оптовых закупок." noindex />
+      <SEO title="Вход" description="Войдите в свой аккаунт NexaTrade — B2B-платформа для оптовых закупок." noindex nofollow />
       <LoginForm />
     </>
   )
