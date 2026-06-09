@@ -23,7 +23,7 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "https://mc.yandex.ru", "https://mc.yandex.com"],
+      scriptSrc: ["'self'", "https://mc.yandex.ru", "https://mc.yandex.com", "https://yastatic.net"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "blob:", "https://mc.yandex.ru", "https://mc.yandex.com"],
       connectSrc: ["'self'", "https://mc.yandex.ru", "wss://mc.yandex.ru", "https://mc.yandex.com", "wss://mc.yandex.com"],
