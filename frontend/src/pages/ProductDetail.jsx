@@ -56,8 +56,43 @@ export default function ProductDetail() {
   return (
     <div className="space-y-6">
       <SEO
-        title={`${product.name} — купить оптом на NexaTrade`}
+        title={`${product.name} — купить оптом`}
         description={product.description?.slice(0, 160) || `Товар ${product.name} от поставщика ${seller?.name || ''}`}
+        keywords={`${product.name}, купить оптом, ${product.category?.name || ''}, B2B поставщики, оптовые закупки`}
+        type="product"
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@graph': [
+            {
+              '@type': 'Product',
+              name: product.name,
+              description: product.description || `Товар ${product.name} от поставщика ${seller?.name || ''}`,
+              image: product.images?.[0] || undefined,
+              sku: product.id,
+              brand: seller?.name ? { '@type': 'Brand', name: seller.name } : undefined,
+              offers: {
+                '@type': 'Offer',
+                url: typeof window !== 'undefined' ? window.location.href : `https://nexatrade.ru/product/${product.id}`,
+                priceCurrency: 'RUB',
+                price: product.price?.toString() || undefined,
+                availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/PreOrder',
+                seller: seller?.name
+                  ? { '@type': 'Organization', name: seller.name, url: `https://nexatrade.ru/company/${seller.id}` }
+                  : undefined,
+              },
+            },
+            {
+              '@type': 'BreadcrumbList',
+              itemListElement: [
+                { '@type': 'ListItem', position: 1, name: 'Каталог', item: 'https://nexatrade.ru/products' },
+                ...(product.category?.slug
+                  ? [{ '@type': 'ListItem', position: 2, name: product.category.name, item: `https://nexatrade.ru/category/${product.category.slug}` }]
+                  : []),
+                { '@type': 'ListItem', position: product.category?.slug ? 3 : 2, name: product.name, item: `https://nexatrade.ru/product/${product.id}` },
+              ],
+            },
+          ],
+        }}
       />
 
       {/* Breadcrumbs */}

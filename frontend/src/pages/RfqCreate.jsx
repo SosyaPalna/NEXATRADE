@@ -90,7 +90,11 @@ export default function RfqCreate() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <SEO title="Новая заявка на закупку" description="Создайте новую заявку на закупку и получите предложения от лучших B2B-поставщиков." />
+      <SEO
+        title="Новая заявка на закупку"
+        description="Создайте новую заявку на закупку и получите предложения от лучших B2B-поставщиков."
+        keywords="создать заявку на закупку, RFQ, оптовые закупки, разместить тендер, поиск поставщиков"
+      />
       <div className="text-center">
         <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center justify-center gap-2">
           <FileText className="h-6 w-6 text-primary" />

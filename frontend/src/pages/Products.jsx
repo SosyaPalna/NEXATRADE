@@ -114,7 +114,19 @@ export default function Products() {
 
   return (
     <div className="space-y-6">
-      <SEO title="Каталог товаров" description="Каталог товаров и услуг от проверенных B2B-поставщиков на NexaTrade." />
+      <SEO
+        title="Каталог товаров"
+        description="Каталог товаров и услуг от проверенных B2B-поставщиков на NexaTrade."
+        keywords="каталог товаров, B2B каталог, оптовые товары, поставщики, закупки оптом, торговая площадка"
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'WebPage',
+          name: 'Каталог товаров — NexaTrade',
+          description: 'Каталог товаров и услуг от проверенных B2B-поставщиков на NexaTrade.',
+          url: typeof window !== 'undefined' ? window.location.href : 'https://nexatrade.ru/products',
+          isPartOf: { '@type': 'WebSite', name: 'NexaTrade', url: 'https://nexatrade.ru' },
+        }}
+      />
       {/* Заголовок */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>

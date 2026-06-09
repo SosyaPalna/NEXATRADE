@@ -151,6 +151,7 @@ export default function CompanyPage() {
       <SEO
         title={company.name}
         description={company.description || `Компания ${company.name} на B2B-платформе NexaTrade`}
+        keywords={`${company.name}, компания поставщик, B2B поставщик, ${company.address || ''}, оптовые продажи`}
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'Organization',

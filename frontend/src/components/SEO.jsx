@@ -38,7 +38,15 @@ export default function SEO({
   const metaDesc = description || DEFAULT.description
   const metaKeywords = keywords || DEFAULT.keywords
   const ogImage = image || DEFAULT.image
-  const ogUrl = url || DEFAULT.url
+
+  // Используем текущий URL страницы для canonical и OG,
+  // чтобы избежать дублей и помочь поисковикам понять уникальность страницы.
+  const currentUrl =
+    typeof window !== 'undefined'
+      ? window.location.href
+      : DEFAULT.url
+
+  const ogUrl = url || currentUrl
   const canonicalUrl = canonical || ogUrl
 
   const robots = []
