@@ -39,7 +39,7 @@ export default function Home() {
       />
 
       {/* Hero */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/10 via-primary/5 to-background border border-border">
+      <section className="relative overflow-hidden rounded-3xl bg-linear-to-br from-primary/10 via-primary/5 to-background border border-border">
         <div className="px-6 py-16 sm:px-12 sm:py-24 lg:px-16 text-center space-y-8">
           <Badge variant="outline" className="rounded-full px-4 py-1.5 text-sm border-primary/30 text-primary">
             B2B-маркетплейс нового поколения
