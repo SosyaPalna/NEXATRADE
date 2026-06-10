@@ -10,13 +10,18 @@ const loginLimiter = rateLimit({
   skipSuccessfulRequests: false,
 });
 
-// General API limit: 100 requests per 15 minutes per IP
+// General API limit: 1000 requests per 15 minutes per IP
+// For authenticated users, rate limit by userId to avoid shared IP issues (NAT, corporate networks)
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 1000,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Слишком много запросов. Попробуйте позже.' },
+  keyGenerator: (req) => {
+    // If authenticated, limit by userId; otherwise by IP
+    return req.userId || req.ip;
+  },
 });
 
 module.exports = { loginLimiter, apiLimiter };
