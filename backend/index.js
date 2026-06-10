@@ -5,6 +5,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const http = require('http'); // ← Важно для Socket.io
 const prisma = require('./utils/db');
+const { setIo } = require('./utils/socket');
 const { loginLimiter, apiLimiter } = require('./middleware/rateLimit');
 
 const authRoutes = require('./routes/auth');
@@ -77,6 +78,7 @@ const server = http.createServer(app);
 
 // Инициализация Socket.io (после создания server, но до prisma.$connect)
 const io = initSocket(server);
+setIo(io);
 
 const adminRoutes = require('./routes/admin');
 app.use('/api/admin', adminRoutes);

@@ -1,6 +1,7 @@
 const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 const authenticate = require('../middleware/auth');
+const { getIo } = require('../utils/socket');
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -158,7 +159,8 @@ router.post('/:id/quotes', authenticate, async (req, res) => {
         message,
         rfqId: req.params.id,
         sellerId: req.tenantId
-      }
+      },
+      include: { seller: { select: { name: true } } }
     });
 
     // Обновляем статус RFQ
@@ -166,6 +168,26 @@ router.post('/:id/quotes', authenticate, async (req, res) => {
       where: { id: req.params.id },
       data: { status: 'in_progress' }
     });
+
+    // Уведомляем покупателя о новом предложении
+    try {
+      const notification = await prisma.notification.create({
+        data: {
+          title: `Новое предложение по заявке «${rfq.title}»`,
+          message: `Компания «${quote.seller.name}» предложила цену ${price} ₽${deliveryTime ? `, срок поставки: ${deliveryTime}` : ''}.`,
+          type: 'rfq',
+          link: `/rfq/${req.params.id}`,
+          recipientId: rfq.buyerId,
+          metadata: { rfqId: req.params.id, quoteId: quote.id, sellerId: req.tenantId },
+        },
+      });
+      const io = getIo();
+      if (io) {
+        io.to(`tenant:${rfq.buyerId}`).emit('notification:new', notification);
+      }
+    } catch (notifyErr) {
+      console.error('❌ Quote notification error:', notifyErr.message);
+    }
 
     res.status(201).json(quote);
   } catch (err) {

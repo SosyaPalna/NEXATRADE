@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Building2, Upload, CheckCircle2, XCircle, Clock, Loader2 } from 'lucide-react'
+import { Building2, Upload, CheckCircle2, XCircle, Clock, Loader2, FileText, FileImage } from 'lucide-react'
 
 const STATUS_LABELS = {
   none: { text: 'Не верифицирована', variant: 'secondary', icon: Building2 },
@@ -129,26 +129,36 @@ export default function CompanyVerification() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center gap-3">
-            <StatusIcon className={`h-5 w-5 ${
-              status === 'verified' ? 'text-green-500' :
-              status === 'rejected' ? 'text-red-500' :
-              status === 'pending' ? 'text-amber-500' : 'text-muted-foreground'
-            }`} />
-            <Badge variant={statusInfo.variant}>{statusInfo.text}</Badge>
-          </div>
-
-          {statusData?.inn && (
-            <div className="text-sm space-y-1">
-              <p><span className="text-muted-foreground">ИНН:</span> {statusData.inn}</p>
-              {statusData.ogrn && <p><span className="text-muted-foreground">ОГРН:</span> {statusData.ogrn}</p>}
-              {statusData.companyType && <p><span className="text-muted-foreground">Тип:</span> {statusData.companyType}</p>}
-              {statusData.legalAddress && <p><span className="text-muted-foreground">Адрес:</span> {statusData.legalAddress}</p>}
+          <div className={`rounded-lg border p-4 flex items-start gap-4 ${
+            status === 'verified' ? 'bg-green-50 border-green-200' :
+            status === 'rejected' ? 'bg-red-50 border-red-200' :
+            status === 'pending' ? 'bg-amber-50 border-amber-200' : 'bg-muted/40'
+          }`}>
+            <div className={`mt-0.5 p-2 rounded-full ${
+              status === 'verified' ? 'bg-green-100 text-green-600' :
+              status === 'rejected' ? 'bg-red-100 text-red-600' :
+              status === 'pending' ? 'bg-amber-100 text-amber-600' : 'bg-muted text-muted-foreground'
+            }`}>
+              <StatusIcon className="h-5 w-5" />
             </div>
-          )}
+            <div className="flex-1 space-y-2">
+              <div className="flex items-center gap-2">
+                <Badge variant={statusInfo.variant}>{statusInfo.text}</Badge>
+              </div>
+              {statusData?.inn && (
+                <div className="text-sm space-y-1">
+                  <p><span className="text-muted-foreground">ИНН:</span> {statusData.inn}</p>
+                  {statusData.ogrn && <p><span className="text-muted-foreground">ОГРН:</span> {statusData.ogrn}</p>}
+                  {statusData.companyType && <p><span className="text-muted-foreground">Тип:</span> {statusData.companyType}</p>}
+                  {statusData.legalAddress && <p><span className="text-muted-foreground">Адрес:</span> {statusData.legalAddress}</p>}
+                </div>
+              )}
+            </div>
+          </div>
 
           {status === 'rejected' && statusData?.rejectedReason && (
             <Alert variant="destructive">
+              <XCircle className="h-4 w-4" />
               <AlertDescription>Причина отклонения: {statusData.rejectedReason}</AlertDescription>
             </Alert>
           )}
@@ -160,9 +170,9 @@ export default function CompanyVerification() {
           )}
 
           {status === 'verified' && (
-            <div className="flex items-center gap-2 text-sm text-green-600">
-              <CheckCircle2 className="h-4 w-4" />
-              Ваша компания прошла верификацию
+            <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 rounded-lg p-3 border border-green-200">
+              <CheckCircle2 className="h-4 w-4 shrink-0" />
+              <span>Ваша компания верифицирована. Вы получаете отметку подтверждённого участника на площадке.</span>
             </div>
           )}
         </CardContent>
@@ -252,18 +262,30 @@ export default function CompanyVerification() {
             <div className="space-y-2">
               <Label>Документы</Label>
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                {docs.map((doc, i) => (
-                  <div key={i} className="relative aspect-square rounded-lg border border-border overflow-hidden group">
-                    <img src={doc} alt={`Документ ${i + 1}`} className="w-full h-full object-cover" />
-                    <button
-                      type="button"
-                      onClick={() => removeDoc(i)}
-                      className="absolute top-1 right-1 bg-destructive text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <XCircle className="h-3 w-3" />
-                    </button>
-                  </div>
-                ))}
+                {docs.map((doc, i) => {
+                  const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(doc)
+                  const isPdf = /\.pdf$/i.test(doc)
+                  return (
+                    <div key={i} className="relative aspect-square rounded-lg border border-border overflow-hidden group bg-muted flex flex-col items-center justify-center">
+                      {isImage ? (
+                        <img src={doc} alt={`Документ ${i + 1}`} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="flex flex-col items-center justify-center p-2 text-center">
+                          {isPdf ? <FileText className="h-8 w-8 text-red-500 mb-1" /> : <FileText className="h-8 w-8 text-primary mb-1" />}
+                          <span className="text-[10px] text-muted-foreground uppercase">{isPdf ? 'PDF' : 'Файл'}</span>
+                          <a href={doc} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:underline mt-1">Открыть</a>
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => removeDoc(i)}
+                        className="absolute top-1 right-1 bg-destructive text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                      >
+                        <XCircle className="h-3 w-3" />
+                      </button>
+                    </div>
+                  )
+                })}
                 <label className="flex flex-col items-center justify-center aspect-square rounded-lg border-2 border-dashed border-border hover:border-primary hover:bg-muted cursor-pointer transition-colors">
                   <Upload className="h-6 w-6 text-muted-foreground mb-1" />
                   <span className="text-xs text-muted-foreground">{uploading ? 'Загрузка...' : 'Добавить'}</span>
