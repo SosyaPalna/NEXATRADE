@@ -26,7 +26,8 @@ import {
   ExternalLink,
   MessageSquare,
   MapPin,
-  CheckCircle2
+  CheckCircle2,
+  Plus
 } from 'lucide-react'
 import SEO from '../components/SEO'
 import ReportButton from '../components/ReportButton'
@@ -338,7 +339,15 @@ export default function CompanyPage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold text-foreground">Товары компании</h2>
-                  <span className="text-sm text-muted-foreground">{company._count?.products || 0} позиций в каталоге</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-muted-foreground">{company._count?.products || 0} позиций в каталоге</span>
+                    {isOwn && (
+                      <Button size="sm" className="bg-primary text-white hover:bg-primary/90 gap-1.5" onClick={() => navigate('/products')}>
+                        <Plus className="h-4 w-4" />
+                        Добавить товар
+                      </Button>
+                    )}
+                  </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {company.products.slice(0, 6).map(p => (
