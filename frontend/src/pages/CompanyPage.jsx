@@ -43,7 +43,8 @@ export default function CompanyPage() {
 
   const [form, setForm] = useState({
     description: '', website: '', phone: '', avatarUrl: '', coverUrl: '',
-    socialLinks: { vk: '', telegram: '', whatsapp: '' }
+    socialLinks: { vk: '', telegram: '', whatsapp: '' },
+    city: '', deliveryMethods: '', paymentMethods: ''
   })
 
   const loadData = useCallback(async () => {
@@ -63,7 +64,10 @@ export default function CompanyPage() {
           phone: companyRes.data.phone || '',
           avatarUrl: companyRes.data.avatarUrl || '',
           coverUrl: companyRes.data.coverUrl || '',
-          socialLinks: companyRes.data.socialLinks || { vk: '', telegram: '', whatsapp: '' }
+          socialLinks: companyRes.data.socialLinks || { vk: '', telegram: '', whatsapp: '' },
+          city: companyRes.data.city || '',
+          deliveryMethods: (companyRes.data.deliveryMethods || []).join(', '),
+          paymentMethods: (companyRes.data.paymentMethods || []).join(', ')
         })
       }
     } catch {
@@ -115,7 +119,12 @@ export default function CompanyPage() {
     setSaving(true)
     setError('')
     try {
-      await api.put('/company/me', form)
+      const payload = {
+        ...form,
+        deliveryMethods: form.deliveryMethods ? form.deliveryMethods.split(',').map(s => s.trim()).filter(Boolean) : [],
+        paymentMethods: form.paymentMethods ? form.paymentMethods.split(',').map(s => s.trim()).filter(Boolean) : []
+      }
+      await api.put('/company/me', payload)
       setIsEditing(false)
       loadData()
     } catch (err) {
@@ -232,6 +241,12 @@ export default function CompanyPage() {
                     Верифицирована
                   </Badge>
                 )}
+                {company.city && (
+                  <Badge variant="outline" className="border-border text-muted-foreground">
+                    <MapPin className="h-3 w-3 mr-1" />
+                    {company.city}
+                  </Badge>
+                )}
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
                   <CalendarDays className="h-3 w-3" />
                   На платформе с {new Date(company.createdAt).toLocaleDateString('ru-RU')}
@@ -284,6 +299,10 @@ export default function CompanyPage() {
                   {company._count.products}
                 </span>
               )}
+            </TabsTrigger>
+            <TabsTrigger value="delivery" className="data-active:bg-card data-active:text-primary data-active:shadow-sm text-muted-foreground">
+              <Package className="h-4 w-4 mr-1.5" />
+              Доставка и оплата
             </TabsTrigger>
             <TabsTrigger value="contacts" className="data-active:bg-card data-active:text-primary data-active:shadow-sm text-muted-foreground">
               <Phone className="h-4 w-4 mr-1.5" />
@@ -461,6 +480,50 @@ export default function CompanyPage() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="delivery" className="mt-4">
+            <Card className="border-border">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2 text-foreground">
+                  <Package className="h-4 w-4 text-primary" />
+                  Доставка и оплата
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-3">
+                  <h3 className="text-sm font-medium text-foreground">Способы доставки</h3>
+                  {company.deliveryMethods?.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {company.deliveryMethods.map((method, i) => (
+                        <Badge key={i} variant="outline" className="border-border text-foreground">
+                          {method}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Не указаны</p>
+                  )}
+                </div>
+                <div className="space-y-3">
+                  <h3 className="text-sm font-medium text-foreground">Способы оплаты</h3>
+                  {company.paymentMethods?.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {company.paymentMethods.map((method, i) => (
+                        <Badge key={i} variant="outline" className="border-border text-foreground">
+                          {method}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Не указаны</p>
+                  )}
+                </div>
+                <div className="bg-amber-50 border border-amber-200 rounded-md p-3 text-sm text-amber-700">
+                  Оплата и доставка осуществляются напрямую между поставщиком и покупателем. Площадка NexaTrade не проводит платежи.
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       ) : (
         <Card className="border-border">
@@ -535,6 +598,42 @@ export default function CompanyPage() {
                     />
                   </div>
                 </div>
+              </div>
+
+              <Separator className="bg-border" />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-foreground">Город</Label>
+                  <Input
+                    value={form.city}
+                    onChange={e => setForm({ ...form, city: e.target.value })}
+                    placeholder="Москва"
+                    className="border-border focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-foreground">Способы доставки</Label>
+                <Input
+                  value={form.deliveryMethods}
+                  onChange={e => setForm({ ...form, deliveryMethods: e.target.value })}
+                  placeholder="Самовывоз, Доставка ТК, Курьер"
+                  className="border-border focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary"
+                />
+                <p className="text-xs text-muted-foreground">Укажите через запятую</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-foreground">Способы оплаты</Label>
+                <Input
+                  value={form.paymentMethods}
+                  onChange={e => setForm({ ...form, paymentMethods: e.target.value })}
+                  placeholder="Безналичный расчёт, Наличные, Карта"
+                  className="border-border focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary"
+                />
+                <p className="text-xs text-muted-foreground">Укажите через запятую</p>
               </div>
 
               <Separator className="bg-border" />
