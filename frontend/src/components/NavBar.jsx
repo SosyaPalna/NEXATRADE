@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { Menu, User, LogOut, Building2, LayoutDashboard, Package, FileText, Sun, Moon, Bell, Check, Trash2, MessageSquare, Gavel, ShieldCheck, MapPin } from 'lucide-react'
+import { Menu, User, LogOut, Building2, LayoutDashboard, Package, FileText, Sun, Moon, Bell, Check, Trash2, MessageSquare, Gavel, ShieldCheck, MapPin, Shield } from 'lucide-react'
 import { useTheme } from './ThemeProvider'
 import { useNotification } from '../context/NotificationContext'
 import { io } from 'socket.io-client'
@@ -285,6 +285,14 @@ export default function NavBar() {
                       Моя компания
                     </Link>
                   </DropdownMenuItem>
+                  {user.isAdmin && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin/dashboard" className="cursor-pointer flex items-center gap-2">
+                        <Shield className="h-4 w-4" />
+                        Админ-панель
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive focus:text-destructive flex items-center gap-2">
                     <LogOut className="h-4 w-4" />
