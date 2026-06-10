@@ -300,11 +300,11 @@ export default function ProductDetail() {
       {/* Табы */}
       <div id="product-tabs">
         <Tabs defaultValue="about" className="w-full">
-          <TabsList variant="line" className="w-full justify-start border-b border-border rounded-none bg-transparent h-auto p-0">
-            <TabsTrigger value="about" className="rounded-none px-4 py-2.5 data-active:after:opacity-100 data-active:after:bg-primary">О товаре</TabsTrigger>
-            <TabsTrigger value="company" className="rounded-none px-4 py-2.5 data-active:after:opacity-100 data-active:after:bg-primary">О компании</TabsTrigger>
-            <TabsTrigger value="delivery" className="rounded-none px-4 py-2.5 data-active:after:opacity-100 data-active:after:bg-primary">Доставка и оплата</TabsTrigger>
-            <TabsTrigger value="chat" className="rounded-none px-4 py-2.5 data-active:after:opacity-100 data-active:after:bg-primary">Чат с поставщиком</TabsTrigger>
+          <TabsList className="bg-muted border border-border w-full">
+            <TabsTrigger value="about" className="data-active:bg-card data-active:text-primary data-active:shadow-sm text-muted-foreground">О товаре</TabsTrigger>
+            <TabsTrigger value="company" className="data-active:bg-card data-active:text-primary data-active:shadow-sm text-muted-foreground">О компании</TabsTrigger>
+            <TabsTrigger value="delivery" className="data-active:bg-card data-active:text-primary data-active:shadow-sm text-muted-foreground">Доставка и оплата</TabsTrigger>
+            <TabsTrigger value="chat" className="data-active:bg-card data-active:text-primary data-active:shadow-sm text-muted-foreground">Чат с поставщиком</TabsTrigger>
           </TabsList>
 
           <TabsContent value="about" className="pt-4">
