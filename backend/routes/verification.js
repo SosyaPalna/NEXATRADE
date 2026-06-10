@@ -2,6 +2,7 @@ const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 const authenticate = require('../middleware/auth');
 const { findPartyByInn } = require('../services/dadata');
+const { getIo } = require('../utils/socket');
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -175,6 +176,23 @@ router.patch('/admin/:id/approve', authenticate, async (req, res) => {
       },
     });
 
+    // Создаём уведомление для владельца компании
+    const notification = await prisma.notification.create({
+      data: {
+        title: 'Верификация подтверждена',
+        message: `Ваша компания "${tenant.name}" успешно прошла верификацию. Теперь вы имеете статус подтверждённого участника.`,
+        type: 'verification',
+        link: '/profile',
+        recipientId: tenant.id,
+      },
+    });
+
+    // Отправляем через Socket.io в реальном времени
+    const io = getIo();
+    if (io) {
+      io.to(`tenant:${tenant.id}`).emit('notification:new', notification);
+    }
+
     res.json({ success: true, message: 'Верификация подтверждена', tenant });
   } catch (err) {
     console.error('[Verification] approve error:', err);
@@ -204,6 +222,23 @@ router.patch('/admin/:id/reject', authenticate, async (req, res) => {
         rejectedReason: reason || 'Документы не соответствуют требованиям',
       },
     });
+
+    // Создаём уведомление для владельца компании
+    const notification = await prisma.notification.create({
+      data: {
+        title: 'Верификация отклонена',
+        message: `Заявка на верификацию компании "${tenant.name}" была отклонена.${reason ? ` Причина: ${reason}` : ''}`,
+        type: 'verification',
+        link: '/profile',
+        recipientId: tenant.id,
+      },
+    });
+
+    // Отправляем через Socket.io в реальном времени
+    const io = getIo();
+    if (io) {
+      io.to(`tenant:${tenant.id}`).emit('notification:new', notification);
+    }
 
     res.json({ success: true, message: 'Верификация отклонена', tenant });
   } catch (err) {

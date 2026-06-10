@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
 import {
   Building2, CheckCircle2, XCircle, Clock, Loader2, Eye
 } from 'lucide-react'
@@ -22,6 +24,8 @@ export default function AdminVerifications() {
   const [selected, setSelected] = useState(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [actionLoading, setActionLoading] = useState(false)
+  const [rejectMode, setRejectMode] = useState(false)
+  const [rejectReason, setRejectReason] = useState('')
 
   const loadRequests = async () => {
     setLoading(true)
@@ -53,12 +57,16 @@ export default function AdminVerifications() {
   }
 
   const handleReject = async (id) => {
-    const reason = prompt('Причина отклонения:')
-    if (!reason) return
+    if (!rejectReason.trim()) {
+      setRejectMode(true)
+      return
+    }
     setActionLoading(true)
     try {
-      await api.patch(`/verification/admin/${id}/reject`, { reason })
+      await api.patch(`/verification/admin/${id}/reject`, { reason: rejectReason.trim() })
       setModalOpen(false)
+      setRejectMode(false)
+      setRejectReason('')
       loadRequests()
     } catch (err) {
       alert(err.response?.data?.error || 'Ошибка')
@@ -69,6 +77,8 @@ export default function AdminVerifications() {
 
   const openModal = (req) => {
     setSelected(req)
+    setRejectMode(false)
+    setRejectReason('')
     setModalOpen(true)
   }
 
@@ -178,10 +188,26 @@ export default function AdminVerifications() {
               {selected.rejectedReason && (
                 <div className="text-red-500">Причина отклонения: {selected.rejectedReason}</div>
               )}
+
+              {selected?.verificationStatus === 'pending' && rejectMode && (
+                <div className="space-y-2">
+                  <Label htmlFor="reject-reason">Причина отклонения</Label>
+                  <Textarea
+                    id="reject-reason"
+                    value={rejectReason}
+                    onChange={e => setRejectReason(e.target.value)}
+                    placeholder="Укажите причину отклонения заявки..."
+                    rows={3}
+                  />
+                  {rejectReason.trim().length === 0 && (
+                    <p className="text-xs text-red-500">Введите причину отклонения</p>
+                  )}
+                </div>
+              )}
             </div>
           )}
           <DialogFooter className="flex gap-2">
-            {selected?.verificationStatus === 'pending' && (
+            {selected?.verificationStatus === 'pending' && !rejectMode && (
               <>
                 <Button variant="outline" onClick={() => setModalOpen(false)}>Закрыть</Button>
                 <Button className="bg-green-500 text-white hover:bg-green-600" onClick={() => handleApprove(selected.id)} disabled={actionLoading}>
@@ -191,6 +217,15 @@ export default function AdminVerifications() {
                 <Button variant="destructive" onClick={() => handleReject(selected.id)} disabled={actionLoading}>
                   <XCircle className="h-4 w-4 mr-1" />
                   Отклонить
+                </Button>
+              </>
+            )}
+            {selected?.verificationStatus === 'pending' && rejectMode && (
+              <>
+                <Button variant="outline" onClick={() => setRejectMode(false)}>Отмена</Button>
+                <Button variant="destructive" onClick={() => handleReject(selected.id)} disabled={actionLoading || !rejectReason.trim()}>
+                  <XCircle className="h-4 w-4 mr-1" />
+                  Подтвердить отклонение
                 </Button>
               </>
             )}

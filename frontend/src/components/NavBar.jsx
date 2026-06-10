@@ -12,8 +12,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { Menu, User, LogOut, Building2, LayoutDashboard, Package, FileText, Sun, Moon, Bell, Check, Trash2 } from 'lucide-react'
+import { Menu, User, LogOut, Building2, LayoutDashboard, Package, FileText, Sun, Moon, Bell, Check, Trash2, MessageSquare, Gavel, ShieldCheck } from 'lucide-react'
 import { useTheme } from './ThemeProvider'
+import { useNotification } from '../context/NotificationContext'
+import { io } from 'socket.io-client'
 
 export default function NavBar() {
   const location = useLocation()
@@ -25,6 +27,7 @@ export default function NavBar() {
   const [unreadCount, setUnreadCount] = useState(0)
   const [notifOpen, setNotifOpen] = useState(false)
   const { theme, toggleTheme } = useTheme()
+  const { addNotification } = useNotification()
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -45,8 +48,30 @@ export default function NavBar() {
     if (!user) return
     loadNotifications()
     const interval = setInterval(loadNotifications, 30000)
-    return () => clearInterval(interval)
-  }, [user])
+
+    // Socket.io для real-time уведомлений
+    const token = localStorage.getItem('token')
+    const socketUrl = window.location.origin
+    const socket = io(socketUrl, {
+      auth: { token },
+      transports: ['websocket', 'polling'],
+    })
+
+    socket.on('connect', () => {
+      console.log('[NavBar] Socket connected')
+    })
+
+    socket.on('notification:new', (notification) => {
+      setNotifications(prev => [notification, ...prev].slice(0, 20))
+      setUnreadCount(c => c + 1)
+      addNotification(notification.title, 'info')
+    })
+
+    return () => {
+      clearInterval(interval)
+      socket.disconnect()
+    }
+  }, [user, addNotification])
 
   const loadNotifications = async () => {
     try {
@@ -155,27 +180,33 @@ export default function NavBar() {
                   {notifications.length === 0 ? (
                     <div className="px-2 py-4 text-sm text-muted-foreground text-center">Нет уведомлений</div>
                   ) : (
-                    notifications.map(n => (
-                      <DropdownMenuItem key={n.id} className="flex flex-col items-start gap-1 cursor-pointer p-2" asChild>
-                        <Link to={n.link || '#'} onClick={() => !n.isRead && api.patch(`/notifications/${n.id}/read`).then(() => { setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, isRead: true } : x)); setUnreadCount(c => Math.max(0, c - 1)) })}>
-                          <div className="flex items-start justify-between w-full gap-2">
-                            <span className={`text-sm ${n.isRead ? 'text-muted-foreground' : 'text-foreground font-medium'}`}>
-                              {n.title}
-                            </span>
-                            <div
-                              className="inline-flex items-center justify-center rounded-md h-5 w-5 shrink-0 hover:bg-muted cursor-pointer text-muted-foreground"
-                              onClick={(e) => deleteNotification(n.id, e)}
-                            >
-                              <Trash2 className="h-3 w-3" />
+                    notifications.map(n => {
+                      const NotifIcon = n.type === 'chat' ? MessageSquare : n.type === 'rfq' ? Gavel : n.type === 'verification' ? ShieldCheck : Bell
+                      return (
+                        <DropdownMenuItem key={n.id} className="flex flex-col items-start gap-1 cursor-pointer p-2" asChild>
+                          <Link to={n.link || '#'} onClick={() => !n.isRead && api.patch(`/notifications/${n.id}/read`).then(() => { setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, isRead: true } : x)); setUnreadCount(c => Math.max(0, c - 1)) })}>
+                            <div className="flex items-start justify-between w-full gap-2">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <NotifIcon className={`h-4 w-4 shrink-0 ${n.isRead ? 'text-muted-foreground' : 'text-primary'}`} />
+                                <span className={`text-sm truncate ${n.isRead ? 'text-muted-foreground' : 'text-foreground font-medium'}`}>
+                                  {n.title}
+                                </span>
+                              </div>
+                              <div
+                                className="inline-flex items-center justify-center rounded-md h-5 w-5 shrink-0 hover:bg-muted cursor-pointer text-muted-foreground"
+                                onClick={(e) => deleteNotification(n.id, e)}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </div>
                             </div>
-                          </div>
-                          <p className="text-xs text-muted-foreground line-clamp-2">{n.message}</p>
-                          <span className="text-[10px] text-muted-foreground">
-                            {new Date(n.createdAt).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
-                          </span>
-                        </Link>
-                      </DropdownMenuItem>
-                    ))
+                            <p className="text-xs text-muted-foreground line-clamp-2 pl-6">{n.message}</p>
+                            <span className="text-[10px] text-muted-foreground pl-6">
+                              {new Date(n.createdAt).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </Link>
+                        </DropdownMenuItem>
+                      )
+                    })
                   )}
                 </DropdownMenuContent>
               </DropdownMenu>
