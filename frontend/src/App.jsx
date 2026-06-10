@@ -26,6 +26,8 @@ const AdminRfqs = lazy(() => import('./pages/AdminRfqs'))
 const AdminReports = lazy(() => import('./pages/AdminReports'))
 const AdminCategories = lazy(() => import('./pages/AdminCategories'))
 const AdminVerifications = lazy(() => import('./pages/AdminVerifications'))
+const AdminProducts = lazy(() => import('./pages/AdminProducts'))
+const AdminBroadcast = lazy(() => import('./pages/AdminBroadcast'))
 
 // 🔹 Компоненты и лейауты
 import NavBar from './components/NavBar'
@@ -116,6 +118,8 @@ export default function App() {
                     <Route path="reports" element={<Suspense fallback={<div className="flex items-center justify-center h-64 text-muted-foreground">Загрузка...</div>}><AdminReports /></Suspense>} />
                     <Route path="categories" element={<Suspense fallback={<div className="flex items-center justify-center h-64 text-muted-foreground">Загрузка...</div>}><AdminCategories /></Suspense>} />
                     <Route path="verifications" element={<Suspense fallback={<div className="flex items-center justify-center h-64 text-muted-foreground">Загрузка...</div>}><AdminVerifications /></Suspense>} />
+                    <Route path="products" element={<Suspense fallback={<div className="flex items-center justify-center h-64 text-muted-foreground">Загрузка...</div>}><AdminProducts /></Suspense>} />
+                    <Route path="broadcast" element={<Suspense fallback={<div className="flex items-center justify-center h-64 text-muted-foreground">Загрузка...</div>}><AdminBroadcast /></Suspense>} />
                   </Route>
                 </Route>
 

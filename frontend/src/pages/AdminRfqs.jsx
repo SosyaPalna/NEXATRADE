@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/select'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Search, ChevronLeft, ChevronRight, Settings, Trash2, AlertCircle } from 'lucide-react'
+import { Textarea } from '@/components/ui/textarea'
 import SEO from '../components/SEO'
 
 export default function AdminRfqs() {
@@ -64,10 +65,13 @@ export default function AdminRfqs() {
     }
   }
 
+  const [deleteReason, setDeleteReason] = useState('')
+
   const handleDelete = async () => {
     try {
-      await api.delete(`/admin/rfqs/${modal.rfq.id}`)
+      await api.delete(`/admin/rfqs/${modal.rfq.id}`, { data: { reason: deleteReason } })
       setModal(null)
+      setDeleteReason('')
       loadRfqs()
     } catch (err) {
       setError(err.response?.data?.error || 'Ошибка удаления')
@@ -258,19 +262,29 @@ export default function AdminRfqs() {
       </Dialog>
 
       {/* Delete Dialog */}
-      <Dialog open={modal?.type === 'delete'} onOpenChange={() => setModal(null)}>
+      <Dialog open={modal?.type === 'delete'} onOpenChange={() => { setModal(null); setDeleteReason('') }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Удалить заявку</DialogTitle>
             <DialogDescription>
-              Вы уверены, что хотите удалить заявку «{modal?.rfq?.title}»? Это действие нельзя отменить.
+              Вы уверены, что хотите удалить заявку «{modal?.rfq?.title}»? Владельцу будет отправлено уведомление.
             </DialogDescription>
           </DialogHeader>
+          <div className="space-y-3 py-2">
+            <Label htmlFor="delete-reason">Причина удаления</Label>
+            <Textarea
+              id="delete-reason"
+              value={deleteReason}
+              onChange={e => setDeleteReason(e.target.value)}
+              placeholder="Укажите причину удаления заявки..."
+              rows={3}
+            />
+          </div>
           <DialogFooter className="gap-2">
-            <Button variant="outline" className="border-border" onClick={() => setModal(null)}>
+            <Button variant="outline" className="border-border" onClick={() => { setModal(null); setDeleteReason('') }}>
               Отмена
             </Button>
-            <Button variant="destructive" onClick={handleDelete}>
+            <Button variant="destructive" onClick={handleDelete} disabled={!deleteReason.trim()}>
               Удалить
             </Button>
           </DialogFooter>

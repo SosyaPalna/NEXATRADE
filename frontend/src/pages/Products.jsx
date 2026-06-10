@@ -297,7 +297,7 @@ export default function Products() {
           {products.map(product => (
             <article key={product.id}>
               <Card className="border-border shadow-sm overflow-hidden hover:border-primary/30 hover:shadow-md transition-all h-full flex flex-col">
-                <Link to={`/product/${product.id}`} className="block h-44 bg-muted flex items-center justify-center shrink-0">
+                <Link to={`/product/${product.id}`} className="h-44 bg-muted flex items-center justify-center shrink-0">
                   {product.images?.[0] ? (
                     <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
                   ) : (

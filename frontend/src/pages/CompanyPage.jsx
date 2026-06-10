@@ -342,7 +342,7 @@ export default function CompanyPage() {
                   <div className="flex items-center gap-3">
                     <span className="text-sm text-muted-foreground">{company._count?.products || 0} позиций в каталоге</span>
                     {isOwn && (
-                      <Button size="sm" className="bg-primary text-white hover:bg-primary/90 gap-1.5" onClick={() => navigate('/products')}>
+                      <Button size="sm" className="bg-primary text-white hover:bg-primary/90 gap-1.5" onClick={() => navigate(`/product/${p.id}`)}>
                         <Plus className="h-4 w-4" />
                         Добавить товар
                       </Button>
