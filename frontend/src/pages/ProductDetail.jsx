@@ -320,32 +320,32 @@ export default function ProductDetail() {
                 <Separator className="bg-border" />
 
                 <h3 className="text-base font-semibold text-foreground">Характеристики</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 text-sm">
-                  <div className="flex justify-between border-b border-dashed border-border py-2 px-3 bg-muted/30">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-border rounded-lg overflow-hidden text-sm">
+                  <div className="flex justify-between py-2.5 px-3 bg-card">
                     <span className="text-muted-foreground">Артикул</span>
                     <span className="font-medium">{product.id.slice(0, 8).toUpperCase()}</span>
                   </div>
-                  <div className="flex justify-between border-b border-dashed border-border py-2 px-3">
+                  <div className="flex justify-between py-2.5 px-3 bg-card">
                     <span className="text-muted-foreground">Цена</span>
                     <span className="font-medium">{formatPrice(product.price)} / {product.unit}</span>
                   </div>
-                  <div className="flex justify-between border-b border-dashed border-border py-2 px-3">
+                  <div className="flex justify-between py-2.5 px-3 bg-card">
                     <span className="text-muted-foreground">Наличие</span>
                     <span className={product.stock > 0 ? 'text-green-600 font-medium' : 'text-amber-600 font-medium'}>
                       {product.stock > 0 ? 'В наличии' : 'Под заказ'}
                     </span>
                   </div>
-                  <div className="flex justify-between border-b border-dashed border-border py-2 px-3 bg-muted/30">
+                  <div className="flex justify-between py-2.5 px-3 bg-card">
                     <span className="text-muted-foreground">Мин. партия</span>
                     <span className="font-medium">{product.stock} {product.unit}</span>
                   </div>
                   {product.category && (
-                    <div className="flex justify-between border-b border-dashed border-border py-2 px-3">
+                    <div className="flex justify-between py-2.5 px-3 bg-card">
                       <span className="text-muted-foreground">Категория</span>
                       <span className="font-medium">{product.category.name}</span>
                     </div>
                   )}
-                  <div className="flex justify-between border-b border-dashed border-border py-2 px-3 bg-muted/30">
+                  <div className="flex justify-between py-2.5 px-3 bg-card">
                     <span className="text-muted-foreground">Условия</span>
                     <span className="font-medium">
                       {[product.isOpt && 'Опт', product.isRetail && 'Розница'].filter(Boolean).join(', ') || '—'}
@@ -461,7 +461,7 @@ export default function ProductDetail() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="chat" className="pt-4">
+          <TabsContent value="chat" className="pt-4 space-y-4">
             <Card className="border-border shadow-sm">
               <CardContent className="p-6 space-y-4">
                 <div className="flex items-center gap-2 text-foreground">
