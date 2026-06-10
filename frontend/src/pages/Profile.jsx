@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import SEO from '../components/SEO'
 import UserReports from '../components/UserReports'
+import CompanyVerification from '../components/CompanyVerification'
 
 export default function Profile() {
   const navigate = useNavigate()
@@ -91,9 +92,16 @@ export default function Profile() {
                 <div>
                   <h2 className="font-bold text-lg text-foreground">{user?.tenant?.name}</h2>
                   <p className="text-sm text-muted-foreground">{user?.email}</p>
-                  <Badge className={user?.isActive ? 'bg-green-500 text-white hover:bg-green-500 mt-1' : 'bg-amber-500 text-white hover:bg-amber-500 mt-1'}>
-                    {user?.isActive ? 'Активен' : 'На проверке'}
-                  </Badge>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    <Badge className={user?.isActive ? 'bg-green-500 text-white hover:bg-green-500' : 'bg-amber-500 text-white hover:bg-amber-500'}>
+                      {user?.isActive ? 'Активен' : 'На проверке'}
+                    </Badge>
+                    {user?.tenant?.isVerified && (
+                      <Badge className="bg-blue-500 text-white hover:bg-blue-500">
+                        ✓ Верифицирована
+                      </Badge>
+                    )}
+                  </div>
                 </div>
               </div>
               <Separator className="my-4 bg-border" />
@@ -124,6 +132,7 @@ export default function Profile() {
               </Button>
             </CardContent>
           </Card>
+          <CompanyVerification />
         </div>
 
         <div className="lg:col-span-2">
