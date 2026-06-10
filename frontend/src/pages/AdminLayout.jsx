@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { Menu, Users, FileText, ArrowLeft, LogOut, Shield, BarChart3, Flag, FolderTree } from 'lucide-react'
+import { Menu, Users, FileText, ArrowLeft, LogOut, Shield, BarChart3, Flag, FolderTree, Building2 } from 'lucide-react'
 
 export default function AdminLayout() {
   const navigate = useNavigate()
@@ -22,6 +22,7 @@ export default function AdminLayout() {
     { path: '/admin/users', label: 'Пользователи', icon: Users },
     { path: '/admin/rfqs', label: 'Заявки', icon: FileText },
     { path: '/admin/categories', label: 'Категории', icon: FolderTree },
+    { path: '/admin/verifications', label: 'Верификации', icon: Building2 },
     { path: '/admin/reports', label: 'Жалобы', icon: Flag },
   ]
 

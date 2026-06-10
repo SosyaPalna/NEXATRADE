@@ -25,7 +25,8 @@ import {
   Trash2,
   ExternalLink,
   MessageSquare,
-  MapPin
+  MapPin,
+  CheckCircle2
 } from 'lucide-react'
 import SEO from '../components/SEO'
 import ReportButton from '../components/ReportButton'
@@ -225,6 +226,12 @@ export default function CompanyPage() {
                 <Badge variant="outline" className="border-border text-foreground">
                   {company.role === 'buyer' ? 'Покупатель' : 'Поставщик'}
                 </Badge>
+                {company.isVerified && (
+                  <Badge className="bg-blue-500 text-white hover:bg-blue-500">
+                    <CheckCircle2 className="h-3 w-3 mr-1" />
+                    Верифицирована
+                  </Badge>
+                )}
                 <span className="text-xs text-muted-foreground flex items-center gap-1">
                   <CalendarDays className="h-3 w-3" />
                   На платформе с {new Date(company.createdAt).toLocaleDateString('ru-RU')}

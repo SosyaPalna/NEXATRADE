@@ -96,6 +96,9 @@ app.use('/api/reports', reportRoutes);
 const notificationRoutes = require('./routes/notifications');
 app.use('/api/notifications', notificationRoutes);
 
+const verificationRoutes = require('./routes/verification');
+app.use('/api/verification', verificationRoutes);
+
 // Отдача статики фронтенда (для production деплоя)
 const path = require('path');
 const fs = require('fs');

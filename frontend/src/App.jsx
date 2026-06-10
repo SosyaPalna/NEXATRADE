@@ -25,6 +25,7 @@ const AdminUsers = lazy(() => import('./pages/AdminUsers'))
 const AdminRfqs = lazy(() => import('./pages/AdminRfqs'))
 const AdminReports = lazy(() => import('./pages/AdminReports'))
 const AdminCategories = lazy(() => import('./pages/AdminCategories'))
+const AdminVerifications = lazy(() => import('./pages/AdminVerifications'))
 
 // 🔹 Компоненты и лейауты
 import NavBar from './components/NavBar'
@@ -114,6 +115,7 @@ export default function App() {
                     <Route path="rfqs" element={<Suspense fallback={<div className="flex items-center justify-center h-64 text-muted-foreground">Загрузка...</div>}><AdminRfqs /></Suspense>} />
                     <Route path="reports" element={<Suspense fallback={<div className="flex items-center justify-center h-64 text-muted-foreground">Загрузка...</div>}><AdminReports /></Suspense>} />
                     <Route path="categories" element={<Suspense fallback={<div className="flex items-center justify-center h-64 text-muted-foreground">Загрузка...</div>}><AdminCategories /></Suspense>} />
+                    <Route path="verifications" element={<Suspense fallback={<div className="flex items-center justify-center h-64 text-muted-foreground">Загрузка...</div>}><AdminVerifications /></Suspense>} />
                   </Route>
                 </Route>
 
