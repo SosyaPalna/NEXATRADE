@@ -35,6 +35,9 @@ const initSocket = (server) => {
   io.on('connection', (socket) => {
     console.log(`🔌 Connected: ${socket.tenantId}`);
 
+    // Каждый пользователь присоединяется к своей персональной комнате для уведомлений
+    socket.join(`tenant:${socket.tenantId}`);
+
     // Присоединение к универсальной комнате (rfq или product)
     socket.on('join:room', ({ type, id }) => {
       const room = getRoomName(type, id);
@@ -61,6 +64,45 @@ const initSocket = (server) => {
         });
 
         io.to(getRoomName(roomType, roomId)).emit('message:receive', message);
+
+        // Определяем получателя сообщения и создаём уведомление
+        try {
+          let recipientId = null;
+          let link = null;
+          let title = '';
+
+          if (roomType === 'rfq') {
+            const rfq = await prisma.rfq.findUnique({ where: { id: roomId }, select: { buyerId: true, title: true } });
+            if (rfq && rfq.buyerId !== socket.tenantId) {
+              recipientId = rfq.buyerId;
+              title = `Новое сообщение по заявке «${rfq.title}»`;
+              link = `/rfq/${roomId}`;
+            }
+          } else if (roomType === 'product') {
+            const product = await prisma.product.findUnique({ where: { id: roomId }, select: { tenantId: true, name: true } });
+            if (product && product.tenantId !== socket.tenantId) {
+              recipientId = product.tenantId;
+              title = `Новое сообщение по товару «${product.name}»`;
+              link = `/products/${roomId}`;
+            }
+          }
+
+          if (recipientId) {
+            const notification = await prisma.notification.create({
+              data: {
+                title,
+                message: `${message.sender.name}: ${content.trim().slice(0, 120)}${content.trim().length > 120 ? '...' : ''}`,
+                type: 'chat',
+                link,
+                recipientId,
+                metadata: { roomType, roomId, senderId: socket.tenantId },
+              },
+            });
+            io.to(`tenant:${recipientId}`).emit('notification:new', notification);
+          }
+        } catch (notifyErr) {
+          console.error('❌ Notification error:', notifyErr.message);
+        }
       } catch (err) {
         console.error('❌ Message error:', err.message);
         socket.emit('error', { message: 'Failed to send message' });
