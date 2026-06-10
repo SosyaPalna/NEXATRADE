@@ -130,7 +130,7 @@ export default function NavBar() {
   const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + '/')
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Лого слева */}
@@ -172,7 +172,7 @@ export default function NavBar() {
               <DropdownMenuTrigger className="outline-none">
                 <div className="inline-flex items-center gap-1.5 rounded-md h-8 px-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer">
                   <MapPin className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline max-w-[100px] truncate">{selectedCity}</span>
+                  <span className="hidden sm:inline max-w-25 truncate">{selectedCity}</span>
                 </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-52 max-h-80 overflow-y-auto" align="end">
@@ -260,7 +260,7 @@ export default function NavBar() {
                         {user.tenant?.name?.charAt(0)?.toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="hidden md:inline text-sm font-medium max-w-[120px] truncate text-foreground">
+                    <span className="hidden md:inline text-sm font-medium max-w-30 truncate text-foreground">
                       {user.tenant?.name || user.email}
                     </span>
                   </div>
