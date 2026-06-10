@@ -179,12 +179,22 @@ export default function ProductDetail() {
 
                 {!isOwner && (
                   <div className="flex flex-wrap gap-2 pt-2">
-                    <Button className="bg-primary text-white hover:bg-primary/90 gap-2" asChild>
-                      <Link to="/register">
-                        <ShoppingCart className="h-4 w-4" />
-                        Оформить заказ
-                      </Link>
-                    </Button>
+                    {currentTenantId ? (
+                      <Button
+                        className="bg-primary text-white hover:bg-primary/90 gap-2"
+                        onClick={() => document.getElementById('product-chat')?.scrollIntoView({ behavior: 'smooth' })}
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                        Написать поставщику
+                      </Button>
+                    ) : (
+                      <Button className="bg-primary text-white hover:bg-primary/90 gap-2" asChild>
+                        <Link to="/login">
+                          <ShoppingCart className="h-4 w-4" />
+                          Войти, чтобы оформить заказ
+                        </Link>
+                      </Button>
+                    )}
                     <Button variant="outline" className="border-border hover:bg-muted gap-2" asChild>
                       <Link to={`/company/${seller?.id}`}>
                         <Building2 className="h-4 w-4" />
@@ -233,7 +243,7 @@ export default function ProductDetail() {
         </div>
 
         {/* Правая колонка — чат */}
-        <div className="space-y-4">
+        <div id="product-chat" className="space-y-4">
           <Card className="border-border shadow-sm">
             <CardContent className="p-6 space-y-4">
               <div className="flex items-center gap-2 text-foreground">
