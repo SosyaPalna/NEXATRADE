@@ -107,7 +107,7 @@ export default function ProductDetail() {
           </>
         )}
         <span className="text-border">/</span>
-        <span className="text-foreground font-medium truncate max-w-[200px] sm:max-w-md">{product.name}</span>
+        <span className="text-foreground font-medium truncate max-w-50 sm:max-w-md">{product.name}</span>
       </nav>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -116,12 +116,12 @@ export default function ProductDetail() {
           <Card className="border-border shadow-sm overflow-hidden">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
               {/* Изображение */}
-              <div className="bg-muted/30 flex items-center justify-center p-6 min-h-[300px]">
+              <div className="bg-muted/30 flex items-center justify-center p-6 min-h-75">
                 {product.images?.length > 0 ? (
                   <img
                     src={product.images[0]}
                     alt={product.name}
-                    className="max-w-full max-h-[300px] object-contain rounded-lg"
+                    className="max-w-full max-h-75 object-contain rounded-lg"
                   />
                 ) : (
                   <div className="flex flex-col items-center gap-2 text-muted-foreground">
