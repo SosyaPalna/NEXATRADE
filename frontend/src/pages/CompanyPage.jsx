@@ -167,7 +167,7 @@ export default function CompanyPage() {
         }}
       />
       {/* Cover */}
-      <div className="relative h-48 md:h-64 rounded-xl overflow-hidden bg-gradient-to-r from-primary/80 to-primary">
+      <div className="relative h-48 md:h-64 rounded-xl overflow-hidden bg-linear-to-r from-primary/80 to-primary">
         {company.coverUrl ? (
           <img src={company.coverUrl} alt="" className="w-full h-full object-cover" />
         ) : null}
