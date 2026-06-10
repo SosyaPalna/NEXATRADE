@@ -25,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Search, Package, Plus, SlidersHorizontal, Phone, X, Camera, Tag } from 'lucide-react'
+import { Search, Package, Plus, SlidersHorizontal, X, Camera, Tag } from 'lucide-react'
 import SEO from '../components/SEO'
 
 const units = [
@@ -293,53 +293,48 @@ export default function Products() {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {products.map(product => (
             <article key={product.id}>
-              <Card className="border-border shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                <CardContent className="p-0">
-                <div className="flex flex-col sm:flex-row">
-                  <Link to={`/product/${product.id}`} className="w-full sm:w-32 h-32 bg-muted flex items-center justify-center shrink-0">
-                    {product.images?.[0] ? (
-                      <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <Package className="h-8 w-8 text-muted-foreground/50" />
-                    )}
-                  </Link>
-                  <div className="flex-1 p-4 flex flex-col sm:flex-row gap-4">
-                    <div className="flex-1 min-w-0">
-                      <Link to={`/company/${product.tenantId}`} className="text-sm text-primary hover:underline font-medium">
-                        {product.tenant?.name || 'Поставщик'}
-                      </Link>
-                      <Link to={`/product/${product.id}`} className="hover:text-primary transition-colors">
-                        <h3 className="text-lg font-bold text-foreground mt-1">{product.name}</h3>
-                      </Link>
-                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{product.description}</p>
-                      <div className="flex items-center gap-2 mt-2 flex-wrap">
-                        <Badge className={product.stock > 0 ? 'bg-green-500 text-white hover:bg-green-500' : 'bg-amber-500 text-white hover:bg-amber-500'}>
-                          {product.stock > 0 ? 'В наличии' : 'Под заказ'}
-                        </Badge>
-                        {product.isOpt && <Badge variant="outline" className="border-border">Опт</Badge>}
-                        {product.isRetail && <Badge variant="outline" className="border-border">Розница</Badge>}
-                        {product.category?.name && <Badge variant="outline" className="border-border">{product.category.name}</Badge>}
-                      </div>
-                    </div>
-                    <div className="sm:w-48 shrink-0 flex flex-col justify-between border-t sm:border-t-0 sm:border-l pt-3 sm:pt-0 sm:pl-4">
-                      <div>
-                        <div className="text-2xl font-bold text-primary">
-                          {product.price ? `${Number(product.price).toLocaleString('ru-RU')} ₽` : 'Договорная'}
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-1">{product.unit || 'шт.'}</div>
-                      </div>
-                      <Button size="sm" className="w-full mt-3 bg-primary text-white hover:bg-primary/90" asChild>
-                        <Link to={`/company/${product.tenantId}`}>
-                          <Phone className="h-3.5 w-3.5 mr-1" />
-                          Связаться
-                        </Link>
-                      </Button>
+              <Card className="border-border shadow-sm overflow-hidden hover:border-primary/30 hover:shadow-md transition-all h-full flex flex-col">
+                <Link to={`/product/${product.id}`} className="block h-44 bg-muted flex items-center justify-center shrink-0">
+                  {product.images?.[0] ? (
+                    <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <Package className="h-10 w-10 text-muted-foreground/40" />
+                  )}
+                </Link>
+                <CardContent className="p-4 flex flex-col flex-1">
+                  <div className="flex-1">
+                    <Link to={`/company/${product.tenantId}`} className="text-xs text-primary hover:underline font-medium line-clamp-1">
+                      {product.tenant?.name || 'Поставщик'}
+                      {product.tenant?.city && ` · ${product.tenant.city}`}
+                    </Link>
+                    <Link to={`/product/${product.id}`} className="hover:text-primary transition-colors block mt-1">
+                      <h3 className="text-sm font-semibold text-foreground line-clamp-2">{product.name}</h3>
+                    </Link>
+                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{product.description}</p>
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      <Badge className={product.stock > 0 ? 'bg-green-500/10 text-green-600 border-0 text-[10px]' : 'bg-amber-500/10 text-amber-600 border-0 text-[10px]'}>
+                        {product.stock > 0 ? 'В наличии' : 'Под заказ'}
+                      </Badge>
+                      {product.isOpt && <Badge variant="outline" className="border-border text-[10px]">Опт</Badge>}
+                      {product.isRetail && <Badge variant="outline" className="border-border text-[10px]">Розница</Badge>}
                     </div>
                   </div>
-                </div>
+                  <div className="pt-3 mt-3 border-t border-border">
+                    <div className="flex items-center justify-between">
+                      <span className="text-base font-bold text-primary">
+                        {product.price ? `${Number(product.price).toLocaleString('ru-RU')} ₽` : 'Договорная'}
+                      </span>
+                      <span className="text-xs text-muted-foreground">{product.unit || 'шт.'}</span>
+                    </div>
+                    <Button size="sm" className="w-full mt-2 bg-primary text-white hover:bg-primary/90" asChild>
+                      <Link to={`/product/${product.id}`}>
+                        Подробнее
+                      </Link>
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </article>
