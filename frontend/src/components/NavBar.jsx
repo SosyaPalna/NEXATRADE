@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { Menu, User, LogOut, Building2, LayoutDashboard, Package, FileText, Sun, Moon, Bell, Check, Trash2, MessageSquare, Gavel, ShieldCheck } from 'lucide-react'
+import { Menu, User, LogOut, Building2, LayoutDashboard, Package, FileText, Sun, Moon, Bell, Check, Trash2, MessageSquare, Gavel, ShieldCheck, MapPin } from 'lucide-react'
 import { useTheme } from './ThemeProvider'
 import { useNotification } from '../context/NotificationContext'
 import { io } from 'socket.io-client'
@@ -28,6 +28,19 @@ export default function NavBar() {
   const [notifOpen, setNotifOpen] = useState(false)
   const { theme, toggleTheme } = useTheme()
   const { addNotification } = useNotification()
+  const [selectedCity, setSelectedCity] = useState(() => localStorage.getItem('selectedCity') || 'Все города')
+
+  const cities = [
+    'Все города', 'Москва', 'Санкт-Петербург', 'Новосибирск', 'Екатеринбург',
+    'Казань', 'Нижний Новгород', 'Челябинск', 'Самара', 'Омск',
+    'Ростов-на-Дону', 'Уфа', 'Красноярск', 'Воронеж', 'Пермь', 'Волгоград'
+  ]
+
+  const handleCityChange = (city) => {
+    setSelectedCity(city)
+    localStorage.setItem('selectedCity', city)
+    window.dispatchEvent(new StorageEvent('storage', { key: 'selectedCity', newValue: city }))
+  }
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -153,6 +166,29 @@ export default function NavBar() {
             <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={toggleTheme}>
               {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
+
+            {/* Выбор города */}
+            <DropdownMenu>
+              <DropdownMenuTrigger className="outline-none">
+                <div className="inline-flex items-center gap-1.5 rounded-md h-8 px-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer">
+                  <MapPin className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline max-w-[100px] truncate">{selectedCity}</span>
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-52 max-h-80 overflow-y-auto" align="end">
+                <DropdownMenuLabel>Выберите город</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {cities.map(city => (
+                  <DropdownMenuItem
+                    key={city}
+                    className="cursor-pointer"
+                    onClick={() => handleCityChange(city)}
+                  >
+                    <span className={selectedCity === city ? 'font-medium text-primary' : ''}>{city}</span>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             {user && (
               <DropdownMenu open={notifOpen} onOpenChange={setNotifOpen}>

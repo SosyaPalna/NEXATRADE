@@ -12,7 +12,7 @@ router.get('/:id', authenticate, async (req, res) => {
       where: { id: req.params.id },
       include: {
         category: { select: { id: true, name: true, slug: true } },
-        tenant: { select: { id: true, name: true, role: true, avatarUrl: true, description: true, website: true, phone: true } }
+        tenant: { select: { id: true, name: true, role: true, avatarUrl: true, description: true, website: true, phone: true, city: true, isVerified: true, verificationStatus: true, deliveryMethods: true, paymentMethods: true } }
       }
     });
     if (!product) return res.status(404).json({ error: 'Товар не найден' });
