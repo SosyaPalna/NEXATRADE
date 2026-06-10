@@ -13,7 +13,9 @@ router.get('/:id', authenticate, async (req, res) => {
       select: {
         id: true, name: true, role: true, description: true,
         website: true, phone: true, avatarUrl: true, coverUrl: true,
-        socialLinks: true, createdAt: true,
+        socialLinks: true, createdAt: true, city: true,
+        isVerified: true, verificationStatus: true,
+        deliveryMethods: true, paymentMethods: true,
         products: { select: { id: true, name: true, description: true, price: true, unit: true, stock: true, isOpt: true, isRetail: true, images: true, categoryId: true }, take: 6 },
         _count: { select: { rfqs: true, products: true } }
       }
@@ -30,7 +32,7 @@ router.get('/:id', authenticate, async (req, res) => {
 // 🔹 Обновить профиль своей компании
 router.put('/me', authenticate, async (req, res) => {
   try {
-    const { description, website, phone, avatarUrl, coverUrl, socialLinks } = req.body;
+    const { description, website, phone, avatarUrl, coverUrl, socialLinks, city, deliveryMethods, paymentMethods } = req.body;
     
     // Собираем только те поля, которые реально переданы (включая пустые строки!)
     const updateData = {};
@@ -42,6 +44,9 @@ router.put('/me', authenticate, async (req, res) => {
     if (socialLinks !== undefined) {
       updateData.socialLinks = socialLinks ? JSON.parse(JSON.stringify(socialLinks)) : null;
     }
+    if (city !== undefined) updateData.city = city;
+    if (deliveryMethods !== undefined) updateData.deliveryMethods = Array.isArray(deliveryMethods) ? deliveryMethods : [];
+    if (paymentMethods !== undefined) updateData.paymentMethods = Array.isArray(paymentMethods) ? paymentMethods : [];
     
     const tenant = await prisma.tenant.update({
       where: { id: req.tenantId },
@@ -49,7 +54,7 @@ router.put('/me', authenticate, async (req, res) => {
       select: {
         id: true, name: true, role: true, description: true,
         website: true, phone: true, avatarUrl: true, coverUrl: true,
-        socialLinks: true
+        socialLinks: true, city: true, deliveryMethods: true, paymentMethods: true
       }
     });
     
