@@ -29,12 +29,13 @@ export default function NavBar() {
   const { theme, toggleTheme } = useTheme()
   const { addNotification } = useNotification()
   const [selectedCity, setSelectedCity] = useState(() => localStorage.getItem('selectedCity') || 'Все города')
+  const [cities, setCities] = useState(['Все города'])
 
-  const cities = [
-    'Все города', 'Москва', 'Санкт-Петербург', 'Новосибирск', 'Екатеринбург',
-    'Казань', 'Нижний Новгород', 'Челябинск', 'Самара', 'Омск',
-    'Ростов-на-Дону', 'Уфа', 'Красноярск', 'Воронеж', 'Пермь', 'Волгоград'
-  ]
+  useEffect(() => {
+    api.get('/cities').then(res => {
+      setCities(['Все города', ...res.data])
+    }).catch(() => {})
+  }, [])
 
   const handleCityChange = (city) => {
     setSelectedCity(city)

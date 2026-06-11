@@ -101,7 +101,7 @@ export default function App() {
                 {/* 🛒 Маркетплейс: обёртка с боковым меню категорий */}
                 <Route element={<MarketLayout />}>
                   <Route path="/products" element={<Products />} />
-                  <Route path="/category/:slug" element={<CategoryPage />} />
+                  <Route path="/category/:slug" element={<CategoryPage key={window.location.pathname} />} />
                   <Route path="/requests" element={<RfqList />} />
                   <Route path="/rfq" element={<RfqList />} />
                   <Route path="/rfq/create" element={<RfqCreate />} />
