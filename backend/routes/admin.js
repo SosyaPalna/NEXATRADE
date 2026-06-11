@@ -2,6 +2,7 @@ const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 const authenticate = require('../middleware/auth');
 const bcrypt = require('bcryptjs');
+const { getIo } = require('../utils/socket');
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -258,14 +259,144 @@ router.patch('/rfqs/:id', authenticate, requireAdmin, async (req, res) => {
   }
 });
 
-// 🔹 Удалить RFQ
+// 🔹 Удалить RFQ (с уведомлением владельцу)
 router.delete('/rfqs/:id', authenticate, requireAdmin, async (req, res) => {
   try {
+    const { reason } = req.body;
+    const rfq = await prisma.rfq.findUnique({
+      where: { id: req.params.id },
+      select: { id: true, title: true, buyerId: true }
+    });
+    if (!rfq) return res.status(404).json({ error: 'RFQ не найден' });
+
     await prisma.rfq.delete({ where: { id: req.params.id } });
+
+    // Уведомляем владельца
+    const notification = await prisma.notification.create({
+      data: {
+        title: 'Ваша заявка удалена администрацией',
+        message: `Заявка «${rfq.title}» была удалена администрацией.${reason ? ` Причина: ${reason}` : ''}`,
+        type: 'system',
+        link: '/requests',
+        recipientId: rfq.buyerId,
+      },
+    });
+    const io = getIo();
+    if (io) io.to(`tenant:${rfq.buyerId}`).emit('notification:new', notification);
+
     console.log(`✅ Deleted RFQ ${req.params.id}`);
     res.json({ message: 'RFQ удалён' });
   } catch (err) {
     console.error('❌ DELETE /admin/rfqs ERROR:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 🔹 Удалить товар (с уведомлением владельцу)
+router.delete('/products/:id', authenticate, requireAdmin, async (req, res) => {
+  try {
+    const { reason } = req.body;
+    const product = await prisma.product.findUnique({
+      where: { id: req.params.id },
+      select: { id: true, name: true, tenantId: true }
+    });
+    if (!product) return res.status(404).json({ error: 'Товар не найден' });
+
+    await prisma.product.delete({ where: { id: req.params.id } });
+
+    // Уведомляем владельца
+    const notification = await prisma.notification.create({
+      data: {
+        title: 'Ваш товар удалён администрацией',
+        message: `Товар «${product.name}» был удалён администрацией.${reason ? ` Причина: ${reason}` : ''}`,
+        type: 'system',
+        link: '/products',
+        recipientId: product.tenantId,
+      },
+    });
+    const io = getIo();
+    if (io) io.to(`tenant:${product.tenantId}`).emit('notification:new', notification);
+
+    console.log(`✅ Deleted product ${req.params.id}`);
+    res.json({ message: 'Товар удалён' });
+  } catch (err) {
+    console.error('❌ DELETE /admin/products ERROR:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 🔹 Получить все товары (админ)
+router.get('/products', authenticate, requireAdmin, async (req, res) => {
+  try {
+    const { search, page = 1, limit = 20 } = req.query;
+    const where = search ? {
+      OR: [
+        { name: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+        { tenant: { name: { contains: search, mode: 'insensitive' } } }
+      ]
+    } : {};
+
+    const [products, total] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        select: {
+          id: true, name: true, price: true, stock: true, unit: true,
+          isOpt: true, isRetail: true, images: true, createdAt: true,
+          tenant: { select: { id: true, name: true } },
+          category: { select: { id: true, name: true } }
+        },
+        orderBy: { createdAt: 'desc' },
+        skip: (parseInt(page) - 1) * parseInt(limit),
+        take: parseInt(limit)
+      }),
+      prisma.product.count({ where })
+    ]);
+
+    res.json({ products, total, page: parseInt(page), pages: Math.ceil(total / limit) });
+  } catch (err) {
+    console.error('❌ GET /admin/products ERROR:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 🔹 Рассылка уведомлений
+router.post('/notifications/send', authenticate, requireAdmin, async (req, res) => {
+  try {
+    const { title, message, type = 'system', link, recipientIds } = req.body;
+    if (!title || !message) {
+      return res.status(400).json({ error: 'Заголовок и сообщение обязательны' });
+    }
+
+    let targets = [];
+    if (Array.isArray(recipientIds) && recipientIds.length > 0) {
+      // Конкретные получатели
+      targets = recipientIds;
+    } else {
+      // Все пользователи
+      const allTenants = await prisma.tenant.findMany({ select: { id: true } });
+      targets = allTenants.map(t => t.id);
+    }
+
+    const notifications = await prisma.$transaction(
+      targets.map(recipientId =>
+        prisma.notification.create({
+          data: { title, message, type, link: link || null, recipientId }
+        })
+      )
+    );
+
+    // Отправляем через Socket.io
+    const io = getIo();
+    if (io) {
+      notifications.forEach(n => {
+        io.to(`tenant:${n.recipientId}`).emit('notification:new', n);
+      });
+    }
+
+    res.json({ success: true, sent: notifications.length });
+  } catch (err) {
+    console.error('❌ POST /admin/notifications/send ERROR:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
