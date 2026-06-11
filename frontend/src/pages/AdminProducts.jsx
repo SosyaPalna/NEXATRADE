@@ -89,7 +89,7 @@ export default function AdminProducts() {
                   <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Цена</th>
                   <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Наличие</th>
                   <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Дата</th>
-                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground w-[120px]">Действия</th>
+                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground w-30">Действия</th>
                 </tr>
               </thead>
               <tbody>
