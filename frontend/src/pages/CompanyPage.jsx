@@ -47,15 +47,18 @@ export default function CompanyPage() {
     socialLinks: { vk: '', telegram: '', whatsapp: '' },
     city: '', deliveryMethods: '', paymentMethods: ''
   })
+  const [cities, setCities] = useState([])
 
   const loadData = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
-      const [companyRes, meRes] = await Promise.all([
+      const [companyRes, meRes, citiesRes] = await Promise.all([
         api.get(`/company/${id}`),
-        api.get('/auth/me').catch(() => null)
+        api.get('/auth/me').catch(() => null),
+        api.get('/cities').catch(() => null)
       ])
+      if (citiesRes?.data) setCities(citiesRes.data)
       setCompany(companyRes.data)
       if (meRes?.data?.tenantId === id || meRes?.data?.tenant?.id === id) {
         setIsOwn(true)
@@ -618,8 +621,12 @@ export default function CompanyPage() {
                     value={form.city}
                     onChange={e => setForm({ ...form, city: e.target.value })}
                     placeholder="Москва"
+                    list="cities-list"
                     className="border-border focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary"
                   />
+                  <datalist id="cities-list">
+                    {cities.map(c => <option key={c} value={c} />)}
+                  </datalist>
                 </div>
               </div>
 
