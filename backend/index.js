@@ -11,6 +11,7 @@ const { loginLimiter, apiLimiter } = require('./middleware/rateLimit');
 const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/products');
 const rfqRoutes = require('./routes/rfq');
+const citiesRoutes = require('./routes/cities');
 const initSocket = require('./socket');
 
 const app = express();
@@ -100,6 +101,7 @@ app.use('/api/notifications', notificationRoutes);
 
 const verificationRoutes = require('./routes/verification');
 app.use('/api/verification', verificationRoutes);
+app.use('/api/cities', citiesRoutes);
 
 // Отдача статики фронтенда (для production деплоя)
 const path = require('path');

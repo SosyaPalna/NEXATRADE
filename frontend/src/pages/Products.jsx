@@ -46,7 +46,7 @@ export default function Products() {
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState({
-    search: '', category: '', minPrice: '', maxPrice: '', inStock: false
+    search: '', category: '', minPrice: '', maxPrice: '', inStock: false, city: localStorage.getItem('selectedCity') || ''
   })
   const [showAddForm, setShowAddForm] = useState(false)
   const [newProduct, setNewProduct] = useState({
@@ -59,6 +59,16 @@ export default function Products() {
     loadProducts()
     api.get('/categories').then(res => setCategories(res.data)).catch(() => {})
   }, [filters])
+
+  useEffect(() => {
+    const handleStorage = (e) => {
+      if (e.key === 'selectedCity') {
+        setFilters(prev => ({ ...prev, city: e.newValue === 'Все города' ? '' : e.newValue }))
+      }
+    }
+    window.addEventListener('storage', handleStorage)
+    return () => window.removeEventListener('storage', handleStorage)
+  }, [])
 
   const loadProducts = async () => {
     setLoading(true)
@@ -269,7 +279,7 @@ export default function Products() {
               <Checkbox id="in-stock" checked={filters.inStock} onCheckedChange={(checked) => setFilters({ ...filters, inStock: checked === true })} />
               <Label htmlFor="in-stock" className="text-sm font-normal cursor-pointer">В наличии</Label>
             </div>
-            <Button variant="outline" size="sm" className="border-border hover:bg-muted" onClick={() => setFilters({ search: '', category: '', minPrice: '', maxPrice: '', inStock: false })}>
+            <Button variant="outline" size="sm" className="border-border hover:bg-muted" onClick={() => setFilters({ search: '', category: '', minPrice: '', maxPrice: '', inStock: false, city: '' })}>
               <SlidersHorizontal className="h-4 w-4 mr-1" />
               Сбросить
             </Button>

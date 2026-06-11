@@ -28,13 +28,16 @@ router.get('/', authenticate, async (req, res) => {
     const where = req.query.all === 'true' ? {} : { tenantId: req.tenantId };
 
     // Фильтры
-    const { categoryId, minPrice, maxPrice, inStock, search } = req.query;
+    const { categoryId, minPrice, maxPrice, inStock, search, city } = req.query;
     if (categoryId) where.categoryId = categoryId;
     if (minPrice) where.price = { ...where.price, gte: parseFloat(minPrice) };
     if (maxPrice) where.price = { ...where.price, lte: parseFloat(maxPrice) };
     if (inStock === 'true') where.stock = { gt: 0 };
     if (search) {
       where.name = { contains: search, mode: 'insensitive' };
+    }
+    if (city && city !== 'Все города') {
+      where.tenant = { city: { contains: city, mode: 'insensitive' } };
     }
 
     const products = await prisma.product.findMany({
