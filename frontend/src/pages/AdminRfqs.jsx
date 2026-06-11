@@ -124,7 +124,7 @@ export default function AdminRfqs() {
           />
         </div>
         <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1) }}>
-          <SelectTrigger className="w-[180px] border-border">
+          <SelectTrigger className="w-45 border-border">
             <SelectValue placeholder="Все статусы" />
           </SelectTrigger>
           <SelectContent>
@@ -148,7 +148,7 @@ export default function AdminRfqs() {
                   <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Статус</th>
                   <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Предложений</th>
                   <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Дата</th>
-                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground w-[120px]">Действия</th>
+                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground w-30">Действия</th>
                 </tr>
               </thead>
               <tbody>
@@ -156,7 +156,7 @@ export default function AdminRfqs() {
                   <tr key={rfq.id} className="border-b border-border hover:bg-muted transition-colors">
                     <td className="px-4 py-3">
                       <div className="font-medium text-foreground">{rfq.title}</div>
-                      <div className="text-muted-foreground text-xs mt-0.5 truncate max-w-[200px]">
+                      <div className="text-muted-foreground text-xs mt-0.5 truncate max-w-50">
                         {rfq.description?.substring(0, 60)}...
                       </div>
                     </td>
