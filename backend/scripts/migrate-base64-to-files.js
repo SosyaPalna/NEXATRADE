@@ -54,7 +54,7 @@ function saveFile(type, buffer, mime) {
   return getPublicPath(type, filename);
 }
 
-async function migrateField(records, type, field, isArray) {
+async function migrateField(modelName, records, type, field, isArray) {
   let converted = 0;
   for (const record of records) {
     const values = isArray ? (record[field] || []) : [record[field]];
@@ -74,7 +74,7 @@ async function migrateField(records, type, field, isArray) {
     }
 
     if (changed) {
-      await prisma[record.$modelName].update({
+      await prisma[modelName].update({
         where: { id: record.id },
         data: { [field]: isArray ? newValues : newValues[0] }
       });
@@ -88,7 +88,7 @@ async function main() {
 
   // Products
   const products = await prisma.product.findMany({ select: { id: true, images: true } });
-  const productCount = await migrateField(products, 'products', 'images', true);
+  const productCount = await migrateField('product', products, 'products', 'images', true);
   console.log(`Products: ${productCount} images migrated`);
 
   // Tenants
@@ -121,7 +121,7 @@ async function main() {
 
   // Reports
   const reports = await prisma.report.findMany({ select: { id: true, screenshots: true } });
-  const reportCount = await migrateField(reports, 'reports', 'screenshots', true);
+  const reportCount = await migrateField('report', reports, 'reports', 'screenshots', true);
   console.log(`Reports: ${reportCount} screenshots migrated`);
 
   console.log('Migration completed.');
