@@ -18,6 +18,30 @@ router.get('/:id', authenticate, async (req, res) => {
       }
     });
     if (!product) return res.status(404).json({ error: 'Товар не найден' });
+
+    // Засчитываем просмотр (не чаще раза в день с одного IP)
+    if (product.tenantId !== req.tenantId) {
+      const today = new Date().toISOString().slice(0, 10);
+      try {
+        await prisma.productView.upsert({
+          where: { productId_ip_date: { productId: product.id, ip: req.ip, date: today } },
+          update: {},
+          create: {
+            productId: product.id,
+            tenantId: product.tenantId,
+            ip: req.ip,
+            date: today,
+          }
+        });
+        await prisma.product.update({
+          where: { id: product.id },
+          data: { viewCount: { increment: 1 } }
+        });
+      } catch (viewErr) {
+        console.error('Failed to track product view:', viewErr.message);
+      }
+    }
+
     res.json(product);
   } catch (err) {
     res.status(500).json({ error: err.message });

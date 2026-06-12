@@ -18,6 +18,7 @@ import Profile from './pages/Profile'
 import CompanyPage from './pages/CompanyPage'
 import CategoryPage from './pages/CategoryPage'
 import ProductDetail from './pages/ProductDetail'
+import Analytics from './pages/Analytics'
 
 // 🔹 Админка (ленивая загрузка)
 const AdminLayout = lazy(() => import('./pages/AdminLayout'))
@@ -98,6 +99,7 @@ function AppRoutes() {
             <Route element={<Protected />}>
               <Route element={<AppLayout />}>
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/analytics" element={<Analytics />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/company/:id" element={<CompanyPage />} />
                 <Route path="/product/:id" element={<ProductDetail />} />

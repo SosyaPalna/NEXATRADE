@@ -98,6 +98,7 @@ model Product {
   isOpt       Boolean   @default(true)
   isRetail    Boolean   @default(false)
   images      String[] // массив URL изображений
+  viewCount   Int       @default(0)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
@@ -109,6 +110,7 @@ model Product {
   tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   messages Message[]
+  views    ProductView[]
 }
 
 model Rfq {
@@ -168,6 +170,21 @@ model Review {
   @@unique([tenantId, authorId])
   @@index([tenantId])
   @@index([authorId])
+}
+
+model ProductView {
+  id        String   @id @default(uuid())
+  productId String
+  tenantId  String
+  ip        String
+  date      String   // YYYY-MM-DD
+  createdAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, ip, date])
+  @@index([tenantId, date])
+  @@index([productId])
 }
 
 model Message {
