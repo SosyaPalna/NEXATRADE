@@ -8,12 +8,13 @@ import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import {
   Package, Building2, ArrowLeft, ShoppingCart, MessageCircle,
-  Phone, Globe, Mail, MapPin, Truck, CreditCard, CheckCircle2,
+  Phone, Globe, MapPin, Truck, CreditCard, CheckCircle2,
   ShieldCheck, Eye
 } from 'lucide-react'
 import SEO from '../components/SEO'
 import Chat from '../components/Chat'
 import ReportButton from '../components/ReportButton'
+import ImageGallery from '../components/ImageGallery'
 
 export default function ProductDetail() {
   const { id } = useParams()
@@ -125,21 +126,8 @@ export default function ProductDetail() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Левая колонка — фото */}
         <div className="lg:col-span-4">
-          <Card className="border-border shadow-sm overflow-hidden">
-            <div className="bg-muted/30 flex items-center justify-center p-6 min-h-75">
-              {product.images?.length > 0 ? (
-                <img
-                  src={product.images[0]}
-                  alt={product.name}
-                  className="max-w-full max-h-75 object-contain rounded-lg"
-                />
-              ) : (
-                <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                  <Package className="h-16 w-16 opacity-30" />
-                  <span className="text-sm">Нет изображения</span>
-                </div>
-              )}
-            </div>
+          <Card className="border-border shadow-sm overflow-hidden p-4">
+            <ImageGallery images={product.images} alt={product.name} />
           </Card>
         </div>
 
