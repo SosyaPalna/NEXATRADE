@@ -9,7 +9,8 @@ const path = require('path');
 const fs = require('fs');
 const prisma = require('./lib/prisma');
 const { setIo } = require('./utils/socket');
-const { loginLimiter, publicLimiter, authLimiter } = require('./middleware/rateLimit');
+const { loginLimiter, publicLimiter, authLimiter, apiLimiter } = require('./middleware/rateLimit');
+const auditLog = require('./middleware/auditLog');
 const authenticate = require('./middleware/auth');
 
 const authRoutes = require('./routes/auth');
@@ -27,6 +28,7 @@ app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);
 
 // Middleware
 app.use(helmet({
+  hsts: false,
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
@@ -51,6 +53,9 @@ app.use('/api', (req, res, next) => {
   next();
 });
 
+// Global API fallback rate limit
+app.use('/api', apiLimiter);
+
 // Public API rate limiting
 app.use('/api/auth/login', loginLimiter);
 app.use('/api/auth', publicLimiter);
@@ -66,10 +71,11 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Роуты
 app.use('/api/auth', authRoutes);
+app.use('/api/cities', publicLimiter);
 app.use('/api/cities', citiesRoutes); // публичный endpoint городов
 
 // Все последующие /api/* требуют авторизации и rate limit по пользователю
-app.use('/api', authenticate, authLimiter);
+app.use('/api', authenticate, auditLog, authLimiter);
 
 app.use('/api/products', productRoutes);
 app.use('/api/rfq', rfqRoutes);
