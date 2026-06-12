@@ -54,7 +54,7 @@ function validateFileExtension(filename, type) {
 
 async function validateFileMagicBytes(filePath, type) {
   const allowedMimes = ALLOWED_MIMES[type] || [];
-  const fileType = await FileType.fromFile(filePath);
+  const fileType = await FileType.fileTypeFromFile(filePath);
   if (!fileType) {
     // PDF не определяется file-type как изображение, проверяем отдельно
     const buffer = fs.readFileSync(filePath);
