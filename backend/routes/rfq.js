@@ -1,10 +1,11 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('../lib/prisma');
 const authenticate = require('../middleware/auth');
+const validate = require('../middleware/validate');
+const { rfqSchema, quoteSchema } = require('../schemas');
 const { getIo } = require('../utils/socket');
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 
 router.get('/', authenticate, async (req, res) => {
@@ -78,7 +79,7 @@ router.get('/:id', authenticate, async (req, res) => {
 });
 
 // 🔹 Создать RFQ (только buyer)
-router.post('/', authenticate, async (req, res) => {
+router.post('/', authenticate, validate(rfqSchema), async (req, res) => {
   try {
     const { role } = await prisma.tenant.findUnique({
       where: { id: req.tenantId },
@@ -89,28 +90,15 @@ router.post('/', authenticate, async (req, res) => {
       return res.status(403).json({ error: 'Только покупатели могут создавать RFQ' });
     }
 
-    const { title, description, quantity, unit, budget, deadline, categoryId } = req.body;
-    if (!title || !description || !quantity) {
-      return res.status(400).json({ error: 'Заполните обязательные поля' });
-    }
-
-    const parsedQuantity = parseInt(quantity, 10);
-    if (!Number.isFinite(parsedQuantity) || parsedQuantity < 1 || parsedQuantity > 2147483647) {
-      return res.status(400).json({ error: 'Количество должно быть целым числом от 1 до 2 147 483 647' });
-    }
-
-    const parsedBudget = budget ? parseFloat(budget) : null;
-    if (parsedBudget !== null && (!Number.isFinite(parsedBudget) || parsedBudget < 0 || parsedBudget > 99999999.99)) {
-      return res.status(400).json({ error: 'Бюджет должен быть от 0 до 99 999 999.99 ₽' });
-    }
+    const body = req.validated.body;
 
     const data = {
-      title,
-      description,
-      quantity: parsedQuantity,
-      unit: unit || 'шт.',
-      budget: parsedBudget,
-      deadline: deadline ? new Date(deadline) : null,
+      title: body.title,
+      description: body.description,
+      quantity: body.quantity,
+      unit: body.unit || 'шт.',
+      budget: body.budget ?? null,
+      deadline: body.deadline ? new Date(body.deadline) : null,
       buyerId: req.tenantId
     };
 
@@ -127,7 +115,7 @@ router.post('/', authenticate, async (req, res) => {
 });
 
 // 🔹 Отправить предложение (только seller)
-router.post('/:id/quotes', authenticate, async (req, res) => {
+router.post('/:id/quotes', authenticate, validate(quoteSchema), async (req, res) => {
   try {
     const { role } = await prisma.tenant.findUnique({
       where: { id: req.tenantId },
@@ -143,8 +131,7 @@ router.post('/:id/quotes', authenticate, async (req, res) => {
     if (rfq.status !== 'open') return res.status(400).json({ error: 'RFQ закрыт' });
     if (rfq.buyerId === req.tenantId) return res.status(400).json({ error: 'Нельзя отправить предложение самому себе' });
 
-    const { price, deliveryTime, message } = req.body;
-    if (!price) return res.status(400).json({ error: 'Цена обязательна' });
+    const body = req.validated.body;
 
     // Проверка, не отправлял ли уже
     const existing = await prisma.quote.findFirst({
@@ -154,9 +141,9 @@ router.post('/:id/quotes', authenticate, async (req, res) => {
 
     const quote = await prisma.quote.create({
       data: {
-        price: parseFloat(price),
-        deliveryTime,
-        message,
+        price: body.price,
+        deliveryTime: body.deliveryTime,
+        message: body.message,
         rfqId: req.params.id,
         sellerId: req.tenantId
       },

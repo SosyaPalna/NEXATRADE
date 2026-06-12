@@ -1,6 +1,8 @@
 const express = require('express');
-const prisma = require('../utils/db');
+const prisma = require('../lib/prisma');
 const authenticate = require('../middleware/auth');
+const validate = require('../middleware/validate');
+const { reportSchema, paginationSchema } = require('../schemas');
 
 const router = express.Router();
 
@@ -15,35 +17,19 @@ const requireAdmin = async (req, res, next) => {
   }
 };
 
-// 🔹 Загрузить скриншот (base64)
-router.post('/upload-screenshot', authenticate, async (req, res) => {
-  try {
-    const { image } = req.body;
-    if (!image) return res.status(400).json({ error: 'Нет изображения' });
-    // Для диплома/прототипа: base64 хранится как есть (в реальном проекте — S3/Cloudinary)
-    res.json({ url: image });
-  } catch (err) {
-    console.error('[reports] upload-screenshot error:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
 // 🔹 Создать жалобу (любой авторизованный пользователь)
-router.post('/', authenticate, async (req, res) => {
+router.post('/', authenticate, validate(reportSchema), async (req, res) => {
   try {
-    const { type, targetId, targetName, targetLink, reason, description, screenshots } = req.body;
-    if (!type || !targetId || !reason) {
-      return res.status(400).json({ error: 'Тип, ID цели и причина обязательны' });
-    }
+    const body = req.validated.body;
     const report = await prisma.report.create({
       data: {
-        type,
-        targetId,
-        targetName: targetName || null,
-        targetLink: targetLink || null,
-        reason,
-        description: description || null,
-        screenshots: screenshots || [],
+        type: body.type,
+        targetId: body.targetId,
+        targetName: body.targetName || null,
+        targetLink: body.targetLink || null,
+        reason: body.reason,
+        description: body.description || null,
+        screenshots: body.screenshots || [],
         reporterId: req.tenantId
       }
     });
@@ -55,7 +41,7 @@ router.post('/', authenticate, async (req, res) => {
 });
 
 // 🔹 Получить мои жалобы (текущий пользователь)
-router.get('/my', authenticate, async (req, res) => {
+router.get('/my', authenticate, validate(paginationSchema), async (req, res) => {
   try {
     const { status, page = 1, limit = 20 } = req.query;
     const where = { reporterId: req.tenantId };

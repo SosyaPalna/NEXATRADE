@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Outlet, useLocation } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -9,12 +10,11 @@ import { Menu, Users, FileText, ArrowLeft, LogOut, Shield, BarChart3, Flag, Fold
 export default function AdminLayout() {
   const navigate = useNavigate()
   const location = useLocation()
+  const { logout } = useAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
 
   const handleLogout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('isAdmin')
-    navigate('/login')
+    logout()
   }
 
   const navItems = [

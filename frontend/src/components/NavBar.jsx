@@ -15,13 +15,13 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Menu, User, LogOut, Building2, LayoutDashboard, Package, FileText, Sun, Moon, Bell, Check, Trash2, MessageSquare, Gavel, ShieldCheck, MapPin, Shield } from 'lucide-react'
 import { useTheme } from './ThemeProvider'
 import { useNotification } from '../context/NotificationContext'
+import { useAuth } from '../context/AuthContext'
 import { io } from 'socket.io-client'
 
 export default function NavBar() {
   const location = useLocation()
   const navigate = useNavigate()
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const { user, loading, logout } = useAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [notifications, setNotifications] = useState([])
   const [unreadCount, setUnreadCount] = useState(0)
@@ -43,20 +43,7 @@ export default function NavBar() {
     window.dispatchEvent(new StorageEvent('storage', { key: 'selectedCity', newValue: city }))
   }
 
-  useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (!token) {
-      setLoading(false)
-      return
-    }
-    api.get('/auth/me')
-      .then(res => setUser(res.data))
-      .catch(() => {
-        localStorage.removeItem('token')
-        localStorage.removeItem('isAdmin')
-      })
-      .finally(() => setLoading(false))
-  }, [location.pathname])
+  // useAuth загружает пользователя централизованно
 
   useEffect(() => {
     if (!user) return
@@ -64,10 +51,9 @@ export default function NavBar() {
     const interval = setInterval(loadNotifications, 30000)
 
     // Socket.io для real-time уведомлений
-    const token = localStorage.getItem('token')
     const socketUrl = window.location.origin
     const socket = io(socketUrl, {
-      auth: { token },
+      withCredentials: true,
       transports: ['websocket', 'polling'],
     })
 
@@ -117,9 +103,7 @@ export default function NavBar() {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('isAdmin')
-    navigate('/login')
+    logout()
   }
 
   const navItems = [

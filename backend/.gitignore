@@ -8,5 +8,8 @@ node_modules/
 logs/
 *.log
 
+# Uploaded files
+uploads/
+
 # Prisma
 prisma/migrations/*/migration_lock.toml

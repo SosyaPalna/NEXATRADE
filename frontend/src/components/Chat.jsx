@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { io } from 'socket.io-client'
 import { useNotification } from '../context/NotificationContext'
+import { api } from '../api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -35,10 +36,9 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
   const { addNotification } = useNotification()
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
     const socketUrl = window.location.origin
     const newSocket = io(socketUrl, {
-      auth: { token },
+      withCredentials: true,
       transports: ['polling', 'websocket'],
       reconnection: true,
       reconnectionAttempts: 5,
@@ -112,20 +112,13 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
   const submitReport = async () => {
     if (!reportReason) return
     try {
-      const res = await fetch('/api/reports', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          type: 'message',
-          targetId: reportModal.id,
-          reason: reportReason,
-          description: reportDescription
-        })
+      const res = await api.post('/reports', {
+        type: 'message',
+        targetId: reportModal.id,
+        reason: reportReason,
+        description: reportDescription
       })
-      if (res.ok) {
+      if (res.status >= 200 && res.status < 300) {
         addNotification('Жалоба отправлена', 'success')
         setReportModal(null)
         setReportReason('')

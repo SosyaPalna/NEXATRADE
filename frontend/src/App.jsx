@@ -3,6 +3,7 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { NotificationProvider } from './context/NotificationContext'
+import { AuthProvider, useAuth } from './context/AuthContext'
 
 // 🔹 Страницы (синхронные)
 import Login from './pages/Login'
@@ -37,15 +38,17 @@ import YandexMetrika from './components/YandexMetrika'
 
 const queryClient = new QueryClient()
 
-// 🔐 Защита: требует токен
+// 🔐 Защита: требует авторизации
 function Protected() {
-  const token = localStorage.getItem('token')
-  return token ? <Outlet /> : <Navigate to="/login" replace />
+  const { isAuthenticated, loading } = useAuth()
+  if (loading) return null
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />
 }
 
 // 🔐 Защита админки: требует isAdmin
 function AdminOnly() {
-  const isAdmin = localStorage.getItem('isAdmin') === 'true'
+  const { isAdmin, loading } = useAuth()
+  if (loading) return null
   return isAdmin ? <Outlet /> : <Navigate to="/dashboard" replace />
 }
 
@@ -74,11 +77,9 @@ function AppLayout() {
   )
 }
 
-export default function App() {
+function AppRoutes() {
   return (
-    <NotificationProvider>
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
+    <BrowserRouter>
           <YandexMetrika />
           <Routes>
             {/* 🔓 Публичные маршруты с общим лейаутом */}
@@ -129,6 +130,16 @@ export default function App() {
             </Route>
           </Routes>
         </BrowserRouter>
+  )
+}
+
+export default function App() {
+  return (
+    <NotificationProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
       </QueryClientProvider>
     </NotificationProvider>
   )
