@@ -13,6 +13,7 @@ const ALLOWED_MIMES = {
   tenants: ['image/jpeg', 'image/png', 'image/webp'],
   reports: ['image/jpeg', 'image/png', 'image/webp'],
   verifications: ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'],
+  chat: ['image/jpeg', 'image/png', 'image/webp', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/plain'],
 };
 
 const ALLOWED_EXTENSIONS = {
@@ -20,6 +21,7 @@ const ALLOWED_EXTENSIONS = {
   tenants: ['jpg', 'jpeg', 'png', 'webp'],
   reports: ['jpg', 'jpeg', 'png', 'webp'],
   verifications: ['jpg', 'jpeg', 'png', 'webp', 'pdf'],
+  chat: ['jpg', 'jpeg', 'png', 'webp', 'pdf', 'docx', 'xlsx', 'txt'],
 };
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 МБ
@@ -58,9 +60,22 @@ async function validateFileMagicBytes(filePath, type) {
     const buffer = fs.readFileSync(filePath);
     const isPdf = buffer.slice(0, 5).toString() === '%PDF-';
     if (allowedMimes.includes('application/pdf') && isPdf) return true;
+    // txt без BOM часто не определяется file-type — проверяем по расширению
+    const ext = getExtension(filePath);
+    if (allowedMimes.includes('text/plain') && ext === 'txt') return true;
     return false;
   }
-  return allowedMimes.includes(fileType.mime);
+
+  if (allowedMimes.includes(fileType.mime)) return true;
+
+  // docx/xlsx — ZIP-архивы; file-type возвращает application/zip
+  if (fileType.mime === 'application/zip') {
+    const ext = getExtension(filePath);
+    if (ext === 'docx' && allowedMimes.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document')) return true;
+    if (ext === 'xlsx' && allowedMimes.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) return true;
+  }
+
+  return false;
 }
 
 /**
