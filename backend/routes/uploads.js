@@ -43,4 +43,24 @@ router.post(
   }
 );
 
+// Загрузка вложений чата (до 5 файлов по 5 МБ)
+router.post(
+  '/chat-attachments',
+  authenticate,
+  ...createUploadMultiple('chat', 'files', 5),
+  (req, res) => {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: 'Файлы не загружены' });
+    }
+    const files = req.files.map(file => ({
+      url: file.url,
+      variants: file.variants,
+      name: file.originalname,
+      type: file.mimetype,
+      size: file.size,
+    }));
+    res.json({ files });
+  }
+);
+
 module.exports = router;

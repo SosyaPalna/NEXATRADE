@@ -69,6 +69,52 @@ router.patch('/read-all', authenticate, async (req, res) => {
   }
 });
 
+// 🔹 Количество непрочитанных сообщений чата
+router.get('/chat-unread-count', authenticate, async (req, res) => {
+  try {
+    if (!req.tenantId) {
+      return res.status(400).json({ error: 'tenantId отсутствует в токене' });
+    }
+
+    // Продуктовые чаты: сообщения, где получатель — текущий tenant
+    // (владелец товара либо покупатель, уже писавший в этот чат)
+    const productChats = await prisma.$queryRaw`
+      SELECT COUNT(*)::int as count
+      FROM "Message" m
+      JOIN "Product" p ON m."productId" = p.id
+      WHERE m."productId" IS NOT NULL
+        AND m."senderId" != ${req.tenantId}
+        AND m."readAt" IS NULL
+        AND (
+          p."tenantId" = ${req.tenantId}
+          OR EXISTS (
+            SELECT 1 FROM "Message" m2
+            WHERE m2."productId" = m."productId"
+              AND m2."senderId" = ${req.tenantId}
+          )
+        )
+    `;
+
+    // RFQ-чаты: сообщения, где получатель — текущий tenant
+    // (buyer или seller, подавший quote)
+    const rfqChats = await prisma.$queryRaw`
+      SELECT COUNT(*)::int as count
+      FROM "Message" m
+      JOIN "Rfq" r ON m."rfqId" = r.id
+      LEFT JOIN "Quote" q ON q."rfqId" = r.id AND q."sellerId" = ${req.tenantId}
+      WHERE m."rfqId" IS NOT NULL
+        AND m."senderId" != ${req.tenantId}
+        AND m."readAt" IS NULL
+        AND (r."buyerId" = ${req.tenantId} OR q."sellerId" = ${req.tenantId})
+    `;
+
+    res.json({ count: (productChats[0]?.count || 0) + (rfqChats[0]?.count || 0) });
+  } catch (err) {
+    console.error('[notifications] GET /chat-unread-count error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // 🔹 Удалить уведомление
 router.delete('/:id', authenticate, async (req, res) => {
   try {

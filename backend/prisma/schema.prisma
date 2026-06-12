@@ -188,12 +188,14 @@ model ProductView {
 }
 
 model Message {
-  id        String    @id @default(uuid())
-  content   String
-  isEdited  Boolean   @default(false)
-  editedAt  DateTime?
-  isDeleted Boolean   @default(false)
-  createdAt DateTime  @default(now())
+  id          String    @id @default(uuid())
+  content     String
+  attachments String[]  // URL прикреплённых файлов
+  isEdited    Boolean   @default(false)
+  editedAt    DateTime?
+  isDeleted   Boolean   @default(false)
+  readAt      DateTime?
+  createdAt   DateTime  @default(now())
 
   senderId String
   sender   Tenant @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
@@ -203,6 +205,10 @@ model Message {
 
   productId String?
   product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, createdAt])
+  @@index([rfqId, createdAt])
+  @@index([senderId, createdAt])
 }
 
 model Report {
