@@ -87,17 +87,18 @@ model Category {
 }
 
 model Product {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   name        String
-  description String?  @db.Text
-  price       Decimal  @db.Decimal(10, 2)
-  unit        String   @default("шт.")
-  stock       Int      @default(0)
-  isOpt       Boolean  @default(true)
-  isRetail    Boolean  @default(false)
+  description String?   @db.Text
+  price       Decimal   @db.Decimal(10, 2)
+  unit        String    @default("шт.")
+  stock       Int       @default(0)
+  isOpt       Boolean   @default(true)
+  isRetail    Boolean   @default(false)
   images      String[] // массив URL изображений
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
 
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
@@ -118,6 +119,7 @@ model Rfq {
   status      String    @default("open")
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
 
   buyerId String
   buyer   Tenant @relation("BuyerRfqs", fields: [buyerId], references: [id], onDelete: Cascade)
@@ -132,13 +134,14 @@ model Rfq {
 }
 
 model Quote {
-  id           String   @id @default(uuid())
-  price        Decimal  @db.Decimal(10, 2)
+  id           String    @id @default(uuid())
+  price        Decimal   @db.Decimal(10, 2)
   deliveryTime String?
   message      String?
-  status       String   @default("pending")
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  status       String    @default("pending")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
 
   rfqId String
   rfq   Rfq    @relation(fields: [rfqId], references: [id], onDelete: Cascade)

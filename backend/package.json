@@ -22,17 +22,20 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-rate-limit": "^7.5.0",
+    "file-type": "^22.0.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "mime-types": "^3.0.2",
     "multer": "^2.1.1",
     "pg": "^8.20.0",
     "prisma": "^5.22.0",
+    "sanitize-html": "^2.17.5",
     "socket.io": "^4.8.3",
     "uuid": "^14.0.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@types/sanitize-html": "^2.16.1",
     "@types/socket.io": "^3.0.1",
     "nodemon": "^3.1.14"
   }

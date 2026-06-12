@@ -35,6 +35,8 @@ import NavBar from './components/NavBar'
 import MarketLayout from './layouts/MarketLayout'
 import CookieConsent from './components/CookieConsent'
 import YandexMetrika from './components/YandexMetrika'
+import ErrorBoundary from './components/ErrorBoundary'
+import { Toaster } from './components/Toaster'
 
 const queryClient = new QueryClient()
 
@@ -80,6 +82,7 @@ function AppLayout() {
 function AppRoutes() {
   return (
     <BrowserRouter>
+          <Toaster />
           <YandexMetrika />
           <Routes>
             {/* 🔓 Публичные маршруты с общим лейаутом */}
@@ -135,12 +138,14 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <NotificationProvider>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <AppRoutes />
-        </AuthProvider>
-      </QueryClientProvider>
-    </NotificationProvider>
+    <ErrorBoundary>
+      <NotificationProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <AppRoutes />
+          </AuthProvider>
+        </QueryClientProvider>
+      </NotificationProvider>
+    </ErrorBoundary>
   )
 }
