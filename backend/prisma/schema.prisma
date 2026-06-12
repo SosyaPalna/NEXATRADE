@@ -48,6 +48,8 @@ model Tenant {
   sentMessages          Message[] @relation("MessageSender")
   receivedNotifications Notification[] @relation("RecipientNotifications")
   reportMessages        ReportMessage[] @relation("ReportMessageSender")
+  reviews               Review[]  @relation("TenantReviews")
+  authoredReviews       Review[]  @relation("AuthorReviews")
 }
 
 model User {
@@ -148,6 +150,24 @@ model Quote {
 
   sellerId String
   seller   Tenant @relation("SellerQuotes", fields: [sellerId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int
+  text      String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenantId String
+  tenant   Tenant @relation("TenantReviews", fields: [tenantId], references: [id], onDelete: Cascade)
+
+  authorId String
+  author   Tenant @relation("AuthorReviews", fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, authorId])
+  @@index([tenantId])
+  @@index([authorId])
 }
 
 model Message {

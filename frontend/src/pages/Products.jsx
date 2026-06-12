@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/select'
 import { Search, Package, Plus, SlidersHorizontal, X, Camera, Tag } from 'lucide-react'
 import { toast } from 'sonner'
+import { getPreviewUrl } from '../lib/images'
 import SEO from '../components/SEO'
 
 const units = [
@@ -308,7 +309,7 @@ export default function Products() {
                 <Link to={`/product/${product.id}`} className="h-44 bg-muted flex items-center justify-center shrink-0 relative">
                   {product.images?.[0] ? (
                     <>
-                      <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+                      <img src={getPreviewUrl(product.images[0])} alt={product.name} className="w-full h-full object-cover" />
                       {product.images.length > 1 && (
                         <span className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full">
                           +{product.images.length - 1}

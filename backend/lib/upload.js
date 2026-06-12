@@ -4,6 +4,7 @@ const fs = require('fs');
 const crypto = require('crypto');
 const mime = require('mime-types');
 const FileType = require('file-type');
+const sharp = require('sharp');
 
 const UPLOAD_ROOT = path.join(__dirname, '..', 'uploads');
 
@@ -24,16 +25,19 @@ const ALLOWED_EXTENSIONS = {
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 МБ
 const MAX_FILES_PER_REQUEST = 10;
 
+const IMAGE_SIZES = {
+  thumbnail: { width: 150, height: 150, fit: 'cover' },
+  preview: { width: 400, height: 400, fit: 'inside' },
+};
+
 function ensureDir(dir) {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 }
 
-function generateFilename(originalname) {
-  const ext = mime.extension(mime.lookup(originalname) || 'application/octet-stream') || 'bin';
-  const random = crypto.randomBytes(16).toString('hex');
-  return `${random}.${ext}`;
+function generateFilename() {
+  return crypto.randomBytes(16).toString('hex');
 }
 
 function getExtension(filename) {
@@ -59,13 +63,46 @@ async function validateFileMagicBytes(filePath, type) {
   return allowedMimes.includes(fileType.mime);
 }
 
+/**
+ * Обрабатывает изображение: конвертирует в WebP и создаёт превью.
+ * Возвращает базовое имя файла (без расширения).
+ */
+async function processImage(filePath, type) {
+  const baseName = generateFilename();
+  const destDir = path.join(UPLOAD_ROOT, type);
+  ensureDir(destDir);
+
+  const originalPath = path.join(destDir, `${baseName}.webp`);
+  const previewPath = path.join(destDir, `${baseName}-preview.webp`);
+  const thumbnailPath = path.join(destDir, `${baseName}-thumbnail.webp`);
+
+  await sharp(filePath)
+    .webp({ quality: 85 })
+    .toFile(originalPath);
+
+  await sharp(filePath)
+    .resize(IMAGE_SIZES.preview.width, IMAGE_SIZES.preview.height, { fit: IMAGE_SIZES.preview.fit })
+    .webp({ quality: 75 })
+    .toFile(previewPath);
+
+  await sharp(filePath)
+    .resize(IMAGE_SIZES.thumbnail.width, IMAGE_SIZES.thumbnail.height, { fit: IMAGE_SIZES.thumbnail.fit })
+    .webp({ quality: 70 })
+    .toFile(thumbnailPath);
+
+  // Удаляем оригинал
+  fs.unlinkSync(filePath);
+
+  return baseName;
+}
+
 function createUpload(type) {
   const dest = path.join(UPLOAD_ROOT, type);
   ensureDir(dest);
 
   const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, dest),
-    filename: (req, file, cb) => cb(null, generateFilename(file.originalname)),
+    filename: (req, file, cb) => cb(null, `${generateFilename()}-${getExtension(file.originalname)}`),
   });
 
   const fileFilter = (req, file, cb) => {
@@ -94,26 +131,58 @@ function createUpload(type) {
  */
 function createUploadMultiple(type, fieldName, maxCount = MAX_FILES_PER_REQUEST) {
   const upload = createUpload(type).array(fieldName, maxCount);
-  return [upload, validateUploadedFiles(type)];
+  return [upload, validateAndProcessUploadedFiles(type)];
 }
 
-function validateUploadedFiles(type) {
+function validateAndProcessUploadedFiles(type) {
   return async (req, res, next) => {
     if (!req.files || req.files.length === 0) {
       return next();
     }
 
-    for (const file of req.files) {
-      const isValid = await validateFileMagicBytes(file.path, type);
-      if (!isValid) {
-        // Удаляем все загруженные файлы при ошибке
-        req.files.forEach(f => {
-          try { fs.unlinkSync(f.path); } catch {}
-        });
-        return res.status(400).json({ error: `Файл ${file.originalname} имеет недопустимое содержимое` });
+    const processedFiles = [];
+
+    try {
+      for (const file of req.files) {
+        const isValid = await validateFileMagicBytes(file.path, type);
+        if (!isValid) {
+          throw new Error(`Файл ${file.originalname} имеет недопустимое содержимое`);
+        }
+
+        if (file.mimetype.startsWith('image/')) {
+          const baseName = await processImage(file.path, type);
+          file.filename = `${baseName}.webp`;
+          file.variants = {
+            original: getPublicPath(type, `${baseName}.webp`),
+            preview: getPublicPath(type, `${baseName}-preview.webp`),
+            thumbnail: getPublicPath(type, `${baseName}-thumbnail.webp`),
+          };
+          file.url = file.variants.original;
+          processedFiles.push(file);
+        } else {
+          // PDF и другие не-изображения — оставляем как есть
+          file.url = getPublicPath(type, file.filename);
+          file.variants = { original: file.url };
+          processedFiles.push(file);
+        }
       }
+      req.files = processedFiles;
+      next();
+    } catch (err) {
+      // Удаляем все загруженные/обработанные файлы при ошибке
+      processedFiles.forEach(f => {
+        try {
+          if (f.variants) {
+            Object.values(f.variants).forEach(url => fs.unlinkSync(path.join(UPLOAD_ROOT, url.replace('/uploads/', ''))));
+          }
+          fs.unlinkSync(f.path);
+        } catch {}
+      });
+      req.files.forEach(f => {
+        try { fs.unlinkSync(f.path); } catch {}
+      });
+      return res.status(400).json({ error: err.message });
     }
-    next();
   };
 }
 
@@ -136,4 +205,5 @@ module.exports = {
   MAX_FILE_SIZE,
   MAX_FILES_PER_REQUEST,
   validateFileMagicBytes,
+  processImage,
 };

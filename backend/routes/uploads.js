@@ -5,28 +5,28 @@ const { createUpload, createUploadMultiple, getPublicPath } = require('../lib/up
 const router = express.Router();
 
 function handleUpload(type, fieldName) {
-  const upload = createUpload(type).single(fieldName);
-  return [authenticate, (req, res) => {
-    upload(req, res, (err) => {
-      if (err) {
-        console.error(`Upload error (${type}):`, err.message);
-        return res.status(400).json({ error: err.message });
-      }
-      if (!req.file) {
-        return res.status(400).json({ error: 'Файл не загружен' });
-      }
-      const url = getPublicPath(type, req.file.filename);
-      res.json({ url });
-    });
+  const handlers = createUploadMultiple(type, fieldName, 1);
+  return [authenticate, ...handlers, (req, res) => {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: 'Файл не загружен' });
+    }
+    const file = req.files[0];
+    res.json({ url: file.url, variants: file.variants });
   }];
 }
 
-// Одиночная загрузка
+// Одиночная загрузка (обратная совместимость)
 router.post('/product-image', ...handleUpload('products', 'image'));
 router.post('/tenant-avatar', ...handleUpload('tenants', 'image'));
 router.post('/tenant-cover', ...handleUpload('tenants', 'image'));
 router.post('/report-screenshot', ...handleUpload('reports', 'image'));
-router.post('/verification-doc', ...handleUpload('verifications', 'image'));
+router.post('/verification-doc', ...createUploadMultiple('verifications', 'image'), (req, res) => {
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).json({ error: 'Файл не загружен' });
+  }
+  const file = req.files[0];
+  res.json({ url: file.url, variants: file.variants });
+});
 
 // Множественная загрузка фото товаров
 router.post(
@@ -37,8 +37,9 @@ router.post(
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: 'Файлы не загружены' });
     }
-    const urls = req.files.map(file => getPublicPath('products', file.filename));
-    res.json({ urls });
+    const urls = req.files.map(file => file.url);
+    const variants = req.files.map(file => file.variants);
+    res.json({ urls, variants });
   }
 );
 
