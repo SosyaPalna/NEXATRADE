@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { getThumbnailUrl } from '../lib/images';
 
 export default function ImageGallery({ images = [], alt = 'Изображение' }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -54,7 +55,7 @@ export default function ImageGallery({ images = [], alt = 'Изображени�
               }`}
             >
               <img
-                src={src}
+                src={getThumbnailUrl(src) || src}
                 alt={`${alt} миниатюра ${index + 1}`}
                 className="w-full h-full object-cover"
               />
