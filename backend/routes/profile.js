@@ -1,10 +1,10 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('../lib/prisma');
 const authenticate = require('../middleware/auth');
 const bcrypt = require('bcryptjs');
+const { validatePassword } = require('../utils/password');
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 // 🔹 Получить данные текущего пользователя + его заявки
 router.get('/me', authenticate, async (req, res) => {
@@ -46,7 +46,9 @@ router.put('/me', authenticate, async (req, res) => {
       // 1. Обновляем пользователя
       const updateData = {};
       if (email && email !== req.userEmail) updateData.email = email;
-      if (password && password.length >= 6) {
+      if (password) {
+        const passwordError = validatePassword(password);
+        if (passwordError) return res.status(400).json({ error: passwordError });
         updateData.password = await bcrypt.hash(password, 10);
       }
 

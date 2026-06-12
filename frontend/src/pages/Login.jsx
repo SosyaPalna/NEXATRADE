@@ -31,12 +31,9 @@ function LoginForm() {
 
     try {
       const { data } = await api.post('/auth/login', { email, password })
-      localStorage.setItem('token', data.accessToken)
       if (data.user?.isAdmin) {
-        localStorage.setItem('isAdmin', 'true')
         navigate('/admin', { replace: true })
       } else {
-        localStorage.removeItem('isAdmin')
         navigate('/dashboard', { replace: true })
       }
     } catch (err) {

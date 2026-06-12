@@ -1,11 +1,11 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('../lib/prisma');
 const authenticate = require('../middleware/auth');
+const { validatePassword } = require('../utils/password');
 const bcrypt = require('bcryptjs');
 const { getIo } = require('../utils/socket');
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 // 🔐 Middleware: проверка на админа
 const requireAdmin = async (req, res, next) => {
@@ -135,7 +135,9 @@ router.put('/users/:id', authenticate, requireAdmin, async (req, res) => {
       if (email !== undefined) updateData.email = email;
       if (isActive !== undefined) updateData.isActive = isActive;
       if (isAdmin !== undefined) updateData.isAdmin = isAdmin;
-      if (password && password.length >= 6) {
+      if (password) {
+        const passwordError = validatePassword(password);
+        if (passwordError) return res.status(400).json({ error: passwordError });
         updateData.password = await bcrypt.hash(password, 10);
       }
 

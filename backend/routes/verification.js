@@ -1,11 +1,10 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('../lib/prisma');
 const authenticate = require('../middleware/auth');
 const { findPartyByInn } = require('../services/dadata');
 const { getIo } = require('../utils/socket');
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 // 🔍 Проверить ИНН через DaData (предварительная проверка)
 router.post('/check-inn', authenticate, async (req, res) => {

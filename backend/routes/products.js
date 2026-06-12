@@ -1,9 +1,10 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('../lib/prisma');
 const authenticate = require('../middleware/auth');
+const validate = require('../middleware/validate');
+const { productSchema, productUpdateSchema, paginationSchema } = require('../schemas');
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 // 🔹 Получить один товар
 router.get('/:id', authenticate, async (req, res) => {
@@ -23,7 +24,7 @@ router.get('/:id', authenticate, async (req, res) => {
 });
 
 // 🔹 Получить товары (только свои, или все если передать ?all=true)
-router.get('/', authenticate, async (req, res) => {
+router.get('/', authenticate, validate(paginationSchema), async (req, res) => {
   try {
     const where = req.query.all === 'true' ? {} : { tenantId: req.tenantId };
 
@@ -52,28 +53,24 @@ router.get('/', authenticate, async (req, res) => {
 });
 
 // 🔹 Создать товар
-router.post('/', authenticate, async (req, res) => {
+router.post('/', authenticate, validate(productSchema), async (req, res) => {
   try {
-    const { name, description, price, stock, unit, categoryId, isOpt, isRetail, images } = req.body;
-    if (!name || price === undefined || price === null) {
-      return res.status(400).json({ error: 'Название и цена обязательны' });
-    }
-
+    const body = req.validated.body;
     const data = {
-      name,
-      description,
-      price: parseFloat(price),
-      stock: parseInt(stock) || 0,
-      unit: unit || 'шт.',
-      isOpt: isOpt !== undefined ? isOpt : true,
-      isRetail: isRetail !== undefined ? isRetail : false,
-      images: Array.isArray(images) ? images : [],
+      name: body.name,
+      description: body.description,
+      price: body.price,
+      stock: body.stock ?? 0,
+      unit: body.unit || 'шт.',
+      isOpt: body.isOpt ?? true,
+      isRetail: body.isRetail ?? false,
+      images: body.images || [],
       tenantId: req.tenantId
     };
 
-    if (categoryId) {
-      const cat = await prisma.category.findUnique({ where: { id: categoryId } });
-      if (cat) data.categoryId = categoryId;
+    if (body.categoryId) {
+      const cat = await prisma.category.findUnique({ where: { id: body.categoryId } });
+      if (cat) data.categoryId = body.categoryId;
     }
 
     const product = await prisma.product.create({ data });
@@ -84,22 +81,22 @@ router.post('/', authenticate, async (req, res) => {
 });
 
 // 🔹 Обновить товар (только владелец может)
-router.put('/:id', authenticate, async (req, res) => {
+router.put('/:id', authenticate, validate(productUpdateSchema), async (req, res) => {
   try {
     const existing = await prisma.product.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.tenantId !== req.tenantId) return res.status(403).json({ error: 'Нет доступа к этому товару' });
 
-    const { name, description, price, stock, unit, categoryId, isOpt, isRetail, images } = req.body;
+    const body = req.validated.body;
     const data = {};
-    if (name !== undefined) data.name = name;
-    if (description !== undefined) data.description = description;
-    if (price !== undefined) data.price = parseFloat(price);
-    if (stock !== undefined) data.stock = parseInt(stock);
-    if (unit !== undefined) data.unit = unit;
-    if (isOpt !== undefined) data.isOpt = isOpt;
-    if (isRetail !== undefined) data.isRetail = isRetail;
-    if (images !== undefined) data.images = Array.isArray(images) ? images : [];
-    if (categoryId !== undefined) data.categoryId = categoryId || null;
+    if (body.name !== undefined) data.name = body.name;
+    if (body.description !== undefined) data.description = body.description;
+    if (body.price !== undefined) data.price = body.price;
+    if (body.stock !== undefined) data.stock = body.stock;
+    if (body.unit !== undefined) data.unit = body.unit;
+    if (body.isOpt !== undefined) data.isOpt = body.isOpt;
+    if (body.isRetail !== undefined) data.isRetail = body.isRetail;
+    if (body.images !== undefined) data.images = body.images;
+    if (body.categoryId !== undefined) data.categoryId = body.categoryId;
 
     const product = await prisma.product.update({ where: { id: req.params.id }, data });
     res.json(product);
@@ -117,19 +114,6 @@ router.delete('/:id', authenticate, async (req, res) => {
     await prisma.product.delete({ where: { id: req.params.id } });
     res.json({ message: 'Товар удалён' });
   } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// 🔹 Загрузка изображения товара (base64)
-router.post('/upload-image', authenticate, async (req, res) => {
-  try {
-    const { image } = req.body;
-    if (!image) return res.status(400).json({ error: 'Нет изображения' });
-    // В реальном проекте здесь была бы загрузка на S3/Cloudinary
-    res.json({ url: image });
-  } catch (err) {
-    console.error('❌ POST /products/upload-image error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
