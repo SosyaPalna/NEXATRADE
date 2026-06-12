@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { api } from '../api'
 import { useNavigate, Link } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import SEO from '../components/SEO'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -23,6 +24,7 @@ function LoginForm() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const { login } = useAuth()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -31,6 +33,7 @@ function LoginForm() {
 
     try {
       const { data } = await api.post('/auth/login', { email, password })
+      login(data.user)
       if (data.user?.isAdmin) {
         navigate('/admin', { replace: true })
       } else {
