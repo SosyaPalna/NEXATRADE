@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { api } from '../api'
+import { api, uploadFile } from '../api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -85,18 +85,14 @@ export default function Products() {
   const handleImageUpload = async (file) => {
     if (!file) return
     setUploading(true)
-    const reader = new FileReader()
-    reader.onloadend = async () => {
-      try {
-        const res = await api.post('/products/upload-image', { image: reader.result })
-        setNewProduct(prev => ({ ...prev, images: [...prev.images, res.data.url] }))
-      } catch {
-        alert('Ошибка загрузки изображения')
-      } finally {
-        setUploading(false)
-      }
+    try {
+      const url = await uploadFile('/uploads/product-image', file)
+      setNewProduct(prev => ({ ...prev, images: [...prev.images, url] }))
+    } catch {
+      alert('Ошибка загрузки изображения')
+    } finally {
+      setUploading(false)
     }
-    reader.readAsDataURL(file)
   }
 
   const removeImage = (index) => {

@@ -1,9 +1,10 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('../lib/prisma');
 const authenticate = require('../middleware/auth');
+const validate = require('../middleware/validate');
+const { companyUpdateSchema } = require('../schemas');
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 // 🔹 Получить публичный профиль компании по ID
 router.get('/:id', authenticate, async (req, res) => {
@@ -30,23 +31,21 @@ router.get('/:id', authenticate, async (req, res) => {
 });
 
 // 🔹 Обновить профиль своей компании
-router.put('/me', authenticate, async (req, res) => {
+router.put('/me', authenticate, validate(companyUpdateSchema), async (req, res) => {
   try {
-    const { description, website, phone, avatarUrl, coverUrl, socialLinks, city, deliveryMethods, paymentMethods } = req.body;
-    
+    const body = req.validated.body;
+
     // Собираем только те поля, которые реально переданы (включая пустые строки!)
     const updateData = {};
-    if (description !== undefined) updateData.description = description;
-    if (website !== undefined) updateData.website = website;
-    if (phone !== undefined) updateData.phone = phone;
-    if (avatarUrl !== undefined) updateData.avatarUrl = avatarUrl; // ← Пустая строка тоже пройдёт
-    if (coverUrl !== undefined) updateData.coverUrl = coverUrl;   // ← Пустая строка тоже пройдёт
-    if (socialLinks !== undefined) {
-      updateData.socialLinks = socialLinks ? JSON.parse(JSON.stringify(socialLinks)) : null;
-    }
-    if (city !== undefined) updateData.city = city;
-    if (deliveryMethods !== undefined) updateData.deliveryMethods = Array.isArray(deliveryMethods) ? deliveryMethods : [];
-    if (paymentMethods !== undefined) updateData.paymentMethods = Array.isArray(paymentMethods) ? paymentMethods : [];
+    if (body.description !== undefined) updateData.description = body.description;
+    if (body.website !== undefined) updateData.website = body.website;
+    if (body.phone !== undefined) updateData.phone = body.phone;
+    if (body.avatarUrl !== undefined) updateData.avatarUrl = body.avatarUrl;
+    if (body.coverUrl !== undefined) updateData.coverUrl = body.coverUrl;
+    if (body.socialLinks !== undefined) updateData.socialLinks = body.socialLinks || null;
+    if (body.city !== undefined) updateData.city = body.city;
+    if (body.deliveryMethods !== undefined) updateData.deliveryMethods = body.deliveryMethods;
+    if (body.paymentMethods !== undefined) updateData.paymentMethods = body.paymentMethods;
     
     const tenant = await prisma.tenant.update({
       where: { id: req.tenantId },
@@ -61,24 +60,6 @@ router.put('/me', authenticate, async (req, res) => {
     res.json(tenant);
   } catch (err) {
     console.error('❌ PUT /company/me error:', err.message);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// 🔹 Загрузка изображения (base64)
-router.post('/upload-image', authenticate, async (req, res) => {
-  try {
-    const { image, type } = req.body; // image: base64 string, type: 'avatar' | 'cover'
-    
-    if (!image || !['avatar', 'cover'].includes(type)) {
-      return res.status(400).json({ error: 'Неверные данные' });
-    }
-    
-    // В реальном проекте здесь была бы загрузка на S3/Cloudinary
-    // Для диплома: просто возвращаем base64 как есть (или можно обрезать)
-    res.json({ url: image });
-  } catch (err) {
-    console.error('❌ POST /company/upload-image error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });

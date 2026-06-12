@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { api } from '../api'
+import { api, uploadFile } from '../api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -87,35 +87,13 @@ export default function CompanyPage() {
 
   const handleImageUpload = async (file, type) => {
     if (!file) return
-    const reader = new FileReader()
-    reader.onloadend = async () => {
-      const img = new Image()
-      img.src = reader.result
-      img.onload = async () => {
-        const canvas = document.createElement('canvas')
-        const MAX_WIDTH = 600
-        const MAX_HEIGHT = 400
-        let width = img.width
-        let height = img.height
-        if (width > height) {
-          if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH }
-        } else {
-          if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT }
-        }
-        canvas.width = width
-        canvas.height = height
-        const ctx = canvas.getContext('2d')
-        ctx.drawImage(img, 0, 0, width, height)
-        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7)
-        try {
-          const res = await api.post('/company/upload-image', { image: compressedBase64, type })
-          setForm(prev => ({ ...prev, [type === 'avatar' ? 'avatarUrl' : 'coverUrl']: res.data.url }))
-        } catch {
-          setError('Ошибка загрузки изображения')
-        }
-      }
+    try {
+      const endpoint = type === 'avatar' ? '/uploads/tenant-avatar' : '/uploads/tenant-cover'
+      const url = await uploadFile(endpoint, file)
+      setForm(prev => ({ ...prev, [type === 'avatar' ? 'avatarUrl' : 'coverUrl']: url }))
+    } catch {
+      setError('Ошибка загрузки изображения')
     }
-    reader.readAsDataURL(file)
   }
 
   const handleSave = async (e) => {

@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { api } from '../api'
+import { api, uploadFile } from '../api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -55,11 +55,8 @@ export default function ReportButton({ type, targetId, targetName, targetLink, v
       const newScreenshots = []
       for (const file of files) {
         if (!file.type.startsWith('image/')) continue
-        const url = await fileToBase64(file)
-        // Сжимаем перед отправкой
-        const compressed = await compressImage(url, 1200, 0.7)
-        const res = await api.post('/reports/upload-screenshot', { image: compressed })
-        newScreenshots.push(res.data.url)
+        const url = await uploadFile('/uploads/report-screenshot', file)
+        newScreenshots.push(url)
       }
       setScreenshots(prev => [...prev, ...newScreenshots])
     } catch (err) {

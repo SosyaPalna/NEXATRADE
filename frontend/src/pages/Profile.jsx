@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import { api } from '../api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -186,11 +187,7 @@ export default function Profile() {
                         <Save className="h-4 w-4" />
                         {saving ? 'Сохранение...' : 'Сохранить изменения'}
                       </Button>
-                      <Button type="button" variant="destructive" className="bg-destructive text-white hover:bg-destructive/90 flex items-center gap-2" onClick={() => {
-                        localStorage.removeItem('token')
-                        localStorage.removeItem('isAdmin')
-                        navigate('/login')
-                      }}>
+                      <Button type="button" variant="destructive" className="bg-destructive text-white hover:bg-destructive/90 flex items-center gap-2" onClick={() => logout()}>
                         <LogOut className="h-4 w-4" />
                         Выйти из аккаунта
                       </Button>

@@ -1,10 +1,49 @@
 const { Server } = require('socket.io');
-const { PrismaClient } = require('@prisma/client');
-
-const prisma = new PrismaClient();
+const cookie = require('cookie');
+const prisma = require('../lib/prisma');
+const { verifyAccessToken } = require('../utils/jwt');
 
 function getRoomName(roomType, roomId) {
   return `${roomType}:${roomId}`;
+}
+
+function parseAccessTokenFromCookie(handshake) {
+  const raw = handshake.headers?.cookie;
+  if (!raw) return null;
+  try {
+    const parsed = cookie.parse(raw);
+    return parsed.accessToken || null;
+  } catch {
+    return null;
+  }
+}
+
+async function canJoinRoom(tenantId, roomType, roomId) {
+  if (roomType === 'rfq') {
+    const rfq = await prisma.rfq.findUnique({
+      where: { id: roomId },
+      select: { buyerId: true, quotes: { where: { sellerId: tenantId }, select: { id: true } } }
+    });
+    if (!rfq) return false;
+    return rfq.buyerId === tenantId || rfq.quotes.length > 0;
+  }
+
+  if (roomType === 'product') {
+    const product = await prisma.product.findUnique({
+      where: { id: roomId },
+      select: { tenantId: true }
+    });
+    if (!product) return false;
+    if (product.tenantId === tenantId) return true;
+    // Покупатель может писать, только если уже есть история сообщений
+    const existingMessage = await prisma.message.findFirst({
+      where: { productId: roomId, senderId: tenantId },
+      select: { id: true }
+    });
+    return !!existingMessage;
+  }
+
+  return false;
 }
 
 const initSocket = (server) => {
@@ -17,18 +56,27 @@ const initSocket = (server) => {
   });
 
   // Middleware для аутентификации сокетов
-  io.use((socket, next) => {
-    const token = socket.handshake.auth.token;
+  io.use(async (socket, next) => {
+    const token = parseAccessTokenFromCookie(socket.handshake);
     if (!token) return next(new Error('No token'));
-    
-    const jwt = require('jsonwebtoken');
+
+    const decoded = verifyAccessToken(token);
+    if (decoded?.error) return next(new Error('Invalid token'));
+
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      socket.userId = decoded.userId;
-      socket.tenantId = decoded.tenantId;
+      const user = await prisma.user.findUnique({
+        where: { id: decoded.userId },
+        select: { id: true, isActive: true, tenantId: true, tenant: { select: { role: true } } }
+      });
+      if (!user || !user.isActive) return next(new Error('User inactive'));
+
+      socket.userId = user.id;
+      socket.tenantId = user.tenantId;
+      socket.role = user.tenant?.role;
       next();
-    } catch {
-      next(new Error('Invalid token'));
+    } catch (err) {
+      console.error('Socket auth error:', err.message);
+      next(new Error('Auth error'));
     }
   });
 
@@ -39,7 +87,11 @@ const initSocket = (server) => {
     socket.join(`tenant:${socket.tenantId}`);
 
     // Присоединение к универсальной комнате (rfq или product)
-    socket.on('join:room', ({ type, id }) => {
+    socket.on('join:room', async ({ type, id }) => {
+      const allowed = await canJoinRoom(socket.tenantId, type, id);
+      if (!allowed) {
+        return socket.emit('error', { message: 'Нет доступа к чату' });
+      }
       const room = getRoomName(type, id);
       socket.join(room);
       console.log(`📡 ${socket.tenantId} joined room ${room}`);
@@ -48,6 +100,11 @@ const initSocket = (server) => {
     // Отправка сообщения
     socket.on('message:send', async ({ roomType, roomId, content }) => {
       if (!content?.trim() || !roomType || !roomId) return;
+
+      const allowed = await canJoinRoom(socket.tenantId, roomType, roomId);
+      if (!allowed) {
+        return socket.emit('error', { message: 'Нет доступа для отправки сообщения' });
+      }
 
       try {
         const data = {
@@ -155,6 +212,11 @@ const initSocket = (server) => {
     // Загрузка истории сообщений
     socket.on('messages:load', async ({ roomType, roomId, limit = 50 }) => {
       try {
+        const allowed = await canJoinRoom(socket.tenantId, roomType, roomId);
+        if (!allowed) {
+          return socket.emit('error', { message: 'Нет доступа к истории сообщений' });
+        }
+
         const where = {};
         if (roomType === 'rfq') where.rfqId = roomId;
         else if (roomType === 'product') where.productId = roomId;
@@ -164,7 +226,7 @@ const initSocket = (server) => {
           where,
           include: { sender: { select: { name: true, role: true } } },
           orderBy: { createdAt: 'asc' },
-          take: limit,
+          take: Math.min(parseInt(limit) || 50, 100),
         });
         socket.emit('messages:loaded', messages);
       } catch (err) {

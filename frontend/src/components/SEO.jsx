@@ -80,7 +80,7 @@ export default function SEO({
 
       {/* JSON-LD */}
       {jsonLd && (
-        <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(jsonLd).replace(/</g, '\\u003c')}</script>
       )}
     </Helmet>
   )

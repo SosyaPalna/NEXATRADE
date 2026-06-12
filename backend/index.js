@@ -3,22 +3,27 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
 const http = require('http'); // ← Важно для Socket.io
-const prisma = require('./utils/db');
+const path = require('path');
+const fs = require('fs');
+const prisma = require('./lib/prisma');
 const { setIo } = require('./utils/socket');
-const { loginLimiter, apiLimiter } = require('./middleware/rateLimit');
+const { loginLimiter, publicLimiter, authLimiter } = require('./middleware/rateLimit');
+const authenticate = require('./middleware/auth');
 
 const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/products');
 const rfqRoutes = require('./routes/rfq');
 const citiesRoutes = require('./routes/cities');
+const uploadRoutes = require('./routes/uploads');
 const initSocket = require('./socket');
 
 const app = express();
 const PORT = process.env.PORT || 8000;
 
 // Trust proxy (nginx)
-app.set('trust proxy', 1);
+app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal']);
 
 // Middleware
 app.use(helmet({
@@ -46,18 +51,26 @@ app.use('/api', (req, res, next) => {
   next();
 });
 
-// General API rate limiting
-app.use('/api', apiLimiter);
+// Public API rate limiting
+app.use('/api/auth/login', loginLimiter);
+app.use('/api/auth', publicLimiter);
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Token-Expired'],
 }));
+app.use(cookieParser());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Роуты
-app.use('/api/auth/login', loginLimiter);
 app.use('/api/auth', authRoutes);
+app.use('/api/cities', citiesRoutes); // публичный endpoint городов
+
+// Все последующие /api/* требуют авторизации и rate limit по пользователю
+app.use('/api', authenticate, authLimiter);
+
 app.use('/api/products', productRoutes);
 app.use('/api/rfq', rfqRoutes);
 
@@ -101,11 +114,12 @@ app.use('/api/notifications', notificationRoutes);
 
 const verificationRoutes = require('./routes/verification');
 app.use('/api/verification', verificationRoutes);
-app.use('/api/cities', citiesRoutes);
+app.use('/api/uploads', uploadRoutes);
+
+// Отдача загруженных файлов (для dev; в production — nginx)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Отдача статики фронтенда (для production деплоя)
-const path = require('path');
-const fs = require('fs');
 
 const possibleStaticPaths = [
   path.join(__dirname, '../frontend/dist'),  // mono-repo (dev / VPS)

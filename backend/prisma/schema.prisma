@@ -51,14 +51,27 @@ model Tenant {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  isActive  Boolean  @default(true)
-  isAdmin   Boolean  @default(false)
-  createdAt DateTime @default(now())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id            String         @id @default(uuid())
+  email         String         @unique
+  password      String
+  isActive      Boolean        @default(true)
+  isAdmin       Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  tenantId      String
+  tenant        Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  refreshTokens RefreshToken[]
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  tokenHash String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+  revokedAt DateTime?
+  ip        String?
+  userAgent String?
 }
 
 model Category {

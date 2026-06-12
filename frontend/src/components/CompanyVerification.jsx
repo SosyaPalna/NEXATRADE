@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
-import { api } from '../api'
+import { api, uploadFile } from '../api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -69,18 +69,14 @@ export default function CompanyVerification() {
   const handleUploadDoc = async (file) => {
     if (!file) return
     setUploading(true)
-    const reader = new FileReader()
-    reader.onloadend = async () => {
-      try {
-        const res = await api.post('/products/upload-image', { image: reader.result })
-        setDocs(prev => [...prev, res.data.url])
-      } catch {
-        setError('Ошибка загрузки документа')
-      } finally {
-        setUploading(false)
-      }
+    try {
+      const url = await uploadFile('/uploads/verification-doc', file)
+      setDocs(prev => [...prev, url])
+    } catch {
+      setError('Ошибка загрузки документа')
+    } finally {
+      setUploading(false)
     }
-    reader.readAsDataURL(file)
   }
 
   const removeDoc = (index) => {
