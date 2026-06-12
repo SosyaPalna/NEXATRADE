@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { api } from '../api'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { Menu, User, LogOut, Building2, LayoutDashboard, Package, FileText, Sun, Moon, Bell, Check, Trash2, MessageSquare, Gavel, ShieldCheck, MapPin, Shield } from 'lucide-react'
+import { Menu, User, LogOut, Building2, LayoutDashboard, Package, FileText, BarChart3, Sun, Moon, Bell, Check, Trash2, MessageSquare, Gavel, ShieldCheck, MapPin, Shield } from 'lucide-react'
 import { useTheme } from './ThemeProvider'
 import { useNotification } from '../context/NotificationContext'
 import { useAuth } from '../context/AuthContext'
@@ -20,7 +20,7 @@ import { io } from 'socket.io-client'
 
 export default function NavBar() {
   const location = useLocation()
-  const navigate = useNavigate()
+  // const navigate = useNavigate()
   const { user, loading, logout } = useAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [notifications, setNotifications] = useState([])
@@ -43,10 +43,24 @@ export default function NavBar() {
     window.dispatchEvent(new StorageEvent('storage', { key: 'selectedCity', newValue: city }))
   }
 
+  const loadNotifications = async () => {
+    try {
+      const [res, countRes] = await Promise.all([
+        api.get('/notifications', { params: { limit: 10 } }),
+        api.get('/notifications/unread-count')
+      ])
+      setNotifications(res.data.notifications || [])
+      setUnreadCount(countRes.data.count || 0)
+    } catch {
+      // silent fail
+    }
+  }
+
   // useAuth загружает пользователя централизованно
 
   useEffect(() => {
     if (!user) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadNotifications()
     const interval = setInterval(loadNotifications, 30000)
 
@@ -73,25 +87,14 @@ export default function NavBar() {
     }
   }, [user, addNotification])
 
-  const loadNotifications = async () => {
-    try {
-      const [res, countRes] = await Promise.all([
-        api.get('/notifications', { params: { limit: 10 } }),
-        api.get('/notifications/unread-count')
-      ])
-      setNotifications(res.data.notifications || [])
-      setUnreadCount(countRes.data.count || 0)
-    } catch {
-      // silent fail
-    }
-  }
-
   const markAllRead = async () => {
     try {
       await api.patch('/notifications/read-all')
       setUnreadCount(0)
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })))
-    } catch {}
+    } catch {
+      // silent fail
+    }
   }
 
   const deleteNotification = async (id, e) => {
@@ -99,7 +102,9 @@ export default function NavBar() {
     try {
       await api.delete(`/notifications/${id}`)
       setNotifications(prev => prev.filter(n => n.id !== id))
-    } catch {}
+    } catch {
+      // silent fail
+    }
   }
 
   const handleLogout = () => {
@@ -110,6 +115,7 @@ export default function NavBar() {
     { path: '/dashboard', label: 'Главная', icon: LayoutDashboard },
     { path: '/products', label: 'Каталог', icon: Package },
     { path: '/requests', label: 'Заявки', icon: FileText },
+    { path: '/analytics', label: 'Аналитика', icon: BarChart3 },
   ]
 
   const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + '/')

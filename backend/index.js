@@ -19,6 +19,7 @@ const rfqRoutes = require('./routes/rfq');
 const citiesRoutes = require('./routes/cities');
 const uploadRoutes = require('./routes/uploads');
 const reviewRoutes = require('./routes/reviews');
+const analyticsRoutes = require('./routes/analytics');
 const initSocket = require('./socket');
 
 const app = express();
@@ -119,6 +120,7 @@ app.use('/api/reports', reportRoutes);
 const notificationRoutes = require('./routes/notifications');
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 const verificationRoutes = require('./routes/verification');
 app.use('/api/verification', verificationRoutes);
