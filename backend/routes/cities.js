@@ -15,7 +15,7 @@ function loadCities() {
     // Сортируем по населению (убывание) и возвращаем только русские названия
     citiesCache = parsed
       .sort((a, b) => parseInt(b.population) - parseInt(a.population))
-      .map(c => c.city_ru)
+      .map(c => c.name)
       .filter(Boolean);
     return citiesCache;
   } catch (err) {
