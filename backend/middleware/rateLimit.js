@@ -10,7 +10,7 @@ const loginLimiter = rateLimit({
   skipSuccessfulRequests: false,
 });
 
-// Public API limit (auth, registration, refresh): 30 per 15 minutes per IP
+// Public API limit (auth, registration, refresh, cities): 30 per 15 minutes per IP
 const publicLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 30,
@@ -29,4 +29,13 @@ const authLimiter = rateLimit({
   keyGenerator: (req) => req.userId || req.ip,
 });
 
-module.exports = { loginLimiter, publicLimiter, authLimiter };
+// Global API fallback limit: 100 per 15 minutes per IP
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Слишком много запросов. Попробуйте позже.' },
+});
+
+module.exports = { loginLimiter, publicLimiter, authLimiter, apiLimiter };
