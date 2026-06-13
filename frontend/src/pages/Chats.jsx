@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -6,7 +6,14 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Input } from '@/components/ui/input'
-import { MessageSquare, Loader2, Search } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { useNotification } from '../context/NotificationContext'
+import { MessageSquare, Loader2, Search, MoreVertical, Trash2, Ban, UserCheck } from 'lucide-react'
 import SEO from '../components/SEO'
 
 export default function Chats() {
@@ -15,14 +22,24 @@ export default function Chats() {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState([])
   const [searchLoading, setSearchLoading] = useState(false)
+  const [blockedMap, setBlockedMap] = useState({})
   const searchTimeoutRef = useRef(null)
+  const { addNotification } = useNotification()
+
+  const fetchRooms = useCallback(async () => {
+    try {
+      const res = await api.get('/chat/rooms')
+      setRooms(res.data.rooms || [])
+    } catch {
+      addNotification('Не удалось загрузить список чатов', 'error')
+    } finally {
+      setLoading(false)
+    }
+  }, [addNotification])
 
   useEffect(() => {
-    api.get('/chat/rooms')
-      .then(res => setRooms(res.data.rooms || []))
-      .catch(() => {})
-      .finally(() => setLoading(false))
-  }, [])
+    fetchRooms()
+  }, [fetchRooms])
 
   useEffect(() => {
     if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
@@ -59,6 +76,47 @@ export default function Chats() {
     if (msg.product?.name) return msg.product.name
     if (msg.rfq?.title) return msg.rfq.title
     return 'Чат'
+  }
+
+  const handleClearHistory = async (room) => {
+    if (!window.confirm('Очистить историю сообщений в этом чате?')) return
+    try {
+      await api.delete(`/chat/rooms/${room.roomType}/${room.roomId}/messages`)
+      addNotification('История очищена', 'success')
+      fetchRooms()
+    } catch (err) {
+      addNotification(err.response?.data?.error || 'Ошибка очистки', 'error')
+    }
+  }
+
+  const toggleBlock = async (room) => {
+    const key = `${room.roomType}:${room.roomId}`
+    const blockedTenantId = room.counterpart?.id
+    if (!blockedTenantId) return
+
+    const isBlocked = !!blockedMap[key]
+    try {
+      if (isBlocked) {
+        await api.delete('/chat/block', {
+          params: {
+            roomType: room.roomType,
+            roomId: room.roomId,
+            blockedTenantId,
+          }
+        })
+        addNotification('Пользователь разблокирован', 'success')
+      } else {
+        await api.post('/chat/block', {
+          roomType: room.roomType,
+          roomId: room.roomId,
+          blockedTenantId,
+        })
+        addNotification('Пользователь заблокирован', 'success')
+      }
+      setBlockedMap(prev => ({ ...prev, [key]: !isBlocked }))
+    } catch (err) {
+      addNotification(err.response?.data?.error || 'Ошибка блокировки', 'error')
+    }
   }
 
   const formatTime = (date) => {
@@ -157,43 +215,81 @@ export default function Chats() {
               </div>
             ) : (
               <div className="divide-y">
-                {rooms.map(room => (
-                  <Link
-                    key={`${room.roomType}:${room.roomId}`}
-                    to={getRoomLink(room)}
-                    className="flex items-start gap-3 p-4 hover:bg-muted/50 transition-colors"
-                  >
-                    <Avatar className="h-10 w-10 shrink-0">
-                      <AvatarImage src={room.counterpart?.avatarUrl} />
-                      <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                        {room.counterpart?.name?.charAt(0)?.toUpperCase() || '?'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="font-medium text-foreground truncate">
-                          {room.counterpart?.name || 'Неизвестный'}
-                        </span>
-                        <span className="text-xs text-muted-foreground shrink-0">
-                          {formatTime(room.lastMessage?.createdAt)}
-                        </span>
-                      </div>
-                      <div className="text-sm text-muted-foreground truncate">
-                        {room.title}
-                      </div>
-                      <div className="text-sm text-foreground truncate">
-                        {room.lastMessage?.isDeleted
-                          ? 'Сообщение удалено'
-                          : room.lastMessage?.content || 'Файл'}
+                {rooms.map(room => {
+                  const blockKey = `${room.roomType}:${room.roomId}`
+                  const isBlocked = !!blockedMap[blockKey]
+                  return (
+                    <div
+                      key={`${room.roomType}:${room.roomId}`}
+                      className="flex items-start gap-3 p-4 hover:bg-muted/50 transition-colors"
+                    >
+                      <Link to={getRoomLink(room)} className="flex items-start gap-3 flex-1 min-w-0">
+                        <Avatar className="h-10 w-10 shrink-0">
+                          <AvatarImage src={room.counterpart?.avatarUrl} />
+                          <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                            {room.counterpart?.name?.charAt(0)?.toUpperCase() || '?'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-medium text-foreground truncate">
+                              {room.counterpart?.name || 'Неизвестный'}
+                            </span>
+                            <span className="text-xs text-muted-foreground shrink-0">
+                              {formatTime(room.lastMessage?.createdAt)}
+                            </span>
+                          </div>
+                          <div className="text-sm text-muted-foreground truncate">
+                            {room.title}
+                          </div>
+                          <div className="text-sm text-foreground truncate">
+                            {room.lastMessage?.isDeleted
+                              ? 'Сообщение удалено'
+                              : room.lastMessage?.content || 'Файл'}
+                          </div>
+                        </div>
+                      </Link>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {room.unreadCount > 0 && (
+                          <Badge className="bg-primary text-white">
+                            {room.unreadCount}
+                          </Badge>
+                        )}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button
+                              type="button"
+                              className="p-1.5 rounded-md hover:bg-muted text-muted-foreground"
+                            >
+                              <MoreVertical className="h-4 w-4" />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleClearHistory(room)}>
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Очистить историю
+                            </DropdownMenuItem>
+                            {room.counterpart?.id && (
+                              <DropdownMenuItem onClick={() => toggleBlock(room)}>
+                                {isBlocked ? (
+                                  <>
+                                    <UserCheck className="h-4 w-4 mr-2" />
+                                    Разблокировать
+                                  </>
+                                ) : (
+                                  <>
+                                    <Ban className="h-4 w-4 mr-2" />
+                                    Заблокировать
+                                  </>
+                                )}
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </div>
-                    {room.unreadCount > 0 && (
-                      <Badge className="bg-primary text-white shrink-0">
-                        {room.unreadCount}
-                      </Badge>
-                    )}
-                  </Link>
-                ))}
+                  )
+                })}
               </div>
             )}
           </ScrollArea>

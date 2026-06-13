@@ -237,4 +237,132 @@ router.get('/search', authenticate, async (req, res) => {
   }
 });
 
+// Очистить историю сообщений в комнате (мягкое удаление всех сообщений)
+router.delete('/rooms/:roomType/:roomId/messages', authenticate, async (req, res) => {
+  try {
+    const { roomType, roomId } = req.params;
+    const tenantId = req.tenantId;
+
+    if (!['rfq', 'product'].includes(roomType)) {
+      return res.status(400).json({ error: 'Invalid room type' });
+    }
+
+    const allowed = await canJoinRoom(tenantId, roomType, roomId);
+    if (!allowed) return res.status(403).json({ error: 'Access denied' });
+
+    const where = roomType === 'rfq' ? { rfqId: roomId } : { productId: roomId };
+    await prisma.message.updateMany({
+      where,
+      data: { isDeleted: true }
+    });
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[chat/clear] error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Заблокировать собеседника в комнате
+router.post('/block', authenticate, async (req, res) => {
+  try {
+    const tenantId = req.tenantId;
+    const { roomType, roomId, blockedTenantId } = req.body;
+
+    if (!['rfq', 'product'].includes(roomType) || !roomId || !blockedTenantId) {
+      return res.status(400).json({ error: 'Invalid params' });
+    }
+    if (blockedTenantId === tenantId) {
+      return res.status(400).json({ error: 'Cannot block yourself' });
+    }
+
+    const allowed = await canJoinRoom(tenantId, roomType, roomId);
+    if (!allowed) return res.status(403).json({ error: 'Access denied' });
+
+    const existing = await prisma.chatBlock.findUnique({
+      where: {
+        roomType_roomId_blockerId_blockedId_key: {
+          roomType,
+          roomId,
+          blockerId: tenantId,
+          blockedId: blockedTenantId,
+        }
+      }
+    });
+
+    if (existing) return res.json({ block: existing });
+
+    const block = await prisma.chatBlock.create({
+      data: {
+        roomType,
+        roomId,
+        blockerId: tenantId,
+        blockedId: blockedTenantId,
+      }
+    });
+
+    res.json({ block });
+  } catch (err) {
+    console.error('[chat/block] error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Разблокировать собеседника
+router.delete('/block', authenticate, async (req, res) => {
+  try {
+    const tenantId = req.tenantId;
+    const { roomType, roomId, blockedTenantId } = req.query;
+
+    if (!['rfq', 'product'].includes(roomType) || !roomId || !blockedTenantId) {
+      return res.status(400).json({ error: 'Invalid params' });
+    }
+
+    await prisma.chatBlock.deleteMany({
+      where: {
+        roomType,
+        roomId,
+        blockerId: tenantId,
+        blockedId: blockedTenantId,
+      }
+    });
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[chat/unblock] error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Получить блокировки для комнаты
+router.get('/blocks', authenticate, async (req, res) => {
+  try {
+    const tenantId = req.tenantId;
+    const { roomType, roomId } = req.query;
+
+    if (!['rfq', 'product'].includes(roomType) || !roomId) {
+      return res.status(400).json({ error: 'Invalid params' });
+    }
+
+    const allowed = await canJoinRoom(tenantId, roomType, roomId);
+    if (!allowed) return res.status(403).json({ error: 'Access denied' });
+
+    const [iBlocked, blockedMe] = await Promise.all([
+      prisma.chatBlock.findFirst({
+        where: { roomType, roomId, blockerId: tenantId },
+        select: { id: true, blockedId: true }
+      }),
+      prisma.chatBlock.findFirst({
+        where: { roomType, roomId, blockedId: tenantId },
+        select: { id: true, blockerId: true }
+      }),
+    ]);
+
+    res.json({ iBlocked, blockedMe });
+  } catch (err) {
+    console.error('[chat/blocks] error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
