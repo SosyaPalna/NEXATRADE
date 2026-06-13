@@ -9,6 +9,10 @@ export const useNotification = () => useContext(NotificationContext)
 export const NotificationProvider = ({ children }) => {
   const [toasts, setToasts] = useState([])
 
+  const removeNotification = useCallback((id) => {
+    setToasts(prev => prev.filter(toast => toast.id !== id))
+  }, [])
+
   // Функция добавления уведомления
   const addNotification = useCallback((message, type = 'info') => {
     const id = Date.now()
@@ -21,11 +25,7 @@ export const NotificationProvider = ({ children }) => {
     setTimeout(() => {
       removeNotification(id)
     }, 4000)
-  }, [])
-
-  const removeNotification = useCallback((id) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id))
-  }, [])
+  }, [removeNotification])
 
   return (
     <NotificationContext.Provider value={{ addNotification }}>

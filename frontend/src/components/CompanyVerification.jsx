@@ -5,9 +5,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Building2, Upload, CheckCircle2, XCircle, Clock, Loader2, FileText, FileImage } from 'lucide-react'
+import { Building2, Upload, CheckCircle2, XCircle, Clock, Loader2, FileText } from 'lucide-react'
 
 const STATUS_LABELS = {
   none: { text: 'Не верифицирована', variant: 'secondary', icon: Building2 },

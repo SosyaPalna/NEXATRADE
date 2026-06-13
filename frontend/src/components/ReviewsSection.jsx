@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { api } from '../api';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,7 +14,7 @@ export default function ReviewsSection({ tenantId, currentTenantId, isOwn }) {
   const [text, setText] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const loadReviews = async () => {
+  const loadReviews = useCallback(async () => {
     try {
       const res = await api.get(`/reviews/tenant/${tenantId}`);
       setReviews(res.data.reviews);
@@ -24,12 +24,11 @@ export default function ReviewsSection({ tenantId, currentTenantId, isOwn }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [tenantId]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadReviews();
-  }, [tenantId]);
+  }, [loadReviews]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { api, uploadFiles } from '../api'
 import { Button } from '@/components/ui/button'
@@ -57,7 +57,7 @@ export default function Products() {
   })
   const [uploading, setUploading] = useState(false)
 
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     setLoading(true)
     try {
       const res = await api.get('/products', { params: { ...filters, all: true } })
@@ -67,13 +67,12 @@ export default function Products() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filters])
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadProducts()
     api.get('/categories').then(res => setCategories(res.data)).catch(() => {})
-  }, [filters])
+  }, [loadProducts])
 
   useEffect(() => {
     const handleStorage = (e) => {

@@ -15,7 +15,6 @@ import ImageLightbox from './ImageLightbox'
 export default function UserReports() {
   const [activeReports, setActiveReports] = useState([])
   const [archivedReports, setArchivedReports] = useState([])
-  const [loading, setLoading] = useState(true)
   const [selectedReport, setSelectedReport] = useState(null)
   const [messages, setMessages] = useState([])
   const [newMessage, setNewMessage] = useState('')
@@ -24,17 +23,25 @@ export default function UserReports() {
   const [createError, setCreateError] = useState('')
   const [sending, setSending] = useState(false)
 
+  const loadMessages = useCallback(async () => {
+    if (!selectedReport) return
+    try {
+      const res = await api.get(`/reports/${selectedReport.id}/messages`)
+      setMessages(res.data || [])
+    } catch {
+      // silent
+    }
+  }, [selectedReport])
+
   const loadReports = useCallback(async () => {
     try {
-      const [activeRes, archiveRes] = await Promise.all([
-        api.get('/reports/my', { params: { status: 'all' } }),
-        api.get('/reports/my', { params: { status: 'all' } }) // загрузим все и разделим
-      ])
-      const all = activeRes.data.reports || []
+      const res = await api.get('/reports/my', { params: { status: 'all' } })
+      const all = res.data.reports || []
       setActiveReports(all.filter(r => ['pending', 'in_progress'].includes(r.status)))
       setArchivedReports(all.filter(r => ['resolved', 'dismissed', 'closed'].includes(r.status)))
-    } catch {}
-    finally { setLoading(false) }
+    } catch {
+      // silent
+    }
   }, [])
 
   useEffect(() => { loadReports() }, [loadReports])
@@ -44,15 +51,7 @@ export default function UserReports() {
     loadMessages()
     const interval = setInterval(loadMessages, 5000)
     return () => clearInterval(interval)
-  }, [selectedReport])
-
-  const loadMessages = async () => {
-    if (!selectedReport) return
-    try {
-      const res = await api.get(`/reports/${selectedReport.id}/messages`)
-      setMessages(res.data || [])
-    } catch {}
-  }
+  }, [selectedReport, loadMessages])
 
   const sendMessage = async (e) => {
     e.preventDefault()
@@ -62,7 +61,9 @@ export default function UserReports() {
       await api.post(`/reports/${selectedReport.id}/messages`, { content: newMessage.trim() })
       setNewMessage('')
       loadMessages()
-    } catch {}
+    } catch {
+      // silent
+    }
     finally { setSending(false) }
   }
 

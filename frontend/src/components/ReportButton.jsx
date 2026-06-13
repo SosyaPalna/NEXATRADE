@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react'
 import { api, uploadFile } from '../api'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import {
   Dialog,
@@ -11,7 +10,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
-import { Flag, X, Upload, ImageIcon, AlertCircle } from 'lucide-react'
+import { Flag, X, Upload, AlertCircle } from 'lucide-react'
 
 const REASONS = [
   { value: 'spam', label: 'Спам' },
@@ -59,7 +58,7 @@ export default function ReportButton({ type, targetId, targetName, targetLink, v
         newScreenshots.push(url)
       }
       setScreenshots(prev => [...prev, ...newScreenshots])
-    } catch (err) {
+    } catch (_err) {
       setError('Ошибка загрузки скриншотов')
     } finally {
       setUploading(false)
@@ -216,32 +215,3 @@ export default function ReportButton({ type, targetId, targetName, targetLink, v
   )
 }
 
-function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onloadend = () => resolve(reader.result)
-    reader.onerror = reject
-    reader.readAsDataURL(file)
-  })
-}
-
-function compressImage(base64, maxWidth = 1200, quality = 0.7) {
-  return new Promise((resolve, reject) => {
-    const img = new Image()
-    img.onload = () => {
-      const canvas = document.createElement('canvas')
-      let { width, height } = img
-      if (width > maxWidth) {
-        height = (height * maxWidth) / width
-        width = maxWidth
-      }
-      canvas.width = width
-      canvas.height = height
-      const ctx = canvas.getContext('2d')
-      ctx.drawImage(img, 0, 0, width, height)
-      resolve(canvas.toDataURL('image/jpeg', quality))
-    }
-    img.onerror = reject
-    img.src = base64
-  })
-}

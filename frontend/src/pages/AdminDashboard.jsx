@@ -48,7 +48,7 @@ export default function AdminDashboard() {
     )
   }
 
-  const { counts, usersByDay, rfqsByDay, quotesByDay, rfqsByStatus, topSellers } = stats
+  const { counts, usersByDay, rfqsByDay, rfqsByStatus, topSellers } = stats
 
   return (
     <div className="space-y-6">

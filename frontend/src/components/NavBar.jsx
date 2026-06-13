@@ -64,7 +64,7 @@ export default function NavBar() {
 
   useEffect(() => {
     if (!user) return
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     loadNotifications()
     const interval = setInterval(loadNotifications, 30000)
 

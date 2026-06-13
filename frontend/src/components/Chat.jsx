@@ -80,7 +80,7 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
       reconnectionDelay: 1000,
     })
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     setSocket(newSocket)
     newSocket.emit('join:room', { type: roomType, id: roomId })
     newSocket.emit('messages:load', { roomType, roomId, limit: MESSAGES_LIMIT })

@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useEffect, useState, useCallback } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { api } from '../api'
 import { Button } from '@/components/ui/button'
@@ -19,7 +19,7 @@ import UserReports from '../components/UserReports'
 import CompanyVerification from '../components/CompanyVerification'
 
 export default function Profile() {
-  const navigate = useNavigate()
+  const { logout } = useAuth()
   const [user, setUser] = useState(null)
   const [rfqs, setRfqs] = useState([])
   const [rfqStats, setRfqStats] = useState({})
@@ -31,10 +31,7 @@ export default function Profile() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  useEffect(() => { loadProfile() }, [])
-  useEffect(() => { loadRfqs() }, [rfqFilters.page, rfqFilters.search, rfqFilters.status, rfqFilters.sortBy])
-
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     try {
       const res = await api.get('/profile/me')
       setUser(res.data.user)
@@ -42,15 +39,18 @@ export default function Profile() {
       setEditForm({ email: res.data.user.email, companyName: res.data.user.tenant?.name || '', password: '' })
     } catch { setError('Ошибка загрузки профиля') }
     finally { setLoading(false) }
-  }
+  }, [])
 
-  const loadRfqs = async () => {
+  const loadRfqs = useCallback(async () => {
     try {
       const res = await api.get('/profile/rfqs', { params: rfqFilters })
       setRfqs(res.data.rfqs)
       setPagination({ pages: res.data.pages })
     } catch { setError('Ошибка загрузки заявок') }
-  }
+  }, [rfqFilters])
+
+  useEffect(() => { loadProfile() }, [loadProfile])
+  useEffect(() => { loadRfqs() }, [loadRfqs])
 
   const handleSaveProfile = async (e) => {
     e.preventDefault()

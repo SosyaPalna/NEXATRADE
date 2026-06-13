@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { api } from '../api'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -22,18 +22,18 @@ export default function AdminBroadcast() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  useEffect(() => {
-    loadUsers()
-  }, [userSearch])
-
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     try {
       const res = await api.get('/admin/users', { params: { search: userSearch, limit: 50 } })
       setUsers(res.data.users)
     } catch {
       // silent
     }
-  }
+  }, [userSearch])
+
+  useEffect(() => {
+    loadUsers()
+  }, [loadUsers])
 
   const toggleUser = (id) => {
     setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
