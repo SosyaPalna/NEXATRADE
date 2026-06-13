@@ -35,6 +35,7 @@ import {
   Download,
   ChevronUp,
   Search,
+  Reply,
 } from 'lucide-react'
 
 const MESSAGES_LIMIT = 30
@@ -67,6 +68,7 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
   const [typingUsers, setTypingUsers] = useState({})
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [replyTo, setReplyTo] = useState(null)
   const messagesEndRef = useRef(null)
   const scrollRef = useRef(null)
   const fileInputRef = useRef(null)
@@ -202,9 +204,11 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
       roomId,
       content: text,
       attachments: fileUrls,
+      replyToId: replyTo?.id,
     })
     setNewMessage('')
     setAttachments([])
+    setReplyTo(null)
     socket.emit('typing:stop', { roomType, roomId })
   }
 
@@ -289,6 +293,18 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
 
   const formatTime = (date) => {
     return new Date(date).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+  }
+
+  const renderReplyPreview = (msg, compact = false) => {
+    if (!msg) return null
+    const isDeleted = msg.isDeleted
+    const text = isDeleted ? 'Сообщение удалено' : msg.content?.slice(0, 80) || 'Файл'
+    return (
+      <div className={`border-l-2 pl-2 opacity-80 ${compact ? 'mb-1 text-xs' : 'mb-2 text-sm'}`}>
+        <div className="font-medium truncate">{msg.sender?.name || 'Неизвестный'}</div>
+        <div className="truncate">{text}{!isDeleted && msg.content?.length > 80 ? '...' : ''}</div>
+      </div>
+    )
   }
 
   const filteredMessages = searchQuery.trim()
@@ -454,6 +470,7 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
                       </div>
                     ) : (
                       <>
+                        {msg.replyTo && renderReplyPreview(msg.replyTo)}
                         {msg.content && <div className="whitespace-pre-wrap">{msg.content}</div>}
                         {renderAttachments(msg.attachments)}
                         <div className={`text-xs mt-1 opacity-70 flex items-center gap-1 ${msg.senderId === currentTenantId ? 'justify-end' : ''}`}>
@@ -468,6 +485,9 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
 
                     {!msg.isDeleted && editingId !== msg.id && (
                       <div className={`flex items-center gap-1 mt-1 ${msg.senderId === currentTenantId ? 'justify-end' : 'justify-start'}`}>
+                        <Button variant="ghost" size="icon" className="h-5 w-5 opacity-100 text-muted-foreground hover:text-foreground" onClick={() => setReplyTo(msg)}>
+                          <Reply className="h-3 w-3" />
+                        </Button>
                         {msg.senderId === currentTenantId && (
                           <>
                             <Button variant="ghost" size="icon" className="h-5 w-5 opacity-100 text-muted-foreground hover:text-foreground" onClick={() => startEdit(msg)}>
@@ -513,6 +533,23 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
                     </button>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {replyTo && (
+            <div className="px-3 pt-2 border-t bg-background">
+              <div className="flex items-start gap-2 text-sm bg-muted rounded px-3 py-2">
+                <div className="flex-1 min-w-0">
+                  {renderReplyPreview(replyTo, true)}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setReplyTo(null)}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-4 w-4" />
+                </button>
               </div>
             </div>
           )}

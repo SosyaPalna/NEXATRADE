@@ -206,9 +206,14 @@ model Message {
   productId String?
   product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
 
+  replyToId String?
+  replyTo   Message?  @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies   Message[] @relation("MessageReplies")
+
   @@index([productId, createdAt])
   @@index([rfqId, createdAt])
   @@index([senderId, createdAt])
+  @@index([replyToId])
 }
 
 model Report {

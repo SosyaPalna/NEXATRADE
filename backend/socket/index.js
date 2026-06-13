@@ -105,7 +105,7 @@ const initSocket = (server) => {
     });
 
     // Отправка сообщения
-    socket.on('message:send', async ({ roomType, roomId, content, attachments = [] }) => {
+    socket.on('message:send', async ({ roomType, roomId, content, attachments = [], replyToId }) => {
       if (!content?.trim() && (!attachments || attachments.length === 0)) return;
       if (!roomType || !roomId) return;
 
@@ -124,9 +124,24 @@ const initSocket = (server) => {
         else if (roomType === 'product') data.productId = roomId;
         else return;
 
+        if (replyToId) {
+          const parent = await prisma.message.findUnique({
+            where: { id: replyToId },
+            select: { id: true, rfqId: true, productId: true, isDeleted: true }
+          });
+          const parentRoomId = roomType === 'rfq' ? parent?.rfqId : parent?.productId;
+          if (!parent || parent.isDeleted || parentRoomId !== roomId) {
+            return socket.emit('error', { message: 'Невозможно ответить на это сообщение' });
+          }
+          data.replyToId = replyToId;
+        }
+
         const message = await prisma.message.create({
           data,
-          include: { sender: { select: { name: true } } }
+          include: {
+            sender: { select: { name: true } },
+            replyTo: { select: { id: true, content: true, isDeleted: true, senderId: true, sender: { select: { name: true } } } }
+          }
         });
 
         io.to(getRoomName(roomType, roomId)).emit('message:receive', message);
@@ -234,7 +249,10 @@ const initSocket = (server) => {
 
         const messages = await prisma.message.findMany({
           where,
-          include: { sender: { select: { name: true, role: true } } },
+          include: {
+            sender: { select: { name: true, role: true } },
+            replyTo: { select: { id: true, content: true, isDeleted: true, senderId: true, sender: { select: { name: true } } } }
+          },
           orderBy: { createdAt: 'desc' },
           take,
           skip,
