@@ -69,6 +69,7 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [replyTo, setReplyTo] = useState(null)
+  const [blocks, setBlocks] = useState({ iBlocked: null, blockedMe: null })
   const messagesEndRef = useRef(null)
   const scrollRef = useRef(null)
   const fileInputRef = useRef(null)
@@ -92,6 +93,10 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
     setSocket(newSocket)
     newSocket.emit('join:room', { type: roomType, id: roomId })
     newSocket.emit('messages:load', { roomType, roomId, limit: MESSAGES_LIMIT })
+
+    api.get('/chat/blocks', { params: { roomType, roomId } })
+      .then(res => setBlocks(res.data || { iBlocked: null, blockedMe: null }))
+      .catch(() => {})
 
     newSocket.on('message:receive', (message) => {
       setMessages(prev => {
@@ -211,6 +216,8 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
     setReplyTo(null)
     socket.emit('typing:stop', { roomType, roomId })
   }
+
+  const isBlockedByCounterpart = !!blocks.blockedMe
 
   const handleInputChange = (e) => {
     setNewMessage(e.target.value)
@@ -398,6 +405,18 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
           </div>
         </CardHeader>
         <CardContent className="p-0">
+          {isBlockedByCounterpart && (
+            <div className="px-4 py-2 text-xs text-center text-destructive bg-destructive/10 border-b">
+              Вы заблокированы собеседником и не можете отправлять сообщения
+            </div>
+          )}
+
+          {blocks.iBlocked && (
+            <div className="px-4 py-2 text-xs text-center text-amber-600 bg-amber-50 border-b">
+              Вы заблокировали этого собеседника
+            </div>
+          )}
+
           {searchOpen && (
             <div className="px-3 pt-2 border-b bg-background">
               <Input
@@ -577,13 +596,13 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
               placeholder="Напишите сообщение..."
               value={newMessage}
               onChange={handleInputChange}
-              disabled={!socket || uploading}
+              disabled={!socket || uploading || isBlockedByCounterpart}
               className="flex-1"
             />
             <Button
               type="submit"
               size="icon"
-              disabled={(!newMessage.trim() && attachments.length === 0) || !socket || uploading}
+              disabled={(!newMessage.trim() && attachments.length === 0) || !socket || uploading || isBlockedByCounterpart}
             >
               {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             </Button>

@@ -115,6 +115,21 @@ const initSocket = (server) => {
       }
 
       try {
+        const recipientId = await getRecipientId(roomType, roomId, socket.tenantId);
+        if (recipientId) {
+          const blocked = await prisma.chatBlock.findFirst({
+            where: {
+              roomType,
+              roomId,
+              blockerId: recipientId,
+              blockedId: socket.tenantId,
+            }
+          });
+          if (blocked) {
+            return socket.emit('error', { message: 'Вы заблокированы собеседником' });
+          }
+        }
+
         const data = {
           content: content?.trim() || '',
           senderId: socket.tenantId,
@@ -146,9 +161,8 @@ const initSocket = (server) => {
 
         io.to(getRoomName(roomType, roomId)).emit('message:receive', message);
 
-        // Определяем получателя сообщения и создаём уведомление
+        // Создаём уведомление получателю
         try {
-          const recipientId = await getRecipientId(roomType, roomId, socket.tenantId);
           if (!recipientId) return;
 
           let title = '';

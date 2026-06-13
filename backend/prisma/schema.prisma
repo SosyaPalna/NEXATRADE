@@ -50,6 +50,8 @@ model Tenant {
   reportMessages        ReportMessage[] @relation("ReportMessageSender")
   reviews               Review[]  @relation("TenantReviews")
   authoredReviews       Review[]  @relation("AuthorReviews")
+  blocksMade            ChatBlock[] @relation("ChatBlocker")
+  blocksReceived        ChatBlock[] @relation("ChatBlocked")
 }
 
 model User {
@@ -214,6 +216,23 @@ model Message {
   @@index([rfqId, createdAt])
   @@index([senderId, createdAt])
   @@index([replyToId])
+}
+
+model ChatBlock {
+  id        String   @id @default(uuid())
+  roomType  String
+  roomId    String
+  createdAt DateTime @default(now())
+
+  blockerId String
+  blocker   Tenant @relation("ChatBlocker", fields: [blockerId], references: [id], onDelete: Cascade)
+
+  blockedId String
+  blocked   Tenant @relation("ChatBlocked", fields: [blockedId], references: [id], onDelete: Cascade)
+
+  @@unique([roomType, roomId, blockerId, blockedId])
+  @@index([roomType, roomId])
+  @@index([blockerId])
 }
 
 model Report {
