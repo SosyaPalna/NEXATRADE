@@ -56,3 +56,5 @@ jobs:
           node -c lib/upload.js
           node -c routes/uploads.js
           node -c routes/notifications.js
+          node -c routes/chat.js
+          node -c lib/chat.js

@@ -2,10 +2,7 @@ const { Server } = require('socket.io');
 const cookie = require('cookie');
 const prisma = require('../lib/prisma');
 const { verifyAccessToken } = require('../utils/jwt');
-
-function getRoomName(roomType, roomId) {
-  return `${roomType}:${roomId}`;
-}
+const { canJoinRoom, getRoomName } = require('../lib/chat');
 
 async function getRecipientId(roomType, roomId, senderTenantId) {
   if (roomType === 'rfq') {
@@ -54,35 +51,6 @@ function parseAccessTokenFromCookie(handshake) {
   } catch {
     return null;
   }
-}
-
-async function canJoinRoom(tenantId, roomType, roomId) {
-  if (roomType === 'rfq') {
-    const rfq = await prisma.rfq.findUnique({
-      where: { id: roomId },
-      select: { buyerId: true, quotes: { where: { sellerId: tenantId }, select: { id: true } } }
-    });
-    if (!rfq) return false;
-    return rfq.buyerId === tenantId || rfq.quotes.length > 0;
-  }
-
-  if (roomType === 'product') {
-    const product = await prisma.product.findUnique({
-      where: { id: roomId },
-      select: { tenantId: true }
-    });
-    if (!product) return false;
-    // Владелец товара всегда может участвовать в чате
-    if (product.tenantId === tenantId) return true;
-    // Покупатель может писать, если уже есть история сообщений
-    const existingMessage = await prisma.message.findFirst({
-      where: { productId: roomId, senderId: tenantId },
-      select: { id: true }
-    });
-    return !!existingMessage;
-  }
-
-  return false;
 }
 
 const initSocket = (server) => {
@@ -322,6 +290,17 @@ const initSocket = (server) => {
       } catch (err) {
         console.error('❌ Mark read error:', err.message);
       }
+    });
+
+    // Статус "печатает..."
+    socket.on('typing:start', ({ roomType, roomId }) => {
+      const room = getRoomName(roomType, roomId);
+      socket.to(room).emit('typing', { tenantId: socket.tenantId, roomType, roomId, typing: true });
+    });
+
+    socket.on('typing:stop', ({ roomType, roomId }) => {
+      const room = getRoomName(roomType, roomId);
+      socket.to(room).emit('typing', { tenantId: socket.tenantId, roomType, roomId, typing: false });
     });
 
     socket.on('disconnect', () => {

@@ -63,11 +63,13 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
   const [hasMore, setHasMore] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
   const [oldestCursor, setOldestCursor] = useState(null)
+  const [typingUsers, setTypingUsers] = useState({})
   const messagesEndRef = useRef(null)
   const scrollRef = useRef(null)
   const fileInputRef = useRef(null)
   const { addNotification } = useNotification()
   const isTabActiveRef = useRef(!document.hidden)
+  const typingTimeoutRef = useRef(null)
 
   // Подключение к сокету
   useEffect(() => {
@@ -128,6 +130,18 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
       ))
     })
 
+    newSocket.on('typing', ({ tenantId, typing }) => {
+      setTypingUsers(prev => {
+        const next = { ...prev }
+        if (typing) {
+          next[tenantId] = true
+        } else {
+          delete next[tenantId]
+        }
+        return next
+      })
+    })
+
     const handleVisibility = () => {
       isTabActiveRef.current = !document.hidden
       if (!document.hidden && newSocket.connected) {
@@ -138,6 +152,7 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibility)
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
       newSocket.disconnect()
     }
   }, [roomType, roomId, currentTenantId, addNotification])
@@ -186,6 +201,17 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
     })
     setNewMessage('')
     setAttachments([])
+    socket.emit('typing:stop', { roomType, roomId })
+  }
+
+  const handleInputChange = (e) => {
+    setNewMessage(e.target.value)
+    if (!socket) return
+    socket.emit('typing:start', { roomType, roomId })
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
+    typingTimeoutRef.current = setTimeout(() => {
+      socket.emit('typing:stop', { roomType, roomId })
+    }, 2000)
   }
 
   const loadMore = useCallback(() => {
@@ -278,34 +304,45 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
     )
   }
 
+  const getChatFileUrl = (url) => {
+    if (!url || typeof url !== 'string') return url
+    if (url.startsWith('/uploads/chat/')) {
+      return `/api/chat/files/${url.split('/').pop()}`
+    }
+    return url
+  }
+
   const renderAttachments = (attachments = []) => {
     if (!attachments.length) return null
     return (
       <div className="space-y-2 mt-2">
-        {attachments.map((url, idx) => (
-          <div key={`${url}-${idx}`}>
-            {isImage(url) ? (
-              <a href={url} target="_blank" rel="noopener noreferrer" className="block">
-                <img
-                  src={url}
-                  alt="attachment"
-                  className="max-w-[200px] max-h-[160px] rounded-md object-cover border"
-                />
-              </a>
-            ) : (
-              <a
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-xs underline opacity-90 hover:opacity-100"
-              >
-                <FileText className="h-4 w-4" />
-                <span className="truncate max-w-[180px]">{url.split('/').pop()}</span>
-                <Download className="h-3 w-3" />
-              </a>
-            )}
-          </div>
-        ))}
+        {attachments.map((url, idx) => {
+          const fileUrl = getChatFileUrl(url)
+          return (
+            <div key={`${url}-${idx}`}>
+              {isImage(fileUrl) ? (
+                <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="block">
+                  <img
+                    src={fileUrl}
+                    alt="attachment"
+                    className="max-w-[200px] max-h-[160px] rounded-md object-cover border"
+                  />
+                </a>
+              ) : (
+                <a
+                  href={fileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-xs underline opacity-90 hover:opacity-100"
+                >
+                  <FileText className="h-4 w-4" />
+                  <span className="truncate max-w-[180px]">{url.split('/').pop()}</span>
+                  <Download className="h-3 w-3" />
+                </a>
+              )}
+            </div>
+          )
+        })}
       </div>
     )
   }
@@ -407,6 +444,12 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
             </div>
           </ScrollArea>
 
+          {Object.keys(typingUsers).length > 0 && (
+            <div className="px-4 py-1 text-xs text-muted-foreground">
+              Печатает{Object.keys(typingUsers).length > 1 ? 'ут' : ''}...
+            </div>
+          )}
+
           {attachments.length > 0 && (
             <div className="px-3 pt-2 border-t bg-background">
               <div className="flex flex-wrap gap-2">
@@ -450,7 +493,7 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
               type="text"
               placeholder="Напишите сообщение..."
               value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
+              onChange={handleInputChange}
               disabled={!socket || uploading}
               className="flex-1"
             />

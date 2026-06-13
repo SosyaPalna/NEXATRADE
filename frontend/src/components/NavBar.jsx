@@ -125,6 +125,7 @@ export default function NavBar() {
     { path: '/products', label: 'Каталог', icon: Package },
     { path: '/requests', label: 'Заявки', icon: FileText },
     { path: '/analytics', label: 'Аналитика', icon: BarChart3 },
+    { path: '/chats', label: 'Сообщения', icon: MessageSquare },
   ]
 
   const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + '/')

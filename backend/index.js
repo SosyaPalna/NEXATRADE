@@ -124,10 +124,20 @@ app.use('/api/analytics', analyticsRoutes);
 
 const verificationRoutes = require('./routes/verification');
 app.use('/api/verification', verificationRoutes);
+
+const chatRoutes = require('./routes/chat');
+app.use('/api/chat', chatRoutes);
+
 app.use('/api/uploads', uploadRoutes);
 
 // Отдача загруженных файлов (для dev; в production — nginx)
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Chat attachments are served only through authorized /api/chat/files
+app.use('/uploads', (req, res, next) => {
+  if (req.path.startsWith('/chat/')) {
+    return res.status(403).json({ error: 'Access denied. Use /api/chat/files.' });
+  }
+  next();
+}, express.static(path.join(__dirname, 'uploads')));
 
 // Отдача статики фронтенда (для production деплоя)
 
