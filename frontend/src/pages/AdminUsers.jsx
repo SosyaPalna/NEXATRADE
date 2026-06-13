@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -9,14 +9,6 @@ import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Separator } from '@/components/ui/separator'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog'
 import {
   Search,
   ChevronLeft,
@@ -40,16 +32,13 @@ export default function AdminUsers() {
 
   const [selectedUser, setSelectedUser] = useState(null)
   const [userRfqs, setUserRfqs] = useState([])
-  const [detailLoading, setDetailLoading] = useState(false)
 
   const [isEditing, setIsEditing] = useState(false)
   const [editForm, setEditForm] = useState({})
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
 
-  useEffect(() => { loadUsers() }, [page, search])
-
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     setLoading(true)
     try {
       const res = await api.get('/admin/users', { params: { search, page, limit: 20 } })
@@ -60,10 +49,11 @@ export default function AdminUsers() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [page, search])
+
+  useEffect(() => { loadUsers() }, [loadUsers])
 
   const openUserDetail = async (userId) => {
-    setDetailLoading(true)
     setError('')
     try {
       const res = await api.get(`/admin/users/${userId}`)
@@ -80,7 +70,7 @@ export default function AdminUsers() {
     } catch {
       setError('Не удалось загрузить данные пользователя')
     } finally {
-      setDetailLoading(false)
+      // silent
     }
   }
 

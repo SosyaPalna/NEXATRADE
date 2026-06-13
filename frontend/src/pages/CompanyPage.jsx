@@ -17,6 +17,7 @@ import {
   Phone,
   CalendarDays,
   Package,
+  Star,
   Pencil,
   Save,
   X,
@@ -30,6 +31,7 @@ import {
   Plus
 } from 'lucide-react'
 import SEO from '../components/SEO'
+import ReviewsSection from '../components/ReviewsSection'
 import ReportButton from '../components/ReportButton'
 
 export default function CompanyPage() {
@@ -37,6 +39,7 @@ export default function CompanyPage() {
   const navigate = useNavigate()
   const [company, setCompany] = useState(null)
   const [isOwn, setIsOwn] = useState(false)
+  const [currentTenantId, setCurrentTenantId] = useState(null)
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -59,6 +62,7 @@ export default function CompanyPage() {
         api.get('/cities').catch(() => null)
       ])
       if (citiesRes?.data) setCities(citiesRes.data)
+      if (meRes?.data?.tenantId) setCurrentTenantId(meRes.data.tenantId)
       setCompany(companyRes.data)
       if (meRes?.data?.tenantId === id || meRes?.data?.tenant?.id === id) {
         setIsOwn(true)
@@ -290,6 +294,10 @@ export default function CompanyPage() {
               <Phone className="h-4 w-4 mr-1.5" />
               Контакты
             </TabsTrigger>
+            <TabsTrigger value="reviews" className="data-active:bg-card data-active:text-primary data-active:shadow-sm text-muted-foreground">
+              <Star className="h-4 w-4 mr-1.5" />
+              Отзывы
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="about" className="mt-4">
@@ -323,7 +331,7 @@ export default function CompanyPage() {
                   <div className="flex items-center gap-3">
                     <span className="text-sm text-muted-foreground">{company._count?.products || 0} позиций в каталоге</span>
                     {isOwn && (
-                      <Button size="sm" className="bg-primary text-white hover:bg-primary/90 gap-1.5" onClick={() => navigate(`/product/${p.id}`)}>
+                      <Button size="sm" className="bg-primary text-white hover:bg-primary/90 gap-1.5" onClick={() => navigate('/products')}>
                         <Plus className="h-4 w-4" />
                         Добавить товар
                       </Button>
@@ -513,6 +521,14 @@ export default function CompanyPage() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="reviews" className="mt-4">
+            <ReviewsSection
+              tenantId={company.id}
+              currentTenantId={currentTenantId}
+              isOwn={isOwn}
+            />
           </TabsContent>
         </Tabs>
       ) : (

@@ -95,6 +95,14 @@ const paginationSchema = z.object({
   }),
 });
 
+const reviewSchema = z.object({
+  body: z.object({
+    tenantId: z.string().uuid('Некорректный ID компании'),
+    rating: z.union([z.string(), z.number()]).transform(v => parseInt(v)).refine(v => !isNaN(v) && v >= 1 && v <= 5, 'Рейтинг должен быть от 1 до 5'),
+    text: z.string().max(5000).optional().nullable(),
+  }),
+});
+
 module.exports = {
   registerSchema,
   loginSchema,
@@ -105,4 +113,5 @@ module.exports = {
   quoteSchema,
   reportSchema,
   paginationSchema,
+  reviewSchema,
 };

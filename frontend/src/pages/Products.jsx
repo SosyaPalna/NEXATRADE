@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { api, uploadFile } from '../api'
+import { api, uploadFiles } from '../api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -26,6 +26,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Search, Package, Plus, SlidersHorizontal, X, Camera, Tag } from 'lucide-react'
+import { toast } from 'sonner'
+import { getPreviewUrl } from '../lib/images'
 import SEO from '../components/SEO'
 
 const units = [
@@ -55,10 +57,22 @@ export default function Products() {
   })
   const [uploading, setUploading] = useState(false)
 
+  const loadProducts = useCallback(async () => {
+    setLoading(true)
+    try {
+      const res = await api.get('/products', { params: { ...filters, all: true } })
+      setProducts(res.data)
+    } catch (err) {
+      console.error('Ошибка загрузки товаров:', err)
+    } finally {
+      setLoading(false)
+    }
+  }, [filters])
+
   useEffect(() => {
     loadProducts()
     api.get('/categories').then(res => setCategories(res.data)).catch(() => {})
-  }, [filters])
+  }, [loadProducts])
 
   useEffect(() => {
     const handleStorage = (e) => {
@@ -70,26 +84,14 @@ export default function Products() {
     return () => window.removeEventListener('storage', handleStorage)
   }, [])
 
-  const loadProducts = async () => {
-    setLoading(true)
-    try {
-      const res = await api.get('/products', { params: { ...filters, all: true } })
-      setProducts(res.data)
-    } catch (err) {
-      console.error('Ошибка загрузки товаров:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleImageUpload = async (file) => {
-    if (!file) return
+  const handleImageUpload = async (files) => {
+    if (!files || files.length === 0) return
     setUploading(true)
     try {
-      const url = await uploadFile('/uploads/product-image', file)
-      setNewProduct(prev => ({ ...prev, images: [...prev.images, url] }))
+      const urls = await uploadFiles('/uploads/product-images', Array.from(files))
+      setNewProduct(prev => ({ ...prev, images: [...prev.images, ...urls] }))
     } catch {
-      alert('Ошибка загрузки изображения')
+      toast.error('Ошибка загрузки изображений')
     } finally {
       setUploading(false)
     }
@@ -114,7 +116,7 @@ export default function Products() {
       setShowAddForm(false)
       loadProducts()
     } catch (err) {
-      alert(err.response?.data?.error || 'Ошибка добавления товара')
+      toast.error(err.response?.data?.error || 'Ошибка добавления товара')
     }
   }
 
@@ -227,7 +229,7 @@ export default function Products() {
                   <label className="flex flex-col items-center justify-center aspect-square rounded-lg border-2 border-dashed border-border hover:border-primary hover:bg-muted cursor-pointer transition-colors">
                     <Camera className="h-6 w-6 text-muted-foreground mb-1" />
                     <span className="text-xs text-muted-foreground">{uploading ? 'Загрузка...' : 'Добавить'}</span>
-                    <input type="file" accept="image/*" onChange={e => handleImageUpload(e.target.files[0])} disabled={uploading} hidden />
+                    <input type="file" accept="image/*" multiple onChange={e => handleImageUpload(e.target.files)} disabled={uploading} hidden />
                   </label>
                 </div>
               </div>
@@ -303,9 +305,16 @@ export default function Products() {
           {products.map(product => (
             <article key={product.id}>
               <Card className="border-border shadow-sm overflow-hidden hover:border-primary/30 hover:shadow-md transition-all h-full flex flex-col">
-                <Link to={`/product/${product.id}`} className="h-44 bg-muted flex items-center justify-center shrink-0">
+                <Link to={`/product/${product.id}`} className="h-44 bg-muted flex items-center justify-center shrink-0 relative">
                   {product.images?.[0] ? (
-                    <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+                    <>
+                      <img src={getPreviewUrl(product.images[0])} alt={product.name} className="w-full h-full object-cover" />
+                      {product.images.length > 1 && (
+                        <span className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full">
+                          +{product.images.length - 1}
+                        </span>
+                      )}
+                    </>
                   ) : (
                     <Package className="h-10 w-10 text-muted-foreground/40" />
                   )}

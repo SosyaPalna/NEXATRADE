@@ -1,10 +1,9 @@
 import { useEffect, useState, useCallback } from 'react'
 import { api } from '../api'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import {
@@ -22,7 +21,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Search, ChevronLeft, ChevronRight, CheckCircle2, XCircle, AlertCircle, Flag, MessageCircle, Send, Archive, Play, Eye } from 'lucide-react'
+import { ChevronLeft, ChevronRight, CheckCircle2, XCircle, AlertCircle, Flag, MessageCircle, Send, Archive, Play, Eye } from 'lucide-react'
 import SEO from '../components/SEO'
 import ImageLightbox from '../components/ImageLightbox'
 
@@ -39,16 +38,17 @@ export default function AdminReports() {
   const [newMessage, setNewMessage] = useState('')
   const [sending, setSending] = useState(false)
 
-  useEffect(() => { loadReports() }, [page, statusFilter, typeFilter])
-
-  useEffect(() => {
+  const loadMessages = useCallback(async () => {
     if (!selectedReport) return
-    loadMessages()
-    const interval = setInterval(loadMessages, 5000)
-    return () => clearInterval(interval)
+    try {
+      const res = await api.get(`/reports/${selectedReport.id}/messages`)
+      setMessages(res.data || [])
+    } catch {
+      // silent
+    }
   }, [selectedReport])
 
-  const loadReports = async () => {
+  const loadReports = useCallback(async () => {
     setLoading(true)
     try {
       const res = await api.get('/reports', {
@@ -61,15 +61,16 @@ export default function AdminReports() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [page, statusFilter, typeFilter])
 
-  const loadMessages = async () => {
+  useEffect(() => { loadReports() }, [loadReports])
+
+  useEffect(() => {
     if (!selectedReport) return
-    try {
-      const res = await api.get(`/reports/${selectedReport.id}/messages`)
-      setMessages(res.data || [])
-    } catch {}
-  }
+    loadMessages()
+    const interval = setInterval(loadMessages, 5000)
+    return () => clearInterval(interval)
+  }, [selectedReport, loadMessages])
 
   const handleUpdateStatus = async (id, status) => {
     try {
@@ -91,7 +92,9 @@ export default function AdminReports() {
       await api.post(`/reports/${selectedReport.id}/messages`, { content: newMessage.trim() })
       setNewMessage('')
       loadMessages()
-    } catch {}
+    } catch {
+      // silent
+    }
     finally { setSending(false) }
   }
 

@@ -3,6 +3,7 @@ const prisma = require('../lib/prisma');
 const authenticate = require('../middleware/auth');
 const validate = require('../middleware/validate');
 const { productSchema, productUpdateSchema, paginationSchema } = require('../schemas');
+const { sanitizeText, sanitizeHtmlContent } = require('../lib/sanitize');
 
 const router = express.Router();
 
@@ -17,6 +18,30 @@ router.get('/:id', authenticate, async (req, res) => {
       }
     });
     if (!product) return res.status(404).json({ error: 'Товар не найден' });
+
+    // Засчитываем просмотр (не чаще раза в день с одного IP)
+    if (product.tenantId !== req.tenantId) {
+      const today = new Date().toISOString().slice(0, 10);
+      try {
+        await prisma.productView.upsert({
+          where: { productId_ip_date: { productId: product.id, ip: req.ip, date: today } },
+          update: {},
+          create: {
+            productId: product.id,
+            tenantId: product.tenantId,
+            ip: req.ip,
+            date: today,
+          }
+        });
+        await prisma.product.update({
+          where: { id: product.id },
+          data: { viewCount: { increment: 1 } }
+        });
+      } catch (viewErr) {
+        console.error('Failed to track product view:', viewErr.message);
+      }
+    }
+
     res.json(product);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -57,14 +82,14 @@ router.post('/', authenticate, validate(productSchema), async (req, res) => {
   try {
     const body = req.validated.body;
     const data = {
-      name: body.name,
-      description: body.description,
+      name: sanitizeText(body.name),
+      description: sanitizeHtmlContent(body.description),
       price: body.price,
       stock: body.stock ?? 0,
-      unit: body.unit || 'шт.',
+      unit: sanitizeText(body.unit) || 'шт.',
       isOpt: body.isOpt ?? true,
       isRetail: body.isRetail ?? false,
-      images: body.images || [],
+      images: Array.isArray(body.images) ? body.images.filter(url => typeof url === 'string' && url.startsWith('/uploads/')) : [],
       tenantId: req.tenantId
     };
 
@@ -88,14 +113,18 @@ router.put('/:id', authenticate, validate(productUpdateSchema), async (req, res)
 
     const body = req.validated.body;
     const data = {};
-    if (body.name !== undefined) data.name = body.name;
-    if (body.description !== undefined) data.description = body.description;
+    if (body.name !== undefined) data.name = sanitizeText(body.name);
+    if (body.description !== undefined) data.description = sanitizeHtmlContent(body.description);
     if (body.price !== undefined) data.price = body.price;
     if (body.stock !== undefined) data.stock = body.stock;
-    if (body.unit !== undefined) data.unit = body.unit;
+    if (body.unit !== undefined) data.unit = sanitizeText(body.unit);
     if (body.isOpt !== undefined) data.isOpt = body.isOpt;
     if (body.isRetail !== undefined) data.isRetail = body.isRetail;
-    if (body.images !== undefined) data.images = body.images;
+    if (body.images !== undefined) {
+      data.images = Array.isArray(body.images)
+        ? body.images.filter(url => typeof url === 'string' && url.startsWith('/uploads/'))
+        : [];
+    }
     if (body.categoryId !== undefined) data.categoryId = body.categoryId;
 
     const product = await prisma.product.update({ where: { id: req.params.id }, data });
@@ -105,12 +134,12 @@ router.put('/:id', authenticate, validate(productUpdateSchema), async (req, res)
   }
 });
 
-// 🔹 Удалить товар
+// 🔹 Удалить товар (soft delete)
 router.delete('/:id', authenticate, async (req, res) => {
   try {
     const existing = await prisma.product.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.tenantId !== req.tenantId) return res.status(403).json({ error: 'Нет доступа' });
-    
+
     await prisma.product.delete({ where: { id: req.params.id } });
     res.json({ message: 'Товар удалён' });
   } catch (err) {

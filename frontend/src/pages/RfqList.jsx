@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api'
 import { Button } from '@/components/ui/button'
@@ -23,12 +23,7 @@ export default function RfqList() {
   const [categoryFilter, setCategoryFilter] = useState('')
   const [search, setSearch] = useState('')
 
-  useEffect(() => {
-    loadData()
-    api.get('/categories/flat').then(res => setCategories(res.data)).catch(() => {})
-  }, [])
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true)
     try {
       const params = {}
@@ -40,11 +35,16 @@ export default function RfqList() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [categoryFilter])
 
   useEffect(() => {
     loadData()
-  }, [categoryFilter])
+    api.get('/categories/flat').then(res => setCategories(res.data)).catch(() => {})
+  }, [loadData])
+
+  useEffect(() => {
+    loadData()
+  }, [loadData])
 
   const filteredRfqs = rfqs.filter(rfq => {
     if (!search.trim()) return true

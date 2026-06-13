@@ -1,12 +1,11 @@
-import { useEffect, useState } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useEffect, useState, useCallback } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import { api } from '../api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
 import Chat from '../components/Chat'
 import {
@@ -26,9 +25,7 @@ export default function RfqDetail() {
   const [userRole, setUserRole] = useState(null)
   const [currentTenantId, setCurrentTenantId] = useState(null)
 
-  useEffect(() => { loadData() }, [id])
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       const [rfqRes, meRes] = await Promise.all([
         api.get(`/rfq/${id}`),
@@ -42,7 +39,9 @@ export default function RfqDetail() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [id])
+
+  useEffect(() => { loadData() }, [loadData])
 
   const handleSubmitQuote = async (e) => {
     e.preventDefault()

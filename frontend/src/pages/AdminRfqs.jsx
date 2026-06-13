@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { api } from '../api'
-import { useNavigate } from 'react-router-dom'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -27,7 +26,6 @@ import { Textarea } from '@/components/ui/textarea'
 import SEO from '../components/SEO'
 
 export default function AdminRfqs() {
-  const navigate = useNavigate()
   const [rfqs, setRfqs] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -37,9 +35,7 @@ export default function AdminRfqs() {
   const [modal, setModal] = useState(null)
   const [error, setError] = useState('')
 
-  useEffect(() => { loadRfqs() }, [page, search, statusFilter])
-
-  const loadRfqs = async () => {
+  const loadRfqs = useCallback(async () => {
     setLoading(true)
     try {
       const res = await api.get('/admin/rfqs', { params: { search, status: statusFilter, page, limit: 20 } })
@@ -50,7 +46,9 @@ export default function AdminRfqs() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [page, search, statusFilter])
+
+  useEffect(() => { loadRfqs() }, [loadRfqs])
 
   const openStatusModal = (rfq) => setModal({ rfq, type: 'status' })
   const openDeleteModal = (rfq) => setModal({ rfq, type: 'delete' })

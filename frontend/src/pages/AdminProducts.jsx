@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { api } from '../api'
 import { useNavigate } from 'react-router-dom'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -25,9 +25,7 @@ export default function AdminProducts() {
   const [deleteReason, setDeleteReason] = useState('')
   const [error, setError] = useState('')
 
-  useEffect(() => { loadProducts() }, [page, search])
-
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     setLoading(true)
     try {
       const res = await api.get('/admin/products', { params: { search, page, limit: 20 } })
@@ -38,7 +36,9 @@ export default function AdminProducts() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [page, search])
+
+  useEffect(() => { loadProducts() }, [loadProducts])
 
   const openDeleteModal = (product) => { setModal(product); setDeleteReason('') }
 

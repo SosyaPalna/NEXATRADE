@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useState, useEffect, useCallback } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { api } from '../api'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { Menu, User, LogOut, Building2, LayoutDashboard, Package, FileText, Sun, Moon, Bell, Check, Trash2, MessageSquare, Gavel, ShieldCheck, MapPin, Shield } from 'lucide-react'
+import { Menu, User, LogOut, Building2, LayoutDashboard, Package, FileText, BarChart3, Sun, Moon, Bell, Check, Trash2, MessageSquare, Gavel, ShieldCheck, MapPin, Shield } from 'lucide-react'
 import { useTheme } from './ThemeProvider'
 import { useNotification } from '../context/NotificationContext'
 import { useAuth } from '../context/AuthContext'
@@ -20,11 +20,13 @@ import { io } from 'socket.io-client'
 
 export default function NavBar() {
   const location = useLocation()
-  const navigate = useNavigate()
+  // const navigate = useNavigate()
   const { user, loading, logout } = useAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [notifications, setNotifications] = useState([])
-  const [unreadCount, setUnreadCount] = useState(0)
+  const [notifUnreadCount, setNotifUnreadCount] = useState(0)
+  const [chatUnreadCount, setChatUnreadCount] = useState(0)
+  const unreadCount = notifUnreadCount + chatUnreadCount
   const [notifOpen, setNotifOpen] = useState(false)
   const { theme, toggleTheme } = useTheme()
   const { addNotification } = useNotification()
@@ -43,10 +45,26 @@ export default function NavBar() {
     window.dispatchEvent(new StorageEvent('storage', { key: 'selectedCity', newValue: city }))
   }
 
+  const loadNotifications = useCallback(async () => {
+    try {
+      const [res, countRes, chatCountRes] = await Promise.all([
+        api.get('/notifications', { params: { limit: 10 } }),
+        api.get('/notifications/unread-count'),
+        api.get('/notifications/chat-unread-count')
+      ])
+      setNotifications(res.data.notifications || [])
+      setNotifUnreadCount(countRes.data.count || 0)
+      setChatUnreadCount(chatCountRes.data.count || 0)
+    } catch {
+      // silent fail
+    }
+  }, [])
+
   // useAuth загружает пользователя централизованно
 
   useEffect(() => {
     if (!user) return
+     
     loadNotifications()
     const interval = setInterval(loadNotifications, 30000)
 
@@ -63,7 +81,12 @@ export default function NavBar() {
 
     socket.on('notification:new', (notification) => {
       setNotifications(prev => [notification, ...prev].slice(0, 20))
-      setUnreadCount(c => c + 1)
+      if (!notification.isRead) {
+        setNotifUnreadCount(c => c + 1)
+      }
+      if (notification.type === 'chat') {
+        setChatUnreadCount(c => Math.max(0, c - 1))
+      }
       addNotification(notification.title, 'info')
     })
 
@@ -71,27 +94,16 @@ export default function NavBar() {
       clearInterval(interval)
       socket.disconnect()
     }
-  }, [user, addNotification])
-
-  const loadNotifications = async () => {
-    try {
-      const [res, countRes] = await Promise.all([
-        api.get('/notifications', { params: { limit: 10 } }),
-        api.get('/notifications/unread-count')
-      ])
-      setNotifications(res.data.notifications || [])
-      setUnreadCount(countRes.data.count || 0)
-    } catch {
-      // silent fail
-    }
-  }
+  }, [user, addNotification, loadNotifications])
 
   const markAllRead = async () => {
     try {
       await api.patch('/notifications/read-all')
-      setUnreadCount(0)
+      setNotifUnreadCount(0)
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })))
-    } catch {}
+    } catch {
+      // silent fail
+    }
   }
 
   const deleteNotification = async (id, e) => {
@@ -99,7 +111,9 @@ export default function NavBar() {
     try {
       await api.delete(`/notifications/${id}`)
       setNotifications(prev => prev.filter(n => n.id !== id))
-    } catch {}
+    } catch {
+      // silent fail
+    }
   }
 
   const handleLogout = () => {
@@ -110,6 +124,8 @@ export default function NavBar() {
     { path: '/dashboard', label: 'Главная', icon: LayoutDashboard },
     { path: '/products', label: 'Каталог', icon: Package },
     { path: '/requests', label: 'Заявки', icon: FileText },
+    { path: '/analytics', label: 'Аналитика', icon: BarChart3 },
+    { path: '/chats', label: 'Сообщения', icon: MessageSquare },
   ]
 
   const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + '/')
@@ -205,7 +221,7 @@ export default function NavBar() {
                       const NotifIcon = n.type === 'chat' ? MessageSquare : n.type === 'rfq' ? Gavel : n.type === 'verification' ? ShieldCheck : Bell
                       return (
                         <DropdownMenuItem key={n.id} className="flex flex-col items-start gap-1 cursor-pointer p-2" asChild>
-                          <Link to={n.link || '#'} onClick={() => !n.isRead && api.patch(`/notifications/${n.id}/read`).then(() => { setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, isRead: true } : x)); setUnreadCount(c => Math.max(0, c - 1)) })}>
+                          <Link to={n.link || '#'} onClick={() => !n.isRead && api.patch(`/notifications/${n.id}/read`).then(() => { setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, isRead: true } : x)); setNotifUnreadCount(c => Math.max(0, c - 1)) })}>
                             <div className="flex items-start justify-between w-full gap-2">
                               <div className="flex items-center gap-2 min-w-0">
                                 <NotifIcon className={`h-4 w-4 shrink-0 ${n.isRead ? 'text-muted-foreground' : 'text-primary'}`} />

@@ -18,6 +18,8 @@ import Profile from './pages/Profile'
 import CompanyPage from './pages/CompanyPage'
 import CategoryPage from './pages/CategoryPage'
 import ProductDetail from './pages/ProductDetail'
+import Analytics from './pages/Analytics'
+import Chats from './pages/Chats'
 
 // 🔹 Админка (ленивая загрузка)
 const AdminLayout = lazy(() => import('./pages/AdminLayout'))
@@ -35,6 +37,8 @@ import NavBar from './components/NavBar'
 import MarketLayout from './layouts/MarketLayout'
 import CookieConsent from './components/CookieConsent'
 import YandexMetrika from './components/YandexMetrika'
+import ErrorBoundary from './components/ErrorBoundary'
+import { Toaster } from './components/Toaster'
 
 const queryClient = new QueryClient()
 
@@ -80,6 +84,7 @@ function AppLayout() {
 function AppRoutes() {
   return (
     <BrowserRouter>
+          <Toaster />
           <YandexMetrika />
           <Routes>
             {/* 🔓 Публичные маршруты с общим лейаутом */}
@@ -95,6 +100,8 @@ function AppRoutes() {
             <Route element={<Protected />}>
               <Route element={<AppLayout />}>
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/analytics" element={<Analytics />} />
+                <Route path="/chats" element={<Chats />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/company/:id" element={<CompanyPage />} />
                 <Route path="/product/:id" element={<ProductDetail />} />
@@ -135,12 +142,14 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <NotificationProvider>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <AppRoutes />
-        </AuthProvider>
-      </QueryClientProvider>
-    </NotificationProvider>
+    <ErrorBoundary>
+      <NotificationProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <AppRoutes />
+          </AuthProvider>
+        </QueryClientProvider>
+      </NotificationProvider>
+    </ErrorBoundary>
   )
 }

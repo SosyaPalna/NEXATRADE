@@ -21,7 +21,7 @@ export default function Register() {
     { test: /[a-z]/.test(form.password), label: 'Хотя бы одна строчная латинская буква' },
     { test: /[A-Z]/.test(form.password), label: 'Хотя бы одна заглавная латинская буква' },
     { test: /\d/.test(form.password), label: 'Хотя бы одна цифра' },
-    { test: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(form.password), label: 'Хотя бы один спецсимвол' },
+    { test: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(form.password), label: 'Хотя бы один спецсимвол' },
   ]
 
   const handleSubmit = async (e) => {

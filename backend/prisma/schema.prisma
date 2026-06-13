@@ -48,6 +48,8 @@ model Tenant {
   sentMessages          Message[] @relation("MessageSender")
   receivedNotifications Notification[] @relation("RecipientNotifications")
   reportMessages        ReportMessage[] @relation("ReportMessageSender")
+  reviews               Review[]  @relation("TenantReviews")
+  authoredReviews       Review[]  @relation("AuthorReviews")
 }
 
 model User {
@@ -87,17 +89,19 @@ model Category {
 }
 
 model Product {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   name        String
-  description String?  @db.Text
-  price       Decimal  @db.Decimal(10, 2)
-  unit        String   @default("шт.")
-  stock       Int      @default(0)
-  isOpt       Boolean  @default(true)
-  isRetail    Boolean  @default(false)
+  description String?   @db.Text
+  price       Decimal   @db.Decimal(10, 2)
+  unit        String    @default("шт.")
+  stock       Int       @default(0)
+  isOpt       Boolean   @default(true)
+  isRetail    Boolean   @default(false)
   images      String[] // массив URL изображений
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  viewCount   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
 
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
@@ -106,6 +110,7 @@ model Product {
   tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   messages Message[]
+  views    ProductView[]
 }
 
 model Rfq {
@@ -118,6 +123,7 @@ model Rfq {
   status      String    @default("open")
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
 
   buyerId String
   buyer   Tenant @relation("BuyerRfqs", fields: [buyerId], references: [id], onDelete: Cascade)
@@ -132,13 +138,14 @@ model Rfq {
 }
 
 model Quote {
-  id           String   @id @default(uuid())
-  price        Decimal  @db.Decimal(10, 2)
+  id           String    @id @default(uuid())
+  price        Decimal   @db.Decimal(10, 2)
   deliveryTime String?
   message      String?
-  status       String   @default("pending")
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  status       String    @default("pending")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
 
   rfqId String
   rfq   Rfq    @relation(fields: [rfqId], references: [id], onDelete: Cascade)
@@ -147,13 +154,48 @@ model Quote {
   seller   Tenant @relation("SellerQuotes", fields: [sellerId], references: [id], onDelete: Cascade)
 }
 
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int
+  text      String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenantId String
+  tenant   Tenant @relation("TenantReviews", fields: [tenantId], references: [id], onDelete: Cascade)
+
+  authorId String
+  author   Tenant @relation("AuthorReviews", fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, authorId])
+  @@index([tenantId])
+  @@index([authorId])
+}
+
+model ProductView {
+  id        String   @id @default(uuid())
+  productId String
+  tenantId  String
+  ip        String
+  date      String   // YYYY-MM-DD
+  createdAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, ip, date])
+  @@index([tenantId, date])
+  @@index([productId])
+}
+
 model Message {
-  id        String    @id @default(uuid())
-  content   String
-  isEdited  Boolean   @default(false)
-  editedAt  DateTime?
-  isDeleted Boolean   @default(false)
-  createdAt DateTime  @default(now())
+  id          String    @id @default(uuid())
+  content     String
+  attachments String[]  // URL прикреплённых файлов
+  isEdited    Boolean   @default(false)
+  editedAt    DateTime?
+  isDeleted   Boolean   @default(false)
+  readAt      DateTime?
+  createdAt   DateTime  @default(now())
 
   senderId String
   sender   Tenant @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
@@ -163,6 +205,10 @@ model Message {
 
   productId String?
   product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, createdAt])
+  @@index([rfqId, createdAt])
+  @@index([senderId, createdAt])
 }
 
 model Report {
