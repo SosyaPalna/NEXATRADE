@@ -149,4 +149,92 @@ router.get('/rooms', authenticate, async (req, res) => {
   }
 });
 
+// Поиск по сообщениям (в конкретном диалоге или по всем чатам пользователя)
+router.get('/search', authenticate, async (req, res) => {
+  try {
+    const tenantId = req.tenantId;
+    const query = String(req.query.query || '').trim();
+    const roomType = req.query.roomType;
+    const roomId = req.query.roomId;
+    const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+    const offset = Math.max(parseInt(req.query.offset) || 0, 0);
+
+    if (!query || query.length > 200) {
+      return res.status(400).json({ error: 'Invalid query' });
+    }
+
+    let productRoomIds = [];
+    let rfqRoomIds = [];
+
+    if (roomType && roomId) {
+      const allowed = await canJoinRoom(tenantId, roomType, roomId);
+      if (!allowed) return res.status(403).json({ error: 'Access denied' });
+      if (roomType === 'product') productRoomIds = [roomId];
+      else if (roomType === 'rfq') rfqRoomIds = [roomId];
+    } else {
+      const [productRooms, rfqRooms] = await Promise.all([
+        prisma.$queryRaw`
+          SELECT DISTINCT m."productId" AS "roomId"
+          FROM "Message" m
+          JOIN "Product" p ON m."productId" = p.id
+          WHERE m."productId" IS NOT NULL
+            AND (p."tenantId" = ${tenantId} OR m."senderId" = ${tenantId})
+        `,
+        prisma.$queryRaw`
+          SELECT DISTINCT m."rfqId" AS "roomId"
+          FROM "Message" m
+          JOIN "Rfq" r ON m."rfqId" = r.id
+          LEFT JOIN "Quote" q ON q."rfqId" = r.id AND q."sellerId" = ${tenantId}
+          WHERE m."rfqId" IS NOT NULL
+            AND (r."buyerId" = ${tenantId} OR q."sellerId" = ${tenantId})
+        `
+      ]);
+      productRoomIds = productRooms.map(r => r.roomId);
+      rfqRoomIds = rfqRooms.map(r => r.roomId);
+    }
+
+    const orConditions = [];
+    if (productRoomIds.length > 0) {
+      orConditions.push({ productId: { in: productRoomIds } });
+    }
+    if (rfqRoomIds.length > 0) {
+      orConditions.push({ rfqId: { in: rfqRoomIds } });
+    }
+
+    if (orConditions.length === 0) {
+      return res.json({ messages: [], total: 0, hasMore: false });
+    }
+
+    const where = {
+      isDeleted: false,
+      content: { contains: query, mode: 'insensitive' },
+      OR: orConditions,
+    };
+
+    const [messages, total] = await Promise.all([
+      prisma.message.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: offset,
+        take: limit,
+        include: {
+          sender: { select: { id: true, name: true } },
+          product: { select: { id: true, name: true } },
+          rfq: { select: { id: true, title: true } },
+        },
+      }),
+      prisma.message.count({ where }),
+    ]);
+
+    res.json({
+      messages,
+      total,
+      hasMore: offset + messages.length < total,
+    });
+  } catch (err) {
+    console.error('[chat/search] error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
