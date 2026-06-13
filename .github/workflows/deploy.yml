@@ -20,5 +20,6 @@ jobs:
             cd /var/www/NEXATRADE
             git reset --hard
             git clean -fd
+            export GIT_SSH_COMMAND='ssh -i ~/.ssh/id_ed25519_deploy -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new'
             git pull origin main
             bash deploy.sh
