@@ -51,10 +51,12 @@ router.get('/:id', authenticate, async (req, res) => {
 // 🔹 Получить товары (только свои, или все если передать ?all=true)
 router.get('/', authenticate, validate(paginationSchema), async (req, res) => {
   try {
-    const where = req.query.all === 'true' ? {} : { tenantId: req.tenantId };
+    const where = req.query.all === 'true'
+      ? { deletedAt: null }
+      : { tenantId: req.tenantId, deletedAt: null };
 
     // Фильтры
-    const { categoryId, minPrice, maxPrice, inStock, search, city } = req.query;
+    const { categoryId, minPrice, maxPrice, inStock, search, city, sortBy, order } = req.query;
     if (categoryId) where.categoryId = categoryId;
     if (minPrice) where.price = { ...where.price, gte: parseFloat(minPrice) };
     if (maxPrice) where.price = { ...where.price, lte: parseFloat(maxPrice) };
@@ -66,13 +68,31 @@ router.get('/', authenticate, validate(paginationSchema), async (req, res) => {
       where.tenant = { city: { contains: city, mode: 'insensitive' } };
     }
 
-    const products = await prisma.product.findMany({
-      where,
-      include: { category: { select: { id: true, name: true, slug: true } }, tenant: { select: { name: true } } },
-      orderBy: { createdAt: 'desc' }
-    });
-    res.json(products);
+    // Сортировка
+    const allowedSort = ['createdAt', 'updatedAt', 'price', 'viewCount', 'name'];
+    const sortField = allowedSort.includes(sortBy) ? sortBy : 'createdAt';
+    const sortOrder = order === 'asc' ? 'asc' : 'desc';
+    const orderBy = sortField === 'name' ? { name: sortOrder } : { [sortField]: sortOrder };
+
+    // Пагинация
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+    const skip = (page - 1) * limit;
+
+    const [products, total] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        include: { category: { select: { id: true, name: true, slug: true } }, tenant: { select: { name: true, city: true } } },
+        orderBy,
+        skip,
+        take: limit,
+      }),
+      prisma.product.count({ where }),
+    ]);
+
+    res.json({ products, total, page, pages: Math.ceil(total / limit) });
   } catch (err) {
+    console.error('[products/list] error:', err);
     res.status(500).json({ error: err.message });
   }
 });
