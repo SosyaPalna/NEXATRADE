@@ -5,6 +5,7 @@ const authenticate = require('../middleware/auth');
 const { canJoinRoom } = require('../lib/chat');
 const { UPLOAD_ROOT } = require('../lib/upload');
 const { chatFilesLimiter } = require('../middleware/rateLimit');
+const { logAudit } = require('../lib/audit');
 
 const router = express.Router();
 
@@ -257,6 +258,17 @@ router.delete('/rooms/:roomType/:roomId/messages', authenticate, async (req, res
       data: { isDeleted: true }
     });
 
+    await logAudit({
+      userId: req.userId,
+      tenantId: req.tenantId,
+      action: 'chat:clear',
+      targetType: 'chat',
+      targetId: `${roomType}:${roomId}`,
+      metadata: { roomType, roomId },
+      ip: req.ip,
+      userAgent: req.headers['user-agent'],
+    });
+
     res.json({ success: true });
   } catch (err) {
     console.error('[chat/clear] error:', err);
@@ -302,6 +314,17 @@ router.post('/block', authenticate, async (req, res) => {
       }
     });
 
+    await logAudit({
+      userId: req.userId,
+      tenantId: req.tenantId,
+      action: 'chat:block',
+      targetType: 'user',
+      targetId: blockedTenantId,
+      metadata: { roomType, roomId },
+      ip: req.ip,
+      userAgent: req.headers['user-agent'],
+    });
+
     res.json({ block });
   } catch (err) {
     console.error('[chat/block] error:', err);
@@ -326,6 +349,17 @@ router.delete('/block', authenticate, async (req, res) => {
         blockerId: tenantId,
         blockedId: blockedTenantId,
       }
+    });
+
+    await logAudit({
+      userId: req.userId,
+      tenantId: req.tenantId,
+      action: 'chat:unblock',
+      targetType: 'user',
+      targetId: blockedTenantId,
+      metadata: { roomType, roomId },
+      ip: req.ip,
+      userAgent: req.headers['user-agent'],
     });
 
     res.json({ success: true });
@@ -362,6 +396,69 @@ router.get('/blocks', authenticate, async (req, res) => {
     res.json({ iBlocked, blockedMe });
   } catch (err) {
     console.error('[chat/blocks] error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Загрузить контекст сообщения (для jump-to-message в поиске)
+router.get('/messages/:messageId/context', authenticate, async (req, res) => {
+  try {
+    const tenantId = req.tenantId;
+    const messageId = req.params.messageId;
+    const limitBefore = Math.min(parseInt(req.query.limitBefore) || 10, 50);
+    const limitAfter = Math.min(parseInt(req.query.limitAfter) || 10, 50);
+
+    const target = await prisma.message.findUnique({
+      where: { id: messageId },
+      select: { id: true, createdAt: true, rfqId: true, productId: true, isDeleted: true }
+    });
+
+    if (!target || target.isDeleted) {
+      return res.status(404).json({ error: 'Message not found' });
+    }
+
+    const roomType = target.rfqId ? 'rfq' : 'product';
+    const roomId = target.rfqId || target.productId;
+
+    const allowed = await canJoinRoom(tenantId, roomType, roomId);
+    if (!allowed) return res.status(403).json({ error: 'Access denied' });
+
+    const roomKey = roomType === 'rfq' ? 'rfqId' : 'productId';
+    const include = {
+      sender: { select: { id: true, name: true } },
+      replyTo: { select: { id: true, content: true, isDeleted: true, senderId: true, sender: { select: { name: true } } } }
+    };
+
+    const [beforeRaw, afterRaw, targetWithInclude] = await Promise.all([
+      prisma.message.findMany({
+        where: { [roomKey]: roomId, createdAt: { lt: target.createdAt }, isDeleted: false },
+        orderBy: { createdAt: 'desc' },
+        take: limitBefore,
+        include,
+      }),
+      prisma.message.findMany({
+        where: { [roomKey]: roomId, createdAt: { gt: target.createdAt }, isDeleted: false },
+        orderBy: { createdAt: 'asc' },
+        take: limitAfter,
+        include,
+      }),
+      prisma.message.findUnique({ where: { id: messageId }, include }),
+    ]);
+
+    const before = beforeRaw.reverse();
+    const after = afterRaw;
+
+    res.json({
+      roomType,
+      roomId,
+      target: targetWithInclude,
+      before,
+      after,
+      hasMoreBefore: before.length === limitBefore,
+      hasMoreAfter: after.length === limitAfter,
+    });
+  } catch (err) {
+    console.error('[chat/messages/context] error:', err);
     res.status(500).json({ error: err.message });
   }
 });

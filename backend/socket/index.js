@@ -3,6 +3,7 @@ const cookie = require('cookie');
 const prisma = require('../lib/prisma');
 const { verifyAccessToken } = require('../utils/jwt');
 const { canJoinRoom, getRoomName } = require('../lib/chat');
+const { logAudit } = require('../lib/audit');
 
 async function getRecipientId(roomType, roomId, senderTenantId) {
   if (roomType === 'rfq') {
@@ -223,6 +224,17 @@ const initSocket = (server) => {
         const roomType = updated.rfqId ? 'rfq' : 'product';
         const roomId = updated.rfqId || updated.productId;
         io.to(getRoomName(roomType, roomId)).emit('message:edited', updated);
+
+        await logAudit({
+          userId: socket.userId,
+          tenantId: socket.tenantId,
+          action: 'message:edit',
+          targetType: 'message',
+          targetId: messageId,
+          metadata: { roomType, roomId, content: content.trim() },
+          ip: socket.handshake.address,
+          userAgent: socket.handshake.headers['user-agent'],
+        });
       } catch (err) {
         console.error('❌ Edit error:', err.message);
         socket.emit('error', { message: 'Failed to edit message' });
@@ -244,6 +256,17 @@ const initSocket = (server) => {
         const roomType = updated.rfqId ? 'rfq' : 'product';
         const roomId = updated.rfqId || updated.productId;
         io.to(getRoomName(roomType, roomId)).emit('message:deleted', updated);
+
+        await logAudit({
+          userId: socket.userId,
+          tenantId: socket.tenantId,
+          action: 'message:delete',
+          targetType: 'message',
+          targetId: messageId,
+          metadata: { roomType, roomId },
+          ip: socket.handshake.address,
+          userAgent: socket.handshake.headers['user-agent'],
+        });
       } catch (err) {
         console.error('❌ Delete error:', err.message);
         socket.emit('error', { message: 'Failed to delete message' });

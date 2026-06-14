@@ -74,6 +74,9 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
   const [onlineUsers, setOnlineUsers] = useState(new Set())
   const [counterpartId, setCounterpartId] = useState(null)
   const [isDragging, setIsDragging] = useState(false)
+  const [searchResults, setSearchResults] = useState([])
+  const [searchLoading, setSearchLoading] = useState(false)
+  const searchTimeoutRef = useRef(null)
   const messagesEndRef = useRef(null)
   const scrollRef = useRef(null)
   const fileInputRef = useRef(null)
@@ -386,6 +389,45 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
       )
     : messages
 
+  useEffect(() => {
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
+    const query = searchQuery.trim()
+    if (!query || query.length < 2) {
+      setSearchResults([])
+      setSearchLoading(false)
+      return
+    }
+    setSearchLoading(true)
+    searchTimeoutRef.current = setTimeout(() => {
+      api.get('/chat/search', { params: { query, roomType, roomId, limit: 20 } })
+        .then(res => setSearchResults(res.data.messages || []))
+        .catch(() => setSearchResults([]))
+        .finally(() => setSearchLoading(false))
+    }, 300)
+    return () => {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
+    }
+  }, [searchQuery, roomType, roomId])
+
+  const loadMessageContext = async (messageId) => {
+    try {
+      const res = await api.get(`/chat/messages/${messageId}/context`)
+      const { before, target, after, hasMoreBefore } = res.data
+      const contextMessages = [...before, target, ...after]
+      setMessages(contextMessages)
+      setHasMore(hasMoreBefore)
+      setOldestCursor(before[0]?.createdAt || target.createdAt)
+      setSearchQuery('')
+      setSearchResults([])
+      setTimeout(() => {
+        const el = messageRefs.current[target.id]
+        el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }, 100)
+    } catch (err) {
+      addNotification(err.response?.data?.error || 'Не удалось загрузить сообщение', 'error')
+    }
+  }
+
   const renderReadStatus = (msg) => {
     if (msg.senderId !== currentTenantId) return null
     if (msg.readAt) {
@@ -517,10 +559,31 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
                 autoFocus
               />
               {searchQuery.trim() && (
-                <div className="text-xs text-muted-foreground py-1">
-                  {filteredMessages.length === 0
-                    ? 'Ничего не найдено'
-                    : `Найдено: ${filteredMessages.length}`}
+                <div className="py-2 max-h-48 overflow-y-auto">
+                  {searchLoading ? (
+                    <div className="text-xs text-muted-foreground">Поиск...</div>
+                  ) : searchResults.length === 0 ? (
+                    <div className="text-xs text-muted-foreground">Ничего не найдено</div>
+                  ) : (
+                    <div className="space-y-1">
+                      {searchResults.map(msg => (
+                        <button
+                          key={msg.id}
+                          type="button"
+                          onClick={() => loadMessageContext(msg.id)}
+                          className="w-full text-left px-2 py-1.5 rounded hover:bg-muted text-xs"
+                        >
+                          <div className="text-muted-foreground">{formatTime(msg.createdAt)}</div>
+                          <div className="truncate text-foreground">{msg.content}</div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {filteredMessages.length > 0 && (
+                    <div className="text-xs text-muted-foreground mt-2 pt-2 border-t">
+                      В загруженных сообщениях: {filteredMessages.length}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

@@ -235,6 +235,23 @@ model ChatBlock {
   @@index([blockerId])
 }
 
+model AuditLog {
+  id         String   @id @default(uuid())
+  createdAt  DateTime @default(now())
+  userId     String
+  tenantId   String
+  action     String
+  targetType String?
+  targetId   String?
+  metadata   Json?
+  ip         String?
+  userAgent  String?
+
+  @@index([createdAt])
+  @@index([tenantId])
+  @@index([action])
+}
+
 model Report {
   id          String   @id @default(uuid())
   type        String
