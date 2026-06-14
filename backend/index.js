@@ -34,12 +34,17 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
+      frameAncestors: ["'self'"],
       scriptSrc: ["'self'", "https://mc.yandex.ru", "https://mc.yandex.com", "https://yastatic.net", "https://cdn.jsdelivr.net"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "blob:", "https://mc.yandex.ru", "https://mc.yandex.com"],
-      connectSrc: ["'self'", "https://mc.yandex.ru", "wss://mc.yandex.ru", "https://mc.yandex.com", "wss://mc.yandex.com"],
+      connectSrc: ["'self'", "wss:", "ws:", "https://mc.yandex.ru", "wss://mc.yandex.ru", "https://mc.yandex.com", "wss://mc.yandex.com"],
       frameSrc: ["'self'", "https://mc.yandex.ru", "https://mc.yandex.com"],
       fontSrc: ["'self'"],
+      manifestSrc: ["'self'"],
+      workerSrc: ["'self'", "blob:"],
       objectSrc: ["'none'"],
       upgradeInsecureRequests: [],
     },
