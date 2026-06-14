@@ -4,6 +4,7 @@ const prisma = require('../lib/prisma');
 const authenticate = require('../middleware/auth');
 const { canJoinRoom } = require('../lib/chat');
 const { UPLOAD_ROOT } = require('../lib/upload');
+const { chatFilesLimiter } = require('../middleware/rateLimit');
 
 const router = express.Router();
 
@@ -12,7 +13,7 @@ function sanitizeFilename(filename) {
 }
 
 // Авторизованная отдача файлов чата
-router.get('/files/:filename', authenticate, async (req, res) => {
+router.get('/files/:filename', authenticate, chatFilesLimiter, async (req, res) => {
   try {
     const filename = sanitizeFilename(req.params.filename);
     if (!filename) {
