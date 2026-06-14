@@ -71,10 +71,14 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
   const [replyTo, setReplyTo] = useState(null)
   const [lightboxUrl, setLightboxUrl] = useState(null)
   const [blocks, setBlocks] = useState({ iBlocked: null, blockedMe: null })
+  const [onlineUsers, setOnlineUsers] = useState(new Set())
+  const [counterpartId, setCounterpartId] = useState(null)
+  const [isDragging, setIsDragging] = useState(false)
   const messagesEndRef = useRef(null)
   const scrollRef = useRef(null)
   const fileInputRef = useRef(null)
   const messageRefs = useRef({})
+  const dragCounterRef = useRef(0)
   const { addNotification } = useNotification()
   const isTabActiveRef = useRef(!document.hidden)
   const typingTimeoutRef = useRef(null)
@@ -154,6 +158,22 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
       })
     })
 
+    newSocket.on('user:online', ({ tenantId }) => {
+      setOnlineUsers(prev => new Set(prev).add(tenantId))
+    })
+
+    newSocket.on('user:offline', ({ tenantId }) => {
+      setOnlineUsers(prev => {
+        const next = new Set(prev)
+        next.delete(tenantId)
+        return next
+      })
+    })
+
+    newSocket.on('presence:list', ({ online }) => {
+      setOnlineUsers(prev => new Set([...prev, ...online]))
+    })
+
     const handleVisibility = () => {
       isTabActiveRef.current = !document.hidden
       if (!document.hidden && newSocket.connected) {
@@ -173,6 +193,20 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages.length])
+
+  // Определяем собеседника для статуса онлайн
+  useEffect(() => {
+    const other = messages.find(m => m.senderId !== currentTenantId)
+    if (other?.senderId && other.senderId !== counterpartId) {
+      setCounterpartId(other.senderId)
+    }
+  }, [messages, currentTenantId, counterpartId])
+
+  // Запрашиваем статус собеседника при смене комнаты/собеседника
+  useEffect(() => {
+    if (!socket || !counterpartId) return
+    socket.emit('presence:query', { tenantIds: [counterpartId] })
+  }, [socket, counterpartId])
 
   const uploadFiles = async (files) => {
     if (!files.length) return []
@@ -241,14 +275,44 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
     })
   }, [socket, loadingMore, hasMore, oldestCursor, roomType, roomId])
 
-  const handleFileSelect = (e) => {
-    const files = Array.from(e.target.files || [])
+  const handleFiles = (files) => {
+    if (files.length === 0) return
     if (files.length + attachments.length > 5) {
       addNotification('Максимум 5 файлов', 'error')
       return
     }
     setAttachments(prev => [...prev, ...files].slice(0, 5))
+  }
+
+  const handleFileSelect = (e) => {
+    handleFiles(Array.from(e.target.files || []))
     e.target.value = ''
+  }
+
+  const handleDragEnter = (e) => {
+    e.preventDefault()
+    dragCounterRef.current += 1
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (e) => {
+    e.preventDefault()
+    dragCounterRef.current -= 1
+    if (dragCounterRef.current <= 0) {
+      dragCounterRef.current = 0
+      setIsDragging(false)
+    }
+  }
+
+  const handleDragOver = (e) => {
+    e.preventDefault()
+  }
+
+  const handleDrop = (e) => {
+    e.preventDefault()
+    dragCounterRef.current = 0
+    setIsDragging(false)
+    handleFiles(Array.from(e.dataTransfer.files || []))
   }
 
   const removeAttachment = (index) => {
@@ -388,12 +452,32 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
 
   return (
     <>
-      <Card className="overflow-hidden">
+      <Card
+        className={`overflow-hidden ${isDragging ? 'ring-2 ring-primary bg-primary/5' : ''}`}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+      >
         <CardHeader className="py-3 px-4 bg-muted/50 border-b">
           <div className="flex items-center justify-between">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <MessageCircle className="h-4 w-4 text-primary" />
               {title}
+              {counterpartId && (
+                <span
+                  className={`ml-2 inline-flex items-center gap-1 text-xs ${
+                    onlineUsers.has(counterpartId) ? 'text-green-600' : 'text-muted-foreground'
+                  }`}
+                >
+                  <span
+                    className={`h-2 w-2 rounded-full ${
+                      onlineUsers.has(counterpartId) ? 'bg-green-500' : 'bg-gray-400'
+                    }`}
+                  />
+                  {onlineUsers.has(counterpartId) ? 'онлайн' : 'оффлайн'}
+                </span>
+              )}
             </CardTitle>
             <Button
               type="button"

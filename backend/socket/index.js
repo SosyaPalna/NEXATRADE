@@ -53,6 +53,8 @@ function parseAccessTokenFromCookie(handshake) {
   }
 }
 
+const tenantConnections = new Map();
+
 const initSocket = (server) => {
   const io = new Server(server, {
     cors: {
@@ -89,6 +91,13 @@ const initSocket = (server) => {
 
   io.on('connection', (socket) => {
     console.log(`🔌 Connected: ${socket.tenantId}`);
+
+    // Presence tracking
+    const count = (tenantConnections.get(socket.tenantId) || 0) + 1;
+    tenantConnections.set(socket.tenantId, count);
+    if (count === 1) {
+      io.emit('user:online', { tenantId: socket.tenantId });
+    }
 
     // Каждый пользователь присоединяется к своей персональной комнате для уведомлений
     socket.join(`tenant:${socket.tenantId}`);
@@ -335,8 +344,23 @@ const initSocket = (server) => {
       socket.to(room).emit('typing', { tenantId: socket.tenantId, roomType, roomId, typing: false });
     });
 
+    // Запрос статуса онлайн для списка пользователей
+    socket.on('presence:query', ({ tenantIds }) => {
+      if (!Array.isArray(tenantIds)) return;
+      const online = tenantIds.filter(id => tenantConnections.has(id));
+      socket.emit('presence:list', { online });
+    });
+
     socket.on('disconnect', () => {
       console.log(`🔌 Disconnected: ${socket.tenantId}`);
+
+      const count = (tenantConnections.get(socket.tenantId) || 1) - 1;
+      if (count <= 0) {
+        tenantConnections.delete(socket.tenantId);
+        io.emit('user:offline', { tenantId: socket.tenantId });
+      } else {
+        tenantConnections.set(socket.tenantId, count);
+      }
     });
   });
 
