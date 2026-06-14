@@ -43,6 +43,14 @@ const units = [
   { value: 'паллет', label: 'Паллеты' },
 ]
 
+const sortOptions = [
+  { value: 'createdAt:desc', label: 'Сначала новые' },
+  { value: 'createdAt:asc', label: 'Сначала старые' },
+  { value: 'price:asc', label: 'Цена: по возрастанию' },
+  { value: 'price:desc', label: 'Цена: по убыванию' },
+  { value: 'viewCount:desc', label: 'Популярные' },
+]
+
 export default function Products() {
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
@@ -50,6 +58,9 @@ export default function Products() {
   const [filters, setFilters] = useState({
     search: '', category: '', minPrice: '', maxPrice: '', inStock: false, city: localStorage.getItem('selectedCity') || ''
   })
+  const [sort, setSort] = useState('createdAt:desc')
+  const [page, setPage] = useState(1)
+  const [pages, setPages] = useState(0)
   const [showAddForm, setShowAddForm] = useState(false)
   const [newProduct, setNewProduct] = useState({
     name: '', description: '', price: '', stock: '', unit: 'шт.',
@@ -60,14 +71,25 @@ export default function Products() {
   const loadProducts = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await api.get('/products', { params: { ...filters, all: true } })
-      setProducts(res.data)
+      const [sortBy, order] = sort.split(':')
+      const res = await api.get('/products', {
+        params: {
+          ...filters,
+          all: true,
+          page,
+          limit: 20,
+          sortBy,
+          order,
+        }
+      })
+      setProducts(res.data.products || [])
+      setPages(res.data.pages || 0)
     } catch (err) {
       console.error('Ошибка загрузки товаров:', err)
     } finally {
       setLoading(false)
     }
-  }, [filters])
+  }, [filters, sort, page])
 
   useEffect(() => {
     loadProducts()
@@ -83,6 +105,10 @@ export default function Products() {
     window.addEventListener('storage', handleStorage)
     return () => window.removeEventListener('storage', handleStorage)
   }, [])
+
+  useEffect(() => {
+    setPage(1)
+  }, [filters, sort])
 
   const handleImageUpload = async (files) => {
     if (!files || files.length === 0) return
@@ -277,7 +303,19 @@ export default function Products() {
               <Checkbox id="in-stock" checked={filters.inStock} onCheckedChange={(checked) => setFilters({ ...filters, inStock: checked === true })} />
               <Label htmlFor="in-stock" className="text-sm font-normal cursor-pointer">В наличии</Label>
             </div>
-            <Button variant="outline" size="sm" className="border-border hover:bg-muted" onClick={() => setFilters({ search: '', category: '', minPrice: '', maxPrice: '', inStock: false, city: '' })}>
+            <div className="w-full md:w-48">
+              <Select value={sort} onValueChange={setSort}>
+                <SelectTrigger className="border-border">
+                  <SelectValue placeholder="Сортировка" />
+                </SelectTrigger>
+                <SelectContent>
+                  {sortOptions.map(opt => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button variant="outline" size="sm" className="border-border hover:bg-muted" onClick={() => { setFilters({ search: '', category: '', minPrice: '', maxPrice: '', inStock: false, city: '' }); setSort('createdAt:desc') }}>
               <SlidersHorizontal className="h-4 w-4 mr-1" />
               Сбросить
             </Button>
@@ -354,6 +392,47 @@ export default function Products() {
               </Card>
             </article>
           ))}
+        </div>
+      )}
+
+      {pages > 1 && (
+        <div className="flex items-center justify-center gap-2 pt-4">
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-border"
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            disabled={page <= 1}
+          >
+            Назад
+          </Button>
+          {Array.from({ length: Math.min(pages, 7) }, (_, i) => {
+            let num = i + 1
+            if (pages > 7) {
+              const start = Math.max(1, Math.min(pages - 6, page - 3))
+              num = start + i
+            }
+            return (
+              <Button
+                key={num}
+                variant={num === page ? 'default' : 'outline'}
+                size="sm"
+                className={num === page ? 'bg-primary text-white' : 'border-border'}
+                onClick={() => setPage(num)}
+              >
+                {num}
+              </Button>
+            )
+          })}
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-border"
+            onClick={() => setPage(p => Math.min(pages, p + 1))}
+            disabled={page >= pages}
+          >
+            Вперёд
+          </Button>
         </div>
       )}
     </div>
