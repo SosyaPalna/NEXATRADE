@@ -26,7 +26,7 @@ export default function NavBar() {
   const [notifications, setNotifications] = useState([])
   const [notifUnreadCount, setNotifUnreadCount] = useState(0)
   const [chatUnreadCount, setChatUnreadCount] = useState(0)
-  const unreadCount = notifUnreadCount + chatUnreadCount
+  const unreadCount = notifUnreadCount
   const [notifOpen, setNotifOpen] = useState(false)
   const { theme, toggleTheme } = useTheme()
   const { addNotification } = useNotification()
@@ -154,9 +154,14 @@ export default function NavBar() {
                 className={isActive(item.path) ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}
                 asChild
               >
-                <Link to={item.path} className="flex items-center gap-1.5">
+                <Link to={item.path} className="flex items-center gap-1.5 relative">
                   <item.icon className="h-4 w-4" />
                   {item.label}
+                  {item.label === 'Сообщения' && chatUnreadCount > 0 && (
+                    <span className="absolute -top-2 -right-3 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] text-white font-medium">
+                      {chatUnreadCount > 9 ? '9+' : chatUnreadCount}
+                    </span>
+                  )}
                 </Link>
               </Button>
             ))}
@@ -329,7 +334,12 @@ export default function NavBar() {
                       >
                         <Link to={item.path} className="flex items-center gap-2">
                           <item.icon className="h-4 w-4" />
-                          {item.label}
+                          <span>{item.label}</span>
+                          {item.label === 'Сообщения' && chatUnreadCount > 0 && (
+                            <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive text-[10px] text-white font-medium px-1">
+                              {chatUnreadCount > 99 ? '99+' : chatUnreadCount}
+                            </span>
+                          )}
                         </Link>
                       </Button>
                     ))}
