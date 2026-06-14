@@ -16,7 +16,6 @@ import {
   Activity,
   Bell,
   MessageSquare,
-  ShoppingCart,
   Quote,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
