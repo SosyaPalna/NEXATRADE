@@ -2,10 +2,34 @@ import { useEffect, useState } from 'react'
 import { api } from '../api'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { BarChart3, Eye, Package, Star, FileText, TrendingUp } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import {
+  BarChart3,
+  Eye,
+  Package,
+  Star,
+  FileText,
+  TrendingUp,
+  Mail,
+  Send,
+  Inbox,
+  Activity,
+  Bell,
+  MessageSquare,
+  Quote,
+} from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { getPreviewUrl } from '../lib/images'
 import SEO from '../components/SEO'
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from 'recharts'
 
 function MetricCard({ icon: Icon, title, value, subtitle }) {
   return (
@@ -26,11 +50,25 @@ function MetricCard({ icon: Icon, title, value, subtitle }) {
   )
 }
 
+const activityIcons = {
+  message: MessageSquare,
+  rfq: FileText,
+  quote: Quote,
+  system: Bell,
+  review: Star,
+  default: Activity,
+}
+
+function activityIcon(type) {
+  return activityIcons[type] || activityIcons.default
+}
+
 export default function Analytics() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
 
   const loadData = async () => {
+    setLoading(true)
     try {
       const res = await api.get('/analytics/dashboard')
       setData(res.data)
@@ -42,11 +80,12 @@ export default function Analytics() {
   }
 
   useEffect(() => {
-     
     loadData()
   }, [])
 
   const formatNumber = (n) => n?.toLocaleString('ru-RU') || '0'
+
+  const roleLabel = data?.role === 'seller' ? 'Продавец' : 'Покупатель'
 
   return (
     <div className="space-y-6">
@@ -54,7 +93,10 @@ export default function Analytics() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Аналитика</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold">Аналитика</h1>
+            {data && <Badge variant="secondary">{roleLabel}</Badge>}
+          </div>
           <p className="text-muted-foreground">Статистика ваших товаров и активности</p>
         </div>
         <Button variant="outline" onClick={loadData} disabled={loading}>
@@ -74,13 +116,25 @@ export default function Analytics() {
             <MetricCard icon={Eye} title="Всего просмотров" value={formatNumber(data.summary.totalViews)} />
             <MetricCard icon={TrendingUp} title="Просмотров сегодня" value={formatNumber(data.summary.todayViews)} />
             <MetricCard icon={Package} title="Товаров в каталоге" value={formatNumber(data.summary.totalProducts)} />
-            <MetricCard icon={FileText} title="Ваших RFQ" value={formatNumber(data.summary.totalRfqs)} />
-            <MetricCard icon={FileText} title="Откликов на RFQ" value={formatNumber(data.summary.totalQuotes)} />
-            <MetricCard icon={Star} title="Средний рейтинг" value={data.summary.averageRating || '—'} subtitle={`${data.summary.reviewsCount} отзывов`} />
+            <MetricCard icon={Mail} title="Непрочитанных сообщений" value={formatNumber(data.summary.unreadMessages)} />
+            {data.role === 'seller' ? (
+              <>
+                <MetricCard icon={Send} title="Отправлено откликов" value={formatNumber(data.summary.quotesSubmitted)} />
+                <MetricCard icon={Star} title="Средний рейтинг" value={data.summary.averageRating || '—'} subtitle={`${data.summary.reviewsCount} отзывов`} />
+              </>
+            ) : (
+              <>
+                <MetricCard icon={FileText} title="Ваших RFQ" value={formatNumber(data.summary.totalRfqs)} />
+                <MetricCard icon={Inbox} title="Открытых RFQ" value={formatNumber(data.summary.openRfqs)} />
+              </>
+            )}
+            {data.role !== 'seller' && (
+              <MetricCard icon={FileText} title="Откликов на RFQ" value={formatNumber(data.summary.totalQuotes)} />
+            )}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="border-border">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Card className="border-border lg:col-span-2">
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
                   <BarChart3 className="h-4 w-4 text-primary" />
@@ -91,19 +145,35 @@ export default function Analytics() {
                 {data.viewsByDay.length === 0 ? (
                   <p className="text-muted-foreground text-center py-8">Нет данных за последние 30 дней</p>
                 ) : (
-                  <div className="space-y-2">
-                    {data.viewsByDay.map(day => (
-                      <div key={day.date} className="flex items-center gap-3">
-                        <span className="text-sm text-muted-foreground w-24">{new Date(day.date).toLocaleDateString('ru-RU')}</span>
-                        <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-primary rounded-full"
-                            style={{ width: `${Math.min(100, (day.count / Math.max(...data.viewsByDay.map(d => d.count))) * 100)}%` }}
-                          />
-                        </div>
-                        <span className="text-sm font-medium w-8 text-right">{day.count}</span>
-                      </div>
-                    ))}
+                  <div className="h-72">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={data.viewsByDay} margin={{ top: 5, right: 16, left: -16, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                        <XAxis
+                          dataKey="date"
+                          tickFormatter={(date) =>
+                            new Date(date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })
+                          }
+                          tick={{ fontSize: 12 }}
+                          axisLine={false}
+                          tickLine={false}
+                        />
+                        <YAxis tick={{ fontSize: 12 }} axisLine={false} tickLine={false} allowDecimals={false} />
+                        <Tooltip
+                          labelFormatter={(date) => new Date(date).toLocaleDateString('ru-RU')}
+                          formatter={(value) => [value, 'Просмотров']}
+                          contentStyle={{ borderRadius: 8 }}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="count"
+                          stroke="hsl(var(--primary))"
+                          strokeWidth={2}
+                          dot={{ r: 3, fill: 'hsl(var(--primary))' }}
+                          activeDot={{ r: 5 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
                   </div>
                 )}
               </CardContent>
@@ -112,43 +182,97 @@ export default function Analytics() {
             <Card className="border-border">
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
-                  <Package className="h-4 w-4 text-primary" />
-                  Топ товаров по просмотрам
+                  <Activity className="h-4 w-4 text-primary" />
+                  Недавняя активность
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {data.topProducts.length === 0 ? (
-                  <p className="text-muted-foreground text-center py-8">Нет товаров</p>
+                {data.recentActivity.length === 0 ? (
+                  <p className="text-muted-foreground text-center py-8">Нет недавней активности</p>
                 ) : (
-                  <div className="space-y-3">
-                    {data.topProducts.map(product => (
-                      <Link
-                        key={product.id}
-                        to={`/product/${product.id}`}
-                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors"
-                      >
-                        <div className="w-12 h-12 bg-muted rounded-md overflow-hidden flex-shrink-0">
-                          {product.images?.[0] ? (
-                            <img src={getPreviewUrl(product.images[0])} alt={product.name} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">Нет фото</div>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{product.name}</p>
-                          <p className="text-xs text-muted-foreground">{Number(product.price).toLocaleString('ru-RU')} ₽ / {product.unit}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-medium">{product.viewCount}</p>
-                          <p className="text-xs text-muted-foreground">просмотров</p>
-                        </div>
-                      </Link>
-                    ))}
+                  <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
+                    {data.recentActivity.map((item) => {
+                      const Icon = activityIcon(item.type)
+                      const Wrapper = item.link ? Link : 'div'
+                      return (
+                        <Wrapper
+                          key={item.id}
+                          to={item.link}
+                          className={`flex gap-3 p-2 rounded-lg hover:bg-muted transition-colors ${item.link ? 'cursor-pointer' : ''}`}
+                        >
+                          <div className="mt-0.5">
+                            <Icon className="h-4 w-4 text-primary" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm truncate ${item.isRead ? 'text-muted-foreground' : 'font-medium'}`}>
+                              {item.title || item.message || 'Событие'}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(item.createdAt).toLocaleString('ru-RU', {
+                                day: 'numeric',
+                                month: 'short',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
+                            </p>
+                          </div>
+                          {!item.isRead && <span className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />}
+                        </Wrapper>
+                      )
+                    })}
                   </div>
                 )}
               </CardContent>
             </Card>
           </div>
+
+          <Card className="border-border">
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <Package className="h-4 w-4 text-primary" />
+                Топ товаров по просмотрам
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {data.topProducts.length === 0 ? (
+                <p className="text-muted-foreground text-center py-8">Нет товаров</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {data.topProducts.map((product) => (
+                    <Link
+                      key={product.id}
+                      to={`/product/${product.id}`}
+                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors"
+                    >
+                      <div className="w-12 h-12 bg-muted rounded-md overflow-hidden flex-shrink-0">
+                        {product.images?.[0] ? (
+                          <img
+                            src={getPreviewUrl(product.images[0])}
+                            alt={product.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
+                            Нет фото
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{product.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {Number(product.price).toLocaleString('ru-RU')} ₽ / {product.unit}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium">{product.viewCount}</p>
+                        <p className="text-xs text-muted-foreground">просмотров</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </>
       ) : (
         <div className="text-center text-muted-foreground py-12">Не удалось загрузить аналитику</div>
