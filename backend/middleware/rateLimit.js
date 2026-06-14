@@ -38,4 +38,14 @@ const apiLimiter = rateLimit({
   message: { error: 'Слишком много запросов. Попробуйте позже.' },
 });
 
-module.exports = { loginLimiter, publicLimiter, authLimiter, apiLimiter };
+// Chat file downloads: 200 requests per 15 minutes per authenticated user
+const chatFilesLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Слишком много скачиваний файлов. Попробуйте позже.' },
+  keyGenerator: (req) => req.userId || req.ip,
+});
+
+module.exports = { loginLimiter, publicLimiter, authLimiter, apiLimiter, chatFilesLimiter };

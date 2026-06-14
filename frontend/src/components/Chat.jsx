@@ -69,6 +69,7 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [replyTo, setReplyTo] = useState(null)
+  const [lightboxUrl, setLightboxUrl] = useState(null)
   const [blocks, setBlocks] = useState({ iBlocked: null, blockedMe: null })
   const messagesEndRef = useRef(null)
   const scrollRef = useRef(null)
@@ -355,13 +356,17 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
           return (
             <div key={`${url}-${idx}`}>
               {isImage(fileUrl) ? (
-                <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="block">
+                <button
+                  type="button"
+                  onClick={() => setLightboxUrl(fileUrl)}
+                  className="block p-0 border-0 bg-transparent cursor-zoom-in"
+                >
                   <img
                     src={fileUrl}
                     alt="attachment"
                     className="max-w-[200px] max-h-[160px] rounded-md object-cover border"
                   />
-                </a>
+                </button>
               ) : (
                 <a
                   href={fileUrl}
@@ -609,6 +614,17 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
           </form>
         </CardContent>
       </Card>
+
+      {/* Image lightbox */}
+      <Dialog open={!!lightboxUrl} onOpenChange={() => setLightboxUrl(null)}>
+        <DialogContent className="max-w-[90vw] max-h-[90vh] w-auto p-0 border-0 bg-black/90">
+          <img
+            src={lightboxUrl}
+            alt="attachment preview"
+            className="max-h-[85vh] w-auto mx-auto object-contain"
+          />
+        </DialogContent>
+      </Dialog>
 
       {/* Report Dialog */}
       <Dialog open={!!reportModal} onOpenChange={() => setReportModal(null)}>

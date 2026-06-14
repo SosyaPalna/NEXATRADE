@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { NotificationProvider } from './context/NotificationContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import useChatUnreadBadge from './hooks/useChatUnreadBadge'
 
 // 🔹 Страницы (синхронные)
 import Login from './pages/Login'
@@ -81,11 +82,23 @@ function AppLayout() {
   )
 }
 
+function ChatUnreadBadge() {
+  useChatUnreadBadge()
+  return null
+}
+
+function UnreadBadgeController() {
+  const { isAuthenticated, loading } = useAuth()
+  if (loading || !isAuthenticated) return null
+  return <ChatUnreadBadge />
+}
+
 function AppRoutes() {
   return (
     <BrowserRouter>
           <Toaster />
           <YandexMetrika />
+          <UnreadBadgeController />
           <Routes>
             {/* 🔓 Публичные маршруты с общим лейаутом */}
             <Route element={<AppLayout />}>
