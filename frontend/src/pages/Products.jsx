@@ -52,19 +52,30 @@ const sortOptions = [
   { value: 'viewCount:desc', label: 'Популярные' },
 ]
 
+function getCategoryDepth(categories, categoryId) {
+  let depth = 0
+  let current = categories.find(c => c.id === categoryId)
+  while (current?.parentId) {
+    depth++
+    current = categories.find(c => c.id === current.parentId)
+  }
+  return depth
+}
+
 function flattenCategories(categories) {
-  if (!categories) return []
-  const roots = categories.filter(c => !c.parentId)
-  const children = categories.filter(c => c.parentId)
-  const result = []
-  roots.forEach(root => {
-    result.push({ id: root.id, label: root.name })
-    children
-      .filter(c => c.parentId === root.id)
+  if (!categories?.length) return []
+
+  function buildTree(parentId = null) {
+    return categories
+      .filter(c => c.parentId === parentId || (parentId === null && !c.parentId))
       .sort((a, b) => a.name.localeCompare(b.name))
-      .forEach(child => result.push({ id: child.id, label: `— ${child.name}` }))
-  })
-  return result
+      .flatMap(c => [c, ...buildTree(c.id)])
+  }
+
+  return buildTree().map(c => ({
+    id: c.id,
+    label: '— '.repeat(getCategoryDepth(categories, c.id)) + c.name
+  }))
 }
 
 export default function Products() {
