@@ -210,7 +210,11 @@ export default function Products() {
                 <div className="space-y-2">
                   <Label htmlFor="p-category">Категория</Label>
                   <Select value={newProduct.categoryId} onValueChange={v => setNewProduct({ ...newProduct, categoryId: v })}>
-                    <SelectTrigger className="border-border"><SelectValue placeholder="Выберите категорию" /></SelectTrigger>
+                    <SelectTrigger className="border-border">
+                      <SelectValue placeholder="Выберите категорию">
+                        {flattenCategories(categories).find(o => o.id === newProduct.categoryId)?.label}
+                      </SelectValue>
+                    </SelectTrigger>
                     <SelectContent>
                       {flattenCategories(categories).map(opt => (
                         <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>
@@ -302,7 +306,9 @@ export default function Products() {
               <Select value={filters.category} onValueChange={v => setFilters({ ...filters, category: v })}>
                 <SelectTrigger className="border-border">
                   <Tag className="h-3.5 w-3.5 text-muted-foreground mr-1" />
-                  <SelectValue placeholder="Все категории" />
+                  <SelectValue placeholder="Все категории">
+                    {filters.category ? flattenCategories(categories).find(o => o.id === filters.category)?.label : 'Все категории'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">Все категории</SelectItem>
