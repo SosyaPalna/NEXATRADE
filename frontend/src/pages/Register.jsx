@@ -181,7 +181,7 @@ export default function Register() {
                 />
                 <Label htmlFor="consent" className="text-xs font-normal leading-relaxed cursor-pointer text-muted-foreground">
                   Я согласен на обработку моих персональных данных в соответствии с{' '}
-                  <a href="#" className="underline text-primary hover:underline">Политикой конфиденциальности</a>{' '}
+                  <Link to="/privacy" className="underline text-primary hover:underline">Политикой конфиденциальности</Link>{' '}
                   и принимаю{' '}
                   <a href="#" className="underline text-primary hover:underline">Пользовательское соглашение</a>
                 </Label>
