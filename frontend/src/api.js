@@ -7,16 +7,63 @@ export const api = axios.create({
   headers: { 'Content-Type': 'application/json' }
 })
 
+let isRefreshing = false
+let refreshSubscribers = []
+
+function onRefreshed() {
+  refreshSubscribers.forEach((cb) => cb())
+  refreshSubscribers = []
+}
+
+function subscribeTokenRefresh(cb) {
+  refreshSubscribers.push(cb)
+}
+
+async function refreshToken() {
+  try {
+    await axios.post('/api/auth/refresh', null, { withCredentials: true })
+    return true
+  } catch {
+    return false
+  }
+}
+
+function shouldSkipRedirect(url) {
+  if (!url) return false
+  return url.includes('/auth/me') || url.includes('/auth/refresh') || url.includes('/login') || url.includes('/register')
+}
+
 // Авто-обработка ошибок и 401
 api.interceptors.response.use(
   res => res,
-  err => {
+  async (err) => {
+    const originalRequest = err.config
     const status = err.response?.status
     const message = err.response?.data?.error || err.message || 'Произошла ошибка'
-    const requestUrl = err.config?.url || ''
+    const requestUrl = originalRequest?.url || ''
 
-    if (status === 401) {
-      if (!requestUrl.includes('/auth/me') && !window.location.pathname.startsWith('/login') && !window.location.pathname.startsWith('/register')) {
+    if (status === 401 && !originalRequest?._retry) {
+      originalRequest._retry = true
+
+      if (isRefreshing) {
+        return new Promise((resolve) => {
+          subscribeTokenRefresh(() => {
+            resolve(api(originalRequest))
+          })
+        })
+      }
+
+      isRefreshing = true
+      const refreshed = await refreshToken()
+      isRefreshing = false
+
+      if (refreshed) {
+        onRefreshed()
+        return api(originalRequest)
+      }
+
+      // Refresh не удался — сбрасываем сессию
+      if (!shouldSkipRedirect(requestUrl) && !window.location.pathname.startsWith('/login') && !window.location.pathname.startsWith('/register')) {
         window.location.href = '/login'
       }
     } else if (status >= 400) {
