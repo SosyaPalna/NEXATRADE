@@ -103,6 +103,12 @@ function AppRoutes() {
             {/* 🔓 Публичные маршруты с общим лейаутом */}
             <Route element={<AppLayout />}>
               <Route path="/" element={<Home />} />
+
+              {/* 🛒 Публичный маркетплейс */}
+              <Route element={<MarketLayout />}>
+                <Route path="/products" element={<Products />} />
+                <Route path="/category/:slug" element={<CategoryPage key={window.location.pathname} />} />
+              </Route>
             </Route>
 
             {/* 🔓 Публичные маршруты без лейаута */}
@@ -121,8 +127,6 @@ function AppRoutes() {
 
                 {/* 🛒 Маркетплейс: обёртка с боковым меню категорий */}
                 <Route element={<MarketLayout />}>
-                  <Route path="/products" element={<Products />} />
-                  <Route path="/category/:slug" element={<CategoryPage key={window.location.pathname} />} />
                   <Route path="/requests" element={<RfqList />} />
                   <Route path="/rfq" element={<RfqList />} />
                   <Route path="/rfq/create" element={<RfqCreate />} />

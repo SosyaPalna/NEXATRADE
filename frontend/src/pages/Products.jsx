@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { api, uploadFiles } from '../api'
+import { useAuth } from '../context/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -51,7 +52,23 @@ const sortOptions = [
   { value: 'viewCount:desc', label: 'Популярные' },
 ]
 
+function flattenCategories(categories) {
+  if (!categories) return []
+  const roots = categories.filter(c => !c.parentId)
+  const children = categories.filter(c => c.parentId)
+  const result = []
+  roots.forEach(root => {
+    result.push({ id: root.id, label: root.name })
+    children
+      .filter(c => c.parentId === root.id)
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .forEach(child => result.push({ id: child.id, label: `— ${child.name}` }))
+  })
+  return result
+}
+
 export default function Products() {
+  const { isAuthenticated } = useAuth()
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
@@ -93,7 +110,7 @@ export default function Products() {
 
   useEffect(() => {
     loadProducts()
-    api.get('/categories').then(res => setCategories(res.data)).catch(() => {})
+    api.get('/categories/flat').then(res => setCategories(res.data)).catch(() => {})
   }, [loadProducts])
 
   useEffect(() => {
@@ -167,6 +184,7 @@ export default function Products() {
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Каталог товаров и услуг</h1>
           <p className="text-sm text-muted-foreground mt-1">Найдено: <strong>{products.length}</strong> предложений</p>
         </div>
+        {isAuthenticated && (
         <Dialog open={showAddForm} onOpenChange={setShowAddForm}>
           <DialogTrigger className="inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium h-9 px-3 bg-primary text-white hover:bg-primary/90 cursor-pointer shrink-0">
             <Plus className="h-4 w-4" />
@@ -194,8 +212,8 @@ export default function Products() {
                   <Select value={newProduct.categoryId} onValueChange={v => setNewProduct({ ...newProduct, categoryId: v })}>
                     <SelectTrigger className="border-border"><SelectValue placeholder="Выберите категорию" /></SelectTrigger>
                     <SelectContent>
-                      {categories.map(cat => (
-                        <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                      {flattenCategories(categories).map(opt => (
+                        <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -267,6 +285,7 @@ export default function Products() {
             </form>
           </DialogContent>
         </Dialog>
+        )}
       </div>
 
       <Separator className="bg-border" />
@@ -287,8 +306,8 @@ export default function Products() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">Все категории</SelectItem>
-                  {categories.map(cat => (
-                    <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                  {flattenCategories(categories).map(opt => (
+                    <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -306,7 +325,7 @@ export default function Products() {
             <div className="w-full md:w-48">
               <Select value={sort} onValueChange={setSort}>
                 <SelectTrigger className="border-border">
-                  <SelectValue placeholder="Сортировка" />
+                  <SelectValue>{sortOptions.find(o => o.value === sort)?.label}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {sortOptions.map(opt => (
@@ -332,10 +351,12 @@ export default function Products() {
             <Package className="h-12 w-12 text-muted-foreground/50 mb-4" />
             <h2 className="text-lg font-semibold text-foreground">Товаров пока нет</h2>
             <p className="text-sm text-muted-foreground mt-1">Будьте первым — добавьте свой товар!</p>
+            {isAuthenticated && (
             <Button className="mt-4 bg-primary text-white hover:bg-primary/90" onClick={() => setShowAddForm(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Добавить товар
             </Button>
+            )}
           </CardContent>
         </Card>
       ) : (
