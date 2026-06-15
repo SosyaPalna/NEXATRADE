@@ -99,7 +99,9 @@ router.get('/rooms', authenticate, async (req, res) => {
             readAt: null
           }
         }),
-        prisma.tenant.findUnique({ where: { id: counterpartId }, select: { id: true, name: true, avatarUrl: true } })
+        counterpartId
+          ? prisma.tenant.findUnique({ where: { id: counterpartId }, select: { id: true, name: true, avatarUrl: true } })
+          : Promise.resolve(null)
       ]);
       return { roomType, roomId, title, counterpart, lastMessage, unreadCount };
     };
