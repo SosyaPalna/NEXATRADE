@@ -16,6 +16,7 @@ const authenticate = require('./middleware/auth');
 const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/products');
 const rfqRoutes = require('./routes/rfq');
+const categoryRoutes = require('./routes/categories');
 const citiesRoutes = require('./routes/cities');
 const uploadRoutes = require('./routes/uploads');
 const reviewRoutes = require('./routes/reviews');
@@ -79,11 +80,12 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/cities', publicLimiter);
 app.use('/api/cities', citiesRoutes); // публичный endpoint городов
+app.use('/api/categories', categoryRoutes); // публичные категории
+app.use('/api/products', productRoutes);   // публичный каталог товаров
 
 // Все последующие /api/* требуют авторизации и rate limit по пользователю
 app.use('/api', authenticate, auditLog, authLimiter);
 
-app.use('/api/products', productRoutes);
 app.use('/api/rfq', rfqRoutes);
 
 // Health checks
@@ -114,9 +116,6 @@ app.use('/api/profile', profileRoutes);
 
 const companyRoutes = require('./routes/company');
 app.use('/api/company', companyRoutes);
-
-const categoryRoutes = require('./routes/categories');
-app.use('/api/categories', categoryRoutes);
 
 const reportRoutes = require('./routes/reports');
 app.use('/api/reports', reportRoutes);

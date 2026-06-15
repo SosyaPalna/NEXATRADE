@@ -7,8 +7,8 @@ const { sanitizeText, sanitizeHtmlContent } = require('../lib/sanitize');
 
 const router = express.Router();
 
-// 🔹 Получить один товар
-router.get('/:id', authenticate, async (req, res) => {
+// 🔹 Получить один товар (публично)
+router.get('/:id', async (req, res) => {
   try {
     const product = await prisma.product.findUnique({
       where: { id: req.params.id },
@@ -48,8 +48,8 @@ router.get('/:id', authenticate, async (req, res) => {
   }
 });
 
-// 🔹 Получить товары (только свои, или все если передать ?all=true)
-router.get('/', authenticate, validate(paginationSchema), async (req, res) => {
+// 🔹 Получить товары (публично при ?all=true, иначе требуется авторизация)
+router.get('/', validate(paginationSchema), async (req, res) => {
   try {
     const where = req.query.all === 'true'
       ? { deletedAt: null }
