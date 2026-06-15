@@ -65,7 +65,6 @@ app.use('/api', apiLimiter);
 
 // Public API rate limiting
 app.use('/api/auth/login', loginLimiter);
-app.use('/api/auth', publicLimiter);
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true,

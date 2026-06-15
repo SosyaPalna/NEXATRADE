@@ -21,9 +21,12 @@ function subscribeTokenRefresh(cb) {
 
 async function refreshToken() {
   try {
+    console.log('[api] access token expired, calling /api/auth/refresh')
     await axios.post('/api/auth/refresh', null, { withCredentials: true })
+    console.log('[api] refresh succeeded')
     return true
-  } catch {
+  } catch (err) {
+    console.log('[api] refresh failed:', err.response?.status, err.response?.data?.error || err.message)
     return false
   }
 }
@@ -59,10 +62,12 @@ api.interceptors.response.use(
 
       if (refreshed) {
         onRefreshed()
+        console.log('[api] retrying original request:', requestUrl)
         return api(originalRequest)
       }
 
       // Refresh не удался — сбрасываем сессию
+      console.log('[api] session expired, redirecting to /login')
       if (!shouldSkipRedirect(requestUrl) && !window.location.pathname.startsWith('/login') && !window.location.pathname.startsWith('/register')) {
         window.location.href = '/login'
       }
