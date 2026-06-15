@@ -8,6 +8,7 @@ const {
 } = require('../utils/jwt');
 const { validatePassword } = require('../utils/password');
 const authenticate = require('../middleware/auth');
+const { publicLimiter, authLimiter } = require('../middleware/rateLimit');
 const validate = require('../middleware/validate');
 const { registerSchema, loginSchema } = require('../schemas');
 
@@ -18,7 +19,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 const ACCESS_COOKIE = {
   httpOnly: true,
   secure: isProduction,
-  sameSite: isProduction ? 'strict' : 'lax',
+  sameSite: 'lax',
   path: '/',
   maxAge: 15 * 60 * 1000, // 15 минут
 };
@@ -26,7 +27,7 @@ const ACCESS_COOKIE = {
 const REFRESH_COOKIE = {
   httpOnly: true,
   secure: isProduction,
-  sameSite: isProduction ? 'strict' : 'lax',
+  sameSite: 'lax',
   path: '/',
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
 };
@@ -41,7 +42,7 @@ function clearAuthCookies(res) {
   res.clearCookie('refreshToken', { path: '/', httpOnly: true });
 }
 
-router.post('/register', validate(registerSchema), async (req, res) => {
+router.post('/register', publicLimiter, validate(registerSchema), async (req, res) => {
   try {
     const { email, password, tenant } = req.body;
     if (!email || !password || !tenant?.name) {
@@ -136,7 +137,7 @@ router.post('/login', validate(loginSchema), async (req, res) => {
   }
 });
 
-router.post('/refresh', async (req, res) => {
+router.post('/refresh', publicLimiter, async (req, res) => {
   try {
     const oldRefreshToken = req.cookies?.refreshToken;
     if (!oldRefreshToken) {
@@ -155,25 +156,21 @@ router.post('/refresh', async (req, res) => {
       return res.status(401).json({ error: 'Невалидный refresh token' });
     }
 
-    // Revoke old token
+    const accessToken = generateAccessToken(stored.user.id, stored.user.tenantId);
+
+    // Продлеваем срок действия текущего refresh-токена вместо ротации.
+    // Это исключает гонки между вкладками и снижает количество записей в БД.
     await prisma.refreshToken.update({
       where: { id: stored.id },
-      data: { revokedAt: new Date() }
-    });
-
-    const accessToken = generateAccessToken(stored.user.id, stored.user.tenantId);
-    const refreshToken = generateRefreshToken();
-    await prisma.refreshToken.create({
       data: {
-        tokenHash: hashRefreshToken(refreshToken),
-        userId: stored.user.id,
         expiresAt: new Date(Date.now() + REFRESH_COOKIE.maxAge),
         ip: req.ip,
         userAgent: req.headers['user-agent'],
       }
     });
 
-    setAuthCookies(res, accessToken, refreshToken);
+    res.cookie('accessToken', accessToken, ACCESS_COOKIE);
+    res.cookie('refreshToken', oldRefreshToken, REFRESH_COOKIE);
     res.json({ ok: true });
   } catch (err) {
     console.error(' Refresh error:', err.message);
@@ -198,7 +195,7 @@ router.post('/logout', authenticate, async (req, res) => {
   res.json({ ok: true });
 });
 
-router.get('/me', authenticate, async (req, res) => {
+router.get('/me', authenticate, authLimiter, async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.userId },
