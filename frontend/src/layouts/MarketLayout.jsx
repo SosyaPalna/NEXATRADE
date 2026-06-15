@@ -25,7 +25,7 @@ export default function MarketLayout() {
         <div className="bg-card border border-border rounded-lg p-4">
           <h3 className="font-semibold mb-3 flex items-center gap-2">
             <FolderOpen className="h-4 w-4 text-primary" />
-            Каталог
+            Категории товаров
           </h3>
           <Separator className="mb-3" />
           {loading ? (
