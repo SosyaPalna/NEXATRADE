@@ -8,7 +8,7 @@ const {
 } = require('../utils/jwt');
 const { validatePassword } = require('../utils/password');
 const authenticate = require('../middleware/auth');
-const { publicLimiter, authLimiter } = require('../middleware/rateLimit');
+const { publicLimiter, refreshLimiter, authLimiter } = require('../middleware/rateLimit');
 const validate = require('../middleware/validate');
 const { registerSchema, loginSchema } = require('../schemas');
 
@@ -137,7 +137,7 @@ router.post('/login', validate(loginSchema), async (req, res) => {
   }
 });
 
-router.post('/refresh', publicLimiter, async (req, res) => {
+router.post('/refresh', refreshLimiter, async (req, res) => {
   try {
     const oldRefreshToken = req.cookies?.refreshToken;
     if (!oldRefreshToken) {
