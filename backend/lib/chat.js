@@ -15,13 +15,8 @@ async function canJoinRoom(tenantId, roomType, roomId) {
       where: { id: roomId },
       select: { tenantId: true }
     });
-    if (!product) return false;
-    if (product.tenantId === tenantId) return true;
-    const existingMessage = await prisma.message.findFirst({
-      where: { productId: roomId, senderId: tenantId },
-      select: { id: true }
-    });
-    return !!existingMessage;
+    // Любой авторизованный пользователь может писать владельцу товара.
+    return !!product;
   }
 
   return false;
