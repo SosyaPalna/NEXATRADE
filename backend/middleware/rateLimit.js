@@ -10,13 +10,22 @@ const loginLimiter = rateLimit({
   skipSuccessfulRequests: false,
 });
 
-// Public API limit (auth, registration, refresh, cities): 30 per 15 minutes per IP
+// Public API limit (registration, cities): 30 per 15 minutes per IP
 const publicLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Слишком много запросов. Попробуйте позже.' },
+});
+
+// Refresh token endpoint: allow more requests because multiple tabs/retries
+const refreshLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Слишком много попыток обновления сессии. Попробуйте позже.' },
 });
 
 // Authenticated API limit: 1000 requests per 15 minutes per user
@@ -29,10 +38,10 @@ const authLimiter = rateLimit({
   keyGenerator: (req) => req.userId || req.ip,
 });
 
-// Global API fallback limit: 100 per 15 minutes per IP
+// Global API fallback limit: 1000 per 15 minutes per IP
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 1000,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Слишком много запросов. Попробуйте позже.' },

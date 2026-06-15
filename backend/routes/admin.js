@@ -7,11 +7,11 @@ const { getIo } = require('../utils/socket');
 
 const router = express.Router();
 
-// 🔐 Middleware: проверка на админа
+// Middleware: проверка на админа
 const requireAdmin = async (req, res, next) => {
   try {
     if (!req.userId) {
-      console.error('❌ requireAdmin: no userId');
+      console.error('requireAdmin: no userId');
       return res.status(401).json({ error: 'Неавторизован' });
     }
     const user = await prisma.user.findUnique({ 
@@ -19,12 +19,12 @@ const requireAdmin = async (req, res, next) => {
       select: { isAdmin: true }
     });
     if (!user?.isAdmin) {
-      console.error('❌ requireAdmin: not admin, userId:', req.userId);
+      console.error('requireAdmin: not admin, userId:', req.userId);
       return res.status(403).json({ error: 'Доступ только для администраторов' });
     }
     next();
   } catch (err) {
-    console.error('❌ requireAdmin error:', err.message);
+    console.error('requireAdmin error:', err.message);
     res.status(401).json({ error: 'Неавторизован' });
   }
 };
