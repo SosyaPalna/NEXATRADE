@@ -1,6 +1,6 @@
-// One-time script to fix corrupted category names and slugs.
-// The names were saved with UTF-8 bytes interpreted as windows-1251.
-// Usage: node scripts/repair-categories.js
+// Reverses the previous repair-categories.js corruption.
+// The previous script encoded correct UTF-8 names as windows-1251.
+// This script restores them by decoding windows-1251 bytes back to UTF-8.
 
 const iconv = require('iconv-lite');
 const prisma = require('../lib/prisma');
@@ -26,9 +26,10 @@ function slugify(text) {
     .replace(/^-+|-+$/g, '');
 }
 
-function fixEncoding(name) {
-  // The stored string's UTF-8 bytes were interpreted as windows-1251.
-  return iconv.decode(Buffer.from(name, 'utf8'), 'win1251');
+function restoreName(garbled) {
+  // garbled chars were produced by interpreting UTF-8 bytes as windows-1251.
+  // Encode those chars back to windows-1251 bytes and decode as UTF-8.
+  return iconv.decode(iconv.encode(garbled, 'win1251'), 'utf8');
 }
 
 async function main() {
@@ -36,8 +37,11 @@ async function main() {
   const usedSlugs = new Set();
 
   for (const cat of categories) {
-    const fixedName = fixEncoding(cat.name);
-    let baseSlug = slugify(fixedName) || `category-${cat.id.slice(0, 8)}`;
+    const fixedName = restoreName(cat.name);
+    // Если имя уже корректное (нет эффекта мажорной перекодировки), оставляем как есть.
+    const needsFix = fixedName !== cat.name && /[а-яё]/i.test(fixedName);
+    const finalName = needsFix ? fixedName : cat.name;
+    let baseSlug = slugify(finalName) || `category-${cat.id.slice(0, 8)}`;
     let slug = baseSlug;
     let counter = 1;
     while (usedSlugs.has(slug) || await prisma.category.findUnique({ where: { slug } })) {
@@ -48,10 +52,10 @@ async function main() {
 
     await prisma.category.update({
       where: { id: cat.id },
-      data: { name: fixedName, slug },
+      data: { name: finalName, slug },
     });
 
-    console.log(`Fixed: "${cat.name}" -> "${fixedName}" (slug: ${slug})`);
+    console.log(`${needsFix ? 'Restored' : 'Kept'}: "${cat.name}" -> "${finalName}" (slug: ${slug})`);
   }
 
   console.log('Done.');
