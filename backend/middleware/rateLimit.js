@@ -57,4 +57,4 @@ const chatFilesLimiter = rateLimit({
   keyGenerator: (req) => req.userId || req.ip,
 });
 
-module.exports = { loginLimiter, publicLimiter, authLimiter, apiLimiter, chatFilesLimiter };
+module.exports = { loginLimiter, publicLimiter, refreshLimiter, authLimiter, apiLimiter, chatFilesLimiter };
