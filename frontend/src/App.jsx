@@ -21,6 +21,7 @@ import CategoryPage from './pages/CategoryPage'
 import ProductDetail from './pages/ProductDetail'
 import Analytics from './pages/Analytics'
 import Chats from './pages/Chats'
+import PrivacyPolicy from './pages/PrivacyPolicy'
 
 // 🔹 Админка (ленивая загрузка)
 const AdminLayout = lazy(() => import('./pages/AdminLayout'))
@@ -40,6 +41,7 @@ import CookieConsent from './components/CookieConsent'
 import YandexMetrika from './components/YandexMetrika'
 import ErrorBoundary from './components/ErrorBoundary'
 import { Toaster } from './components/Toaster'
+import Footer from './components/Footer'
 
 const queryClient = new QueryClient()
 
@@ -68,16 +70,7 @@ function AppLayout() {
         </main>
       </div>
       <CookieConsent />
-      <footer className="border-t border-border bg-card py-6 mt-auto">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} NexaTrade. Все права защищены.</p>
-          <nav className="flex items-center gap-4">
-            <a href="/products" className="hover:text-foreground transition-colors">Каталог</a>
-            <a href="/requests" className="hover:text-foreground transition-colors">Заявки</a>
-            <a href="/rfq/create" className="hover:text-foreground transition-colors">Создать заявку</a>
-          </nav>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }
@@ -114,6 +107,7 @@ function AppRoutes() {
             {/* 🔓 Публичные маршруты без лейаута */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
 
             {/* 🔒 Защищённые маршруты */}
             <Route element={<Protected />}>
