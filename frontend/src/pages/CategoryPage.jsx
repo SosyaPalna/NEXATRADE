@@ -70,7 +70,7 @@ export default function CategoryPage() {
             {
               '@type': 'BreadcrumbList',
               itemListElement: [
-                { '@type': 'ListItem', position: 1, name: 'Каталог', item: 'https://nexatrade.ru/products' },
+                { '@type': 'ListItem', position: 1, name: 'Категории товаров', item: 'https://nexatrade.ru/products' },
                 ...(category.parent
                   ? [{ '@type': 'ListItem', position: 2, name: category.parent.name, item: `https://nexatrade.ru/category/${category.parent.slug}` }]
                   : []),
@@ -82,7 +82,7 @@ export default function CategoryPage() {
       />
       {/* Breadcrumbs */}
       <nav className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Link to="/products" className="hover:text-foreground hover:underline transition-colors">Каталог</Link>
+        <Link to="/products" className="hover:text-foreground hover:underline transition-colors">Категории товаров</Link>
         {category.parent && (
           <>
             <ChevronRight className="h-3.5 w-3.5 text-border" />
