@@ -20,7 +20,7 @@ export default function ReviewsSection({ tenantId, currentTenantId, isOwn }) {
       setReviews(res.data.reviews);
       setSummary(res.data.summary);
     } catch {
-      toast.error('Не удалось загрузить отзывы');
+      // ошибка отображается глобальным интерсептором api
     } finally {
       setLoading(false);
     }
@@ -40,8 +40,8 @@ export default function ReviewsSection({ tenantId, currentTenantId, isOwn }) {
       setRating(0);
       setText('');
       loadReviews();
-    } catch (err) {
-      toast.error(err.response?.data?.error || 'Ошибка сохранения отзыва');
+    } catch {
+      // ошибка отображается глобальным интерсептором api
     } finally {
       setSubmitting(false);
     }
@@ -54,7 +54,7 @@ export default function ReviewsSection({ tenantId, currentTenantId, isOwn }) {
       toast.success('Отзыв удалён');
       loadReviews();
     } catch {
-      toast.error('Ошибка удаления отзыва');
+      // ошибка отображается глобальным интерсептором api
     }
   };
 

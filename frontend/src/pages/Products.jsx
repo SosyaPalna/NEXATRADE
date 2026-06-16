@@ -27,7 +27,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Search, Package, Plus, SlidersHorizontal, X, Camera, Tag } from 'lucide-react'
-import { toast } from 'sonner'
 import { getPreviewUrl } from '../lib/images'
 import SEO from '../components/SEO'
 
@@ -145,7 +144,7 @@ export default function Products() {
       const urls = await uploadFiles('/uploads/product-images', Array.from(files))
       setNewProduct(prev => ({ ...prev, images: [...prev.images, ...urls] }))
     } catch {
-      toast.error('Ошибка загрузки изображений')
+      // Ошибка обрабатывается глобальным интерсептором api
     } finally {
       setUploading(false)
     }
@@ -169,8 +168,8 @@ export default function Products() {
       })
       setShowAddForm(false)
       loadProducts()
-    } catch (err) {
-      toast.error(err.response?.data?.error || 'Ошибка добавления товара')
+    } catch {
+      // Ошибка обрабатывается глобальным интерсептором api
     }
   }
 
