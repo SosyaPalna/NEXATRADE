@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { api } from '../api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -262,7 +262,19 @@ export default function RfqDetail() {
             <Chat roomType="rfq" roomId={rfq.id} currentTenantId={currentTenantId} title="Чат по заявке" />
           )}
 
-          {!isBuyer && rfq.status === 'open' && (
+          {!currentTenantId && rfq.status === 'open' && (
+            <Card className="border-border shadow-sm">
+              <CardContent className="p-6 text-center space-y-3">
+                <Send className="h-10 w-10 text-muted-foreground mx-auto" />
+                <p className="text-sm text-muted-foreground">Войдите, чтобы отправить предложение по заявке</p>
+                <Button className="bg-primary text-white hover:bg-primary/90 w-full" asChild>
+                  <Link to="/login">Войти</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {currentTenantId && !isBuyer && rfq.status === 'open' && (
             <Card className="border-border shadow-sm">
               <CardHeader className="py-3">
                 <CardTitle className="text-sm text-foreground">Отправить предложение</CardTitle>

@@ -1,15 +1,87 @@
 const express = require('express');
 const prisma = require('../lib/prisma');
 const authenticate = require('../middleware/auth');
+const optionalAuth = require('../middleware/optionalAuth');
 
 const router = express.Router();
 
-// 🔹 Дашборд аналитики для текущего пользователя
-router.get('/dashboard', authenticate, async (req, res) => {
+// 🔹 Дашборд аналитики
+router.get('/dashboard', optionalAuth, async (req, res) => {
   try {
     const tenantId = req.tenantId;
     const today = new Date().toISOString().slice(0, 10);
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+    // Публичная аналитика платформы (без авторизации)
+    if (!tenantId) {
+      const [
+        productsStats,
+        rfqStats,
+        quoteStats,
+        reviewStats,
+        topProducts,
+        viewsByDay,
+        recentViews,
+        openRfqs,
+      ] = await Promise.all([
+        prisma.product.aggregate({
+          where: { deletedAt: null },
+          _count: { id: true },
+          _sum: { viewCount: true },
+        }),
+        prisma.rfq.aggregate({
+          where: { deletedAt: null },
+          _count: { id: true },
+        }),
+        prisma.quote.count({
+          where: { deletedAt: null },
+        }),
+        prisma.review.aggregate({
+          _avg: { rating: true },
+          _count: { rating: true },
+        }),
+        prisma.product.findMany({
+          where: { deletedAt: null },
+          orderBy: { viewCount: 'desc' },
+          take: 5,
+          select: { id: true, name: true, viewCount: true, images: true, price: true, unit: true },
+        }),
+        prisma.productView.groupBy({
+          by: ['date'],
+          where: { date: { gte: thirtyDaysAgo } },
+          _count: { id: true },
+          orderBy: { date: 'asc' },
+        }),
+        prisma.productView.count({
+          where: { date: today },
+        }),
+        prisma.rfq.count({
+          where: { status: 'open', deletedAt: null },
+        }),
+      ]);
+
+      return res.json({
+        role: 'guest',
+        summary: {
+          totalProducts: productsStats._count.id,
+          totalViews: productsStats._sum.viewCount || 0,
+          todayViews: recentViews,
+          totalRfqs: rfqStats._count.id,
+          totalQuotes: quoteStats,
+          unreadMessages: 0,
+          quotesSubmitted: 0,
+          openRfqs,
+          averageRating: reviewStats._avg.rating ? Number(reviewStats._avg.rating.toFixed(1)) : 0,
+          reviewsCount: reviewStats._count.rating,
+        },
+        topProducts,
+        viewsByDay: viewsByDay.map(day => ({
+          date: day.date,
+          count: day._count.id,
+        })),
+        recentActivity: [],
+      });
+    }
 
     const tenant = await prisma.tenant.findUnique({
       where: { id: tenantId },

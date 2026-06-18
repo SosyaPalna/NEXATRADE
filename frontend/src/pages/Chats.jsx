@@ -13,8 +13,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useNotification } from '../context/NotificationContext'
+import { useAuth } from '../context/AuthContext'
 import { MessageSquare, Loader2, Search, MoreVertical, Trash2, Ban, UserCheck } from 'lucide-react'
 import SEO from '../components/SEO'
+import { Button } from '@/components/ui/button'
 
 export default function Chats() {
   const [rooms, setRooms] = useState([])
@@ -25,6 +27,7 @@ export default function Chats() {
   const [blockedMap, setBlockedMap] = useState({})
   const searchTimeoutRef = useRef(null)
   const { addNotification } = useNotification()
+  const { user } = useAuth()
 
   const fetchRooms = useCallback(async () => {
     try {
@@ -127,6 +130,24 @@ export default function Chats() {
       hour: '2-digit',
       minute: '2-digit'
     })
+  }
+
+  if (!user) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-6">
+        <SEO title="Сообщения" description="Ваши переписки на Торговый Хаб." noindex />
+        <h1 className="text-2xl font-bold text-foreground">Сообщения</h1>
+        <Card>
+          <CardContent className="p-8 text-center space-y-4">
+            <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto" />
+            <p className="text-muted-foreground">Войдите, чтобы просматривать и отправлять сообщения</p>
+            <Button asChild>
+              <Link to="/login">Войти</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   if (loading) {

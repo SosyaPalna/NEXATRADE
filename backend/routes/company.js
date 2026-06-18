@@ -1,13 +1,14 @@
 const express = require('express');
 const prisma = require('../lib/prisma');
 const authenticate = require('../middleware/auth');
+const optionalAuth = require('../middleware/optionalAuth');
 const validate = require('../middleware/validate');
 const { companyUpdateSchema } = require('../schemas');
 
 const router = express.Router();
 
 // 🔹 Получить публичный профиль компании по ID
-router.get('/:id', authenticate, async (req, res) => {
+router.get('/:id', optionalAuth, async (req, res) => {
   try {
     const tenant = await prisma.tenant.findUnique({
       where: { id: req.params.id },

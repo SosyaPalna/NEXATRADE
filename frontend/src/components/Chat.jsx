@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import { io } from 'socket.io-client'
 import { useNotification } from '../context/NotificationContext'
 import { api } from '../api'
+import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -88,6 +89,7 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
 
   // Подключение к сокету
   useEffect(() => {
+    if (!currentTenantId) return
     const socketUrl = window.location.origin
     const newSocket = io(socketUrl, {
       withCredentials: true,
@@ -489,6 +491,20 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
           )
         })}
       </div>
+    )
+  }
+
+  if (!currentTenantId) {
+    return (
+      <Card className="border-border shadow-sm">
+        <CardContent className="p-6 text-center space-y-3">
+          <MessageCircle className="h-10 w-10 text-muted-foreground mx-auto" />
+          <p className="text-sm text-muted-foreground">Войдите или зарегистрируйтесь, чтобы написать в чат</p>
+          <Button className="bg-primary text-white hover:bg-primary/90 w-full" asChild>
+            <Link to="/login">Войти</Link>
+          </Button>
+        </CardContent>
+      </Card>
     )
   }
 

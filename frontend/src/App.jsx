@@ -96,11 +96,18 @@ function AppRoutes() {
             {/* 🔓 Публичные маршруты с общим лейаутом */}
             <Route element={<AppLayout />}>
               <Route path="/" element={<Home />} />
+              <Route path="/product/:id" element={<ProductDetail />} />
+              <Route path="/company/:id" element={<CompanyPage />} />
+              <Route path="/analytics" element={<Analytics />} />
+              <Route path="/chats" element={<Chats />} />
 
               {/* 🛒 Публичный маркетплейс */}
               <Route element={<MarketLayout />}>
                 <Route path="/products" element={<Products />} />
                 <Route path="/category/:slug" element={<CategoryPage key={window.location.pathname} />} />
+                <Route path="/requests" element={<RfqList />} />
+                <Route path="/rfq" element={<RfqList />} />
+                <Route path="/rfq/:id" element={<RfqDetail />} />
               </Route>
             </Route>
 
@@ -113,18 +120,11 @@ function AppRoutes() {
             <Route element={<Protected />}>
               <Route element={<AppLayout />}>
                 <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/analytics" element={<Analytics />} />
-                <Route path="/chats" element={<Chats />} />
                 <Route path="/profile" element={<Profile />} />
-                <Route path="/company/:id" element={<CompanyPage />} />
-                <Route path="/product/:id" element={<ProductDetail />} />
 
-                {/* 🛒 Маркетплейс: обёртка с боковым меню категорий */}
+                {/* 🛒 Маркетплейс: создание RFQ */}
                 <Route element={<MarketLayout />}>
-                  <Route path="/requests" element={<RfqList />} />
-                  <Route path="/rfq" element={<RfqList />} />
                   <Route path="/rfq/create" element={<RfqCreate />} />
-                  <Route path="/rfq/:id" element={<RfqDetail />} />
                 </Route>
 
                 {/* ⚙️ Админ-панель (ленивая загрузка) */}

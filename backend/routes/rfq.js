@@ -1,6 +1,7 @@
 const express = require('express');
 const prisma = require('../lib/prisma');
 const authenticate = require('../middleware/auth');
+const optionalAuth = require('../middleware/optionalAuth');
 const validate = require('../middleware/validate');
 const { rfqSchema, quoteSchema } = require('../schemas');
 const { getIo } = require('../utils/socket');
@@ -8,18 +9,19 @@ const { getIo } = require('../utils/socket');
 const router = express.Router();
 
 
-router.get('/', authenticate, async (req, res) => {
+router.get('/', optionalAuth, async (req, res) => {
   try {
-    const { role } = await prisma.tenant.findUnique({
-      where: { id: req.tenantId },
-      select: { role: true }
-    });
+    let where = { status: 'open' };
 
-    let where = {};
-    if (role === 'buyer') {
-      where = { buyerId: req.tenantId };
-    } else if (role === 'seller') {
-      where = { status: 'open' };
+    if (req.tenantId) {
+      const { role } = await prisma.tenant.findUnique({
+        where: { id: req.tenantId },
+        select: { role: true }
+      });
+
+      if (role === 'buyer') {
+        where = { buyerId: req.tenantId };
+      }
     }
 
     // Фильтр по категории
@@ -44,7 +46,7 @@ router.get('/', authenticate, async (req, res) => {
 });
 
 // 🔹 Получить один RFQ с предложениями
-router.get('/:id', authenticate, async (req, res) => {
+router.get('/:id', optionalAuth, async (req, res) => {
   try {
     const rfq = await prisma.rfq.findUnique({
       where: { id: req.params.id },
@@ -62,14 +64,21 @@ router.get('/:id', authenticate, async (req, res) => {
 
     if (!rfq) return res.status(404).json({ error: 'RFQ не найден' });
 
-    // Проверка доступа
-    const { role } = await prisma.tenant.findUnique({
-      where: { id: req.tenantId },
-      select: { role: true }
-    });
-
-    if (role === 'buyer' && rfq.buyerId !== req.tenantId) {
+    // Публичный доступ только к открытым RFQ
+    if (!req.tenantId && rfq.status !== 'open') {
       return res.status(403).json({ error: 'Нет доступа' });
+    }
+
+    // Проверка доступа для авторизованных покупателей
+    if (req.tenantId) {
+      const { role } = await prisma.tenant.findUnique({
+        where: { id: req.tenantId },
+        select: { role: true }
+      });
+
+      if (role === 'buyer' && rfq.buyerId !== req.tenantId) {
+        return res.status(403).json({ error: 'Нет доступа' });
+      }
     }
 
     res.json(rfq);
