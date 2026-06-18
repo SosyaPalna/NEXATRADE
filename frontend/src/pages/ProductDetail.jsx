@@ -113,13 +113,13 @@ export default function ProductDetail() {
         {product.category && (
           <>
             <span className="text-border shrink-0">/</span>
-            <Link to={`/category/${product.category.slug}`} className="hover:text-foreground hover:underline transition-colors truncate max-w-[120px] sm:max-w-[200px]">
+            <Link to={`/category/${product.category.slug}`} className="hover:text-foreground hover:underline transition-colors truncate max-w-30 sm:max-w-50">
               {product.category.name}
             </Link>
           </>
         )}
         <span className="text-border shrink-0">/</span>
-        <span className="text-foreground font-medium truncate max-w-[140px] sm:max-w-md">{product.name}</span>
+        <span className="text-foreground font-medium truncate max-w-35 sm:max-w-md">{product.name}</span>
       </nav>
 
       {/* Верхняя секция: фото + инфо + цена/поставщик */}
@@ -142,7 +142,7 @@ export default function ProductDetail() {
           <div className="space-y-2 text-sm">
             <div className="flex justify-between gap-2 border-b border-dashed border-border py-1.5">
               <span className="text-muted-foreground shrink-0">Цена</span>
-              <span className="font-medium text-right break-words">{formatPrice(product.price)} / {product.unit}</span>
+              <span className="font-medium text-right wrap-break-word">{formatPrice(product.price)} / {product.unit}</span>
             </div>
             <div className="flex justify-between gap-2 border-b border-dashed border-border py-1.5">
               <span className="text-muted-foreground shrink-0">Наличие</span>
@@ -152,7 +152,7 @@ export default function ProductDetail() {
             </div>
             <div className="flex justify-between gap-2 border-b border-dashed border-border py-1.5">
               <span className="text-muted-foreground shrink-0">Мин. партия</span>
-              <span className="font-medium text-right break-words">{product.stock} {product.unit}</span>
+              <span className="font-medium text-right wrap-break-word">{product.stock} {product.unit}</span>
             </div>
             {product.category && (
               <div className="flex justify-between gap-2 border-b border-dashed border-border py-1.5">

@@ -470,7 +470,7 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
                   <img
                     src={fileUrl}
                     alt="attachment"
-                    className="max-w-[200px] max-h-[160px] rounded-md object-cover border"
+                    className="max-w-50 max-h-40 rounded-md object-cover border"
                   />
                 </button>
               ) : (
@@ -481,7 +481,7 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
                   className="flex items-center gap-2 text-xs underline opacity-90 hover:opacity-100"
                 >
                   <FileText className="h-4 w-4" />
-                  <span className="truncate max-w-[180px]">{url.split('/').pop()}</span>
+                  <span className="truncate max-w-45">{url.split('/').pop()}</span>
                   <Download className="h-3 w-3" />
                 </a>
               )}
@@ -693,7 +693,7 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
                 {attachments.map((file, idx) => (
                   <div key={idx} className="flex items-center gap-1 text-xs bg-muted rounded px-2 py-1">
                     <FileText className="h-3 w-3" />
-                    <span className="max-w-[120px] truncate">{file.name}</span>
+                    <span className="max-w-30 truncate">{file.name}</span>
                     <span className="opacity-60">{formatFileSize(file.size)}</span>
                     <button
                       type="button"
@@ -794,7 +794,7 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
               </SelectContent>
             </Select>
             <textarea
-              className="w-full rounded-md border border-border bg-card p-3 text-sm min-h-[80px]"
+              className="w-full rounded-md border border-border bg-card p-3 text-sm min-h-20"
               placeholder="Дополнительное описание (необязательно)"
               value={reportDescription}
               onChange={(e) => setReportDescription(e.target.value)}

@@ -139,7 +139,7 @@ export default function AdminReports() {
 
       <div className="flex flex-col sm:flex-row gap-3">
         <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1) }}>
-          <SelectTrigger className="w-[180px] border-border">
+          <SelectTrigger className="w-45 border-border">
             <SelectValue placeholder="Все статусы" />
           </SelectTrigger>
           <SelectContent>
@@ -152,7 +152,7 @@ export default function AdminReports() {
           </SelectContent>
         </Select>
         <Select value={typeFilter} onValueChange={(v) => { setTypeFilter(v); setPage(1) }}>
-          <SelectTrigger className="w-[180px] border-border">
+          <SelectTrigger className="w-45 border-border">
             <SelectValue placeholder="Все типы" />
           </SelectTrigger>
           <SelectContent>
@@ -177,7 +177,7 @@ export default function AdminReports() {
                   <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Описание</th>
                   <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Статус</th>
                   <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Дата</th>
-                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground w-[180px]">Действия</th>
+                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground w-45">Действия</th>
                 </tr>
               </thead>
               <tbody>
@@ -208,7 +208,7 @@ export default function AdminReports() {
                       )}
                     </td>
                     <td className="px-4 py-3 text-foreground">{report.reason}</td>
-                    <td className="px-4 py-3 text-muted-foreground max-w-[200px] truncate">{report.description || '—'}</td>
+                    <td className="px-4 py-3 text-muted-foreground max-w-50 truncate">{report.description || '—'}</td>
                     <td className="px-4 py-3">{statusBadge(report.status)}</td>
                     <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
                       {new Date(report.createdAt).toLocaleDateString('ru-RU')}

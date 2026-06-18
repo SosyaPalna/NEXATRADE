@@ -216,7 +216,7 @@ export default function Analytics() {
                               })}
                             </p>
                           </div>
-                          {!item.isRead && <span className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />}
+                          {!item.isRead && <span className="w-2 h-2 bg-primary rounded-full mt-2 shrink-0" />}
                         </Wrapper>
                       )
                     })}
@@ -244,7 +244,7 @@ export default function Analytics() {
                       to={`/product/${product.id}`}
                       className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors"
                     >
-                      <div className="w-12 h-12 bg-muted rounded-md overflow-hidden flex-shrink-0">
+                      <div className="w-12 h-12 bg-muted rounded-md overflow-hidden shrink-0">
                         {product.images?.[0] ? (
                           <img
                             src={getPreviewUrl(product.images[0])}

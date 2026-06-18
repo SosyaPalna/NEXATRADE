@@ -165,7 +165,7 @@ export default function Chats() {
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <ScrollArea className="h-[600px]">
+          <ScrollArea className="h-150">
             {query ? (
               <div className="divide-y">
                 {searchLoading ? (

@@ -252,7 +252,7 @@ export default function Profile() {
                                   }>
                                     {rfq.status === 'open' ? 'Открыт' : rfq.status === 'in_progress' ? 'В работе' : rfq.status === 'closed' ? 'Закрыт' : 'Отменён'}
                                   </Badge>
-                                  <div className="text-sm font-bold text-primary mt-1 break-words">
+                                  <div className="text-sm font-bold text-primary mt-1 wrap-break-word">
                                     {rfq.budget ? `${Number(rfq.budget).toLocaleString('ru-RU')} ₽` : 'Договорная'}
                                   </div>
                                 </div>

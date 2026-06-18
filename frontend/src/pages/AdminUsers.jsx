@@ -304,7 +304,7 @@ export default function AdminUsers() {
                   <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Админ</th>
                   <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Активен</th>
                   <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Дата</th>
-                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground w-[80px]">Действия</th>
+                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground w-20">Действия</th>
                 </tr>
               </thead>
               <tbody>

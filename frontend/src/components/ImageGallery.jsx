@@ -50,7 +50,7 @@ export default function ImageGallery({ images = [], alt = 'Изображени�
               key={index}
               type="button"
               onClick={() => setSelectedIndex(index)}
-              className={`flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-md overflow-hidden border-2 transition-colors ${
+              className={`shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-md overflow-hidden border-2 transition-colors ${
                 index === selectedIndex ? 'border-primary' : 'border-border hover:border-primary/50'
               }`}
             >

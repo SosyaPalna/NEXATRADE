@@ -61,7 +61,7 @@ export default function ImageLightbox({ images, children }) {
           )}
 
           {/* Main image */}
-          <div className="flex items-center justify-center w-full h-full min-h-[200px]">
+          <div className="flex items-center justify-center w-full h-full min-h-50">
             {current && (
               <img
                 src={current}

@@ -232,7 +232,7 @@ export default function RfqDetail() {
                         </div>
                       </div>
                       <div className="text-right shrink-0 max-w-[45%] sm:max-w-none">
-                        <div className="text-lg sm:text-xl font-bold text-primary break-words">
+                        <div className="text-lg sm:text-xl font-bold text-primary wrap-break-word">
                           {Number(quote.price).toLocaleString('ru-RU')} ₽
                         </div>
                       </div>

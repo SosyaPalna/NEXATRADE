@@ -178,13 +178,13 @@ export default function CategoryPage() {
 
                 {/* Title */}
                 <Link to={`/product/${product.id}`} className="hover:text-primary transition-colors">
-                  <h3 className="text-sm font-bold text-foreground line-clamp-2 mb-1 min-h-[2.5rem]">
+                  <h3 className="text-sm font-bold text-foreground line-clamp-2 mb-1 min-h-10">
                     {product.name}
                   </h3>
                 </Link>
 
                 {/* Description */}
-                <p className="text-xs text-muted-foreground line-clamp-2 mb-3 min-h-[2rem]">
+                <p className="text-xs text-muted-foreground line-clamp-2 mb-3 min-h-8">
                   {product.description || 'Нет описания'}
                 </p>
 

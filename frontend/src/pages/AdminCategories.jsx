@@ -195,7 +195,7 @@ export default function AdminCategories() {
                     <TableHead className="text-muted-foreground font-medium">Название</TableHead>
                     <TableHead className="text-muted-foreground font-medium">Slug</TableHead>
                     <TableHead className="text-muted-foreground font-medium">Родительская</TableHead>
-                    <TableHead className="text-muted-foreground font-medium w-[100px]">Действия</TableHead>
+                    <TableHead className="text-muted-foreground font-medium w-25">Действия</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
