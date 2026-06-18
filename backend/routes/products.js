@@ -1,6 +1,7 @@
 const express = require('express');
 const prisma = require('../lib/prisma');
 const authenticate = require('../middleware/auth');
+const { deleteProductChatHistory } = require('../services/productCleanup');
 const validate = require('../middleware/validate');
 const { productSchema, productUpdateSchema, paginationSchema } = require('../schemas');
 const { sanitizeText, sanitizeHtmlContent } = require('../lib/sanitize');
@@ -160,6 +161,7 @@ router.delete('/:id', authenticate, async (req, res) => {
     const existing = await prisma.product.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.tenantId !== req.tenantId) return res.status(403).json({ error: 'Нет доступа' });
 
+    await deleteProductChatHistory(prisma, req.params.id);
     await prisma.product.delete({ where: { id: req.params.id } });
     res.json({ message: 'Товар удалён' });
   } catch (err) {

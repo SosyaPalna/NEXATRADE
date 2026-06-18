@@ -4,6 +4,7 @@ const authenticate = require('../middleware/auth');
 const { validatePassword } = require('../utils/password');
 const bcrypt = require('bcryptjs');
 const { getIo } = require('../utils/socket');
+const { deleteProductChatHistory } = require('../services/productCleanup');
 
 const router = express.Router();
 
@@ -304,6 +305,7 @@ router.delete('/products/:id', authenticate, requireAdmin, async (req, res) => {
     });
     if (!product) return res.status(404).json({ error: 'Товар не найден' });
 
+    await deleteProductChatHistory(prisma, req.params.id);
     await prisma.product.delete({ where: { id: req.params.id } });
 
     // Уведомляем владельца
