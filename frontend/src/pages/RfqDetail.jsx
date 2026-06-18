@@ -27,15 +27,20 @@ export default function RfqDetail() {
 
   const loadData = useCallback(async () => {
     try {
-      const [rfqRes, meRes] = await Promise.all([
-        api.get(`/rfq/${id}`),
-        api.get('/auth/me')
-      ])
+      const rfqRes = await api.get(`/rfq/${id}`)
       setRfq(rfqRes.data)
+    } catch {
+      setError('Ошибка загрузки заявки')
+      setLoading(false)
+      return
+    }
+
+    try {
+      const meRes = await api.get('/auth/me')
       setUserRole(meRes.data.tenant?.role)
       setCurrentTenantId(meRes.data.tenant?.id || meRes.data.tenantId)
     } catch {
-      setError('Ошибка загрузки')
+      // Неавторизованный пользователь — оставляем роль и tenantId пустыми
     } finally {
       setLoading(false)
     }
