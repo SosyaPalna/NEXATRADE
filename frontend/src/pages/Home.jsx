@@ -41,13 +41,14 @@ export default function Home() {
       {/* Hero */}
       <section className="relative overflow-hidden rounded-3xl bg-linear-to-br from-primary/10 via-primary/5 to-background border border-border">
         <div className="px-6 py-16 sm:px-12 sm:py-24 lg:px-16 text-center space-y-8">
-          <Badge variant="outline" className="rounded-full px-4 py-1.5 text-sm border-primary/30 text-primary">
-            B2B-маркетплейс для оптимизации бизнес-расходов
+          <Badge variant="outline" className="rounded-full px-4 py-1.5 text-sm border-primary/30 text-primary max-w-full truncate">
+            <span className="md:hidden">B2B-маркетплейс</span>
+            <span className="hidden md:inline">B2B-маркетплейс для оптимизации бизнес-расходов</span>
           </Badge>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground max-w-4xl mx-auto">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground max-w-4xl mx-auto break-words">
             Оптовые закупки и продажи <span className="text-primary">без посредников</span>
           </h1>
-          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed break-words">
             Размещайте заявки на закупку, получайте выгодные предложения от проверенных поставщиков и заключайте прямые контракты — всё в одной экосистеме.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
