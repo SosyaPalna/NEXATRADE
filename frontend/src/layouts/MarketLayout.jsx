@@ -2,14 +2,16 @@ import { useState, useEffect } from 'react'
 import { Link, useLocation, Outlet } from 'react-router-dom'
 import { api } from '../api'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
-import { ChevronDown, ChevronRight, FolderOpen } from 'lucide-react'
+import { ChevronDown, ChevronRight, FolderOpen, Search, X } from 'lucide-react'
 
 export default function MarketLayout() {
   const location = useLocation()
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
+  const [query, setQuery] = useState('')
 
   useEffect(() => {
     api.get('/categories')
@@ -17,6 +19,17 @@ export default function MarketLayout() {
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
+
+  const filteredCategories = query.trim()
+    ? categories.map(cat => {
+        const q = query.toLowerCase()
+        const parentMatch = cat.name.toLowerCase().includes(q)
+        const matchedChildren = cat.children?.filter(child => child.name.toLowerCase().includes(q)) || []
+        if (parentMatch) return cat
+        if (matchedChildren.length) return { ...cat, children: matchedChildren }
+        return null
+      }).filter(Boolean)
+    : categories
 
   return (
     <div className="flex flex-col lg:flex-row gap-6">
@@ -33,13 +46,37 @@ export default function MarketLayout() {
           ) : categories.length === 0 ? (
             <div className="text-sm text-muted-foreground py-4 text-center">Категорий пока нет</div>
           ) : (
-            <ScrollArea className="h-[calc(100vh-280px)]">
-              <nav className="space-y-1">
-                {categories.map(cat => (
-                  <CategoryItem key={cat.id} category={cat} currentPath={location.pathname} />
-                ))}
-              </nav>
-            </ScrollArea>
+            <>
+              <div className="relative mb-3">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  className="pl-9 pr-8 border-border"
+                  placeholder="Поиск по категориям"
+                  value={query}
+                  onChange={e => setQuery(e.target.value)}
+                />
+                {query && (
+                  <button
+                    type="button"
+                    onClick={() => setQuery('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+              <ScrollArea className="h-[calc(100vh-340px)]">
+                <nav className="space-y-1">
+                  {filteredCategories.length === 0 ? (
+                    <div className="text-sm text-muted-foreground py-4 text-center">Ничего не найдено</div>
+                  ) : (
+                    filteredCategories.map(cat => (
+                      <CategoryItem key={cat.id} category={cat} currentPath={location.pathname} forceOpen={!!query.trim()} />
+                    ))
+                  )}
+                </nav>
+              </ScrollArea>
+            </>
           )}
         </div>
       </aside>
@@ -52,10 +89,14 @@ export default function MarketLayout() {
   )
 }
 
-function CategoryItem({ category, currentPath }) {
-  const [isOpen, setIsOpen] = useState(currentPath.includes(category.slug))
+function CategoryItem({ category, currentPath, forceOpen = false }) {
+  const [isOpen, setIsOpen] = useState(currentPath.includes(category.slug) || forceOpen)
   const isActive = currentPath.includes(category.slug)
   const hasChildren = category.children?.length > 0
+
+  useEffect(() => {
+    if (forceOpen) setIsOpen(true)
+  }, [forceOpen])
 
   return (
     <div>
