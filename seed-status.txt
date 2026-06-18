@@ -1,0 +1,155 @@
+=== 2026-06-18T17:19:22Z ===
+Pseudo-terminal will not be allocated because stdin is not a terminal.
+Warning: Permanently added '193.187.93.143' (ED25519) to the list of known hosts.
+Welcome to Ubuntu 22.04.5 LTS (GNU/Linux 5.15.0-181-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+This system has been minimized by removing packages and content that are
+not required on a system that users do not log into.
+
+To restore this content, you can run the 'unminimize' command.
+New release '24.04.4 LTS' available.
+Run 'do-release-upgrade' to upgrade to it.
+
+From https://github.com/SosyaPalna/NEXATRADE
+ * branch            seed-cats  -> FETCH_HEAD
+ * [new branch]      seed-cats  -> origin/seed-cats
+Switched to a new branch 'seed-cats'
+Branch 'seed-cats' set up to track remote branch 'seed-cats' from 'origin'.
+HEAD is now at c31d527 feat: add category seed script and workflow
+=== installing deps ===
+npm warn config production Use `--omit=dev` instead.
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: 'file-type@22.0.1',
+npm warn EBADENGINE   required: { node: '>=22' },
+npm warn EBADENGINE   current: { node: 'v20.20.2', npm: '10.8.2' }
+npm warn EBADENGINE }
+
+added 193 packages, and audited 194 packages in 7s
+
+53 packages are looking for funding
+  run `npm fund` for details
+
+6 vulnerabilities (3 moderate, 3 high)
+
+To address all issues, run:
+  npm audit fix
+
+Run `npm audit` for details.
+=== generating prisma client ===
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+
+✔ Generated Prisma Client (v5.22.0) to ./node_modules/@prisma/client in 550ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Curious about the SQL queries Prisma ORM generates? Optimize helps you enhance your visibility: https://pris.ly/tip-2-optimize
+
+=== seeding categories ===
+
+> backend@1.0.0 seed:categories
+> node prisma/seed-categories.js
+
+✅ Офисные товары и канцелярия (ofisnye-tovary-i-kantselyariya)
+   └─ Бумага и бумажная продукция (bumaga-i-bumazhnaya-produktsiya)
+   └─ Канцелярские принадлежности (kantselyarskie-prinadlezhnosti)
+   └─ Оргтехника и расходные материалы (orgtehnika-i-rashodnye-materialy)
+   └─ Офисная мебель (ofisnaya-mebel)
+✅ Электроника, компьютеры и IT (elektronika-komp-yutery-i-it)
+   └─ Компьютеры и ноутбуки (komp-yutery-i-noutbuki)
+   └─ Комплектующие (komplektuyuschie)
+   └─ Периферия (periferiya)
+   └─ Сетевое оборудование (setevoe-oborudovanie)
+   └─ Смартфоны и планшеты (smartfony-i-planshety)
+✅ Промышленное оборудование (promyshlennoe-oborudovanie)
+   └─ Станки и машины (stanki-i-mashiny)
+   └─ Компрессоры и насосы (kompressory-i-nasosy)
+   └─ Подъёмное оборудование (pod-yomnoe-oborudovanie)
+   └─ Запчасти для оборудования (zapchasti-dlya-oborudovaniya)
+✅ Строительные материалы (stroitel-nye-materialy)
+   └─ Отделочные материалы (otdelochnye-materialy)
+   └─ Кровля и фасад (krovlya-i-fasad)
+   └─ Изоляция и гидроизоляция (izolyatsiya-i-gidroizolyatsiya)
+   └─ Крепёж и метизы (krepyozh-i-metizy)
+✅ Инструменты и расходники (instrumenty-i-rashodniki)
+   └─ Ручной инструмент (ruchnoy-instrument)
+   └─ Электроинструмент (elektroinstrument)
+   └─ Измерительный инструмент (izmeritel-nyy-instrument)
+   └─ Расходные материалы (rashodnye-materialy)
+✅ Электрика и освещение (elektrika-i-osveschenie)
+   └─ Кабель и провод (kabel-i-provod)
+   └─ Светильники (svetil-niki)
+   └─ Розетки и выключатели (rozetki-i-vyklyuchateli)
+   └─ Электрощиты и автоматика (elektroschity-i-avtomatika)
+✅ Сантехника и инженерные системы (santehnika-i-inzhenernye-sistemy)
+   └─ Трубы и фитинги (truby-i-fitingi)
+   └─ Смесители (smesiteli)
+   └─ Водонагреватели (vodonagrevateli)
+   └─ Вентиляция и кондиционирование (ventilyatsiya-i-konditsionirovanie)
+✅ Мебель и интерьер (mebel-i-inter-er)
+   └─ Офисная мебель (ofisnaya-mebel)
+   └─ Мебель для дома (mebel-dlya-doma)
+   └─ Мягкая мебель (myagkaya-mebel)
+   └─ Предметы интерьера (predmety-inter-era)
+✅ Текстиль, одежда и обувь (tekstil-odezhda-i-obuv)
+   └─ Спецодежда (spetsodezhda)
+   └─ Постельное бельё и полотенца (postel-noe-bel-yo-i-polotentsa)
+   └─ Рабочая обувь (rabochaya-obuv)
+   └─ Ткани и материалы (tkani-i-materialy)
+✅ Упаковка и этикетка (upakovka-i-etiketka)
+   └─ Картонная упаковка (kartonnaya-upakovka)
+   └─ Пластиковая упаковка (plastikovaya-upakovka)
+   └─ Пакеты и мешки (pakety-i-meshki)
+   └─ Этикетки и маркировка (etiketki-i-markirovka)
+✅ Сырьё и материалы (syr-yo-i-materialy)
+   └─ Металлы (metally)
+   └─ Пластмассы и полимеры (plastmassy-i-polimery)
+   └─ Древесина и пиломатериалы (drevesina-i-pilomaterialy)
+   └─ Химическое сырьё (himicheskoe-syr-yo)
+✅ Продукты питания и напитки (produkty-pitaniya-i-napitki)
+   └─ Бакалея (bakaleya)
+   └─ Мясная и рыбная продукция (myasnaya-i-rybnaya-produktsiya)
+   └─ Молочные продукты (molochnye-produkty)
+   └─ Напитки (napitki)
+✅ Сельскохозяйственная продукция (sel-skohozyaystvennaya-produktsiya)
+   └─ Семена и посадочный материал (semena-i-posadochnyy-material)
+   └─ Удобрения (udobreniya)
+   └─ Корма (korma)
+   └─ Тепличное оборудование (teplichnoe-oborudovanie)
+✅ Медицинские товары и фармацевтика (meditsinskie-tovary-i-farmatsevtika)
+   └─ Медицинские расходники (meditsinskie-rashodniki)
+   └─ Оборудование для клиник (oborudovanie-dlya-klinik)
+   └─ Лекарственные препараты (lekarstvennye-preparaty)
+   └─ Средства индивидуальной защиты (sredstva-individual-noy-zaschity)
+✅ Автозапчасти и транспорт (avtozapchasti-i-transport)
+   └─ Запчасти для легковых авто (zapchasti-dlya-legkovyh-avto)
+   └─ Запчасти для грузовых авто (zapchasti-dlya-gruzovyh-avto)
+   └─ Автохимия и масла (avtohimiya-i-masla)
+   └─ Шины и диски (shiny-i-diski)
+✅ Химия, косметика и бытовая химия (himiya-kosmetika-i-bytovaya-himiya)
+   └─ Бытовая химия (bytovaya-himiya)
+   └─ Профессиональная косметика (professional-naya-kosmetika)
+   └─ Парфюмерия (parfyumeriya)
+   └─ Чистящие средства (chistyaschie-sredstva)
+✅ Безопасность и охрана (bezopasnost-i-ohrana)
+   └─ Системы видеонаблюдения (sistemy-videonablyudeniya)
+   └─ СКУД (skud)
+   └─ Охранная сигнализация (ohrannaya-signalizatsiya)
+   └─ Средства пожарной безопасности (sredstva-pozharnoy-bezopasnosti)
+✅ Спорт, отдых и туризм (sport-otdyh-i-turizm)
+   └─ Спортивный инвентарь (sportivnyy-inventar)
+   └─ Туристическое снаряжение (turisticheskoe-snaryazhenie)
+   └─ Игры и развлечения (igry-i-razvlecheniya)
+✅ Подарки, сувениры и рекламная продукция (podarki-suveniry-i-reklamnaya-produktsiya)
+   └─ Корпоративные подарки (korporativnye-podarki)
+   └─ Сувенирная продукция (suvenirnaya-produktsiya)
+   └─ Полиграфия (poligrafiya)
+   └─ Рекламные конструкции (reklamnye-konstruktsii)
+
+🎉 Категории успешно добавлены/обновлены
+=== done ===
+=== ssh exit code: $? ===
