@@ -124,7 +124,7 @@ export default function AdminReports() {
 
   return (
     <div className="space-y-6">
-      <SEO title="Жалобы" description="Управление жалобами пользователей в админ-панели NexaTrade." noindex nofollow />
+      <SEO title="Жалобы" description="Управление жалобами пользователей в админ-панели Торговый Хаб." noindex nofollow />
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-foreground">Жалобы</h1>
         <span className="text-sm text-muted-foreground">Всего: {reports.length}</span>

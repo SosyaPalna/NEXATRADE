@@ -146,7 +146,7 @@ export default function CompanyPage() {
     <div className="space-y-6">
       <SEO
         title={company.name}
-        description={company.description || `Компания ${company.name} на B2B-платформе NexaTrade`}
+        description={company.description || `Компания ${company.name} на B2B-платформе Торговый Хаб`}
         keywords={`${company.name}, компания поставщик, B2B поставщик, ${company.address || ''}, оптовые продажи`}
         jsonLd={{
           '@context': 'https://schema.org',
@@ -517,7 +517,7 @@ export default function CompanyPage() {
                   )}
                 </div>
                 <div className="bg-amber-50 border border-amber-200 rounded-md p-3 text-sm text-amber-700">
-                  Оплата и доставка осуществляются напрямую между поставщиком и покупателем. Площадка NexaTrade не проводит платежи.
+                  Оплата и доставка осуществляются напрямую между поставщиком и покупателем. Площадка Торговый Хаб не проводит платежи.
                 </div>
               </CardContent>
             </Card>

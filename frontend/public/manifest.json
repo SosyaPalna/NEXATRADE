@@ -1,6 +1,6 @@
 {
-  "name": "NexaTrade — B2B маркетплейс",
-  "short_name": "NexaTrade",
+  "name": "Торговый Хаб — B2B маркетплейс",
+  "short_name": "Торговый Хаб",
   "description": "Современная B2B-платформа для оптовых закупок и продаж",
   "start_url": "/",
   "display": "standalone",

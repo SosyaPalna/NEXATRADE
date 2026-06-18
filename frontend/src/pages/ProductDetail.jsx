@@ -443,7 +443,7 @@ export default function ProductDetail() {
                 </div>
 
                 <div className="bg-amber-50 border border-amber-200 rounded-md p-3 text-sm text-amber-700">
-                  Оплата и доставка осуществляются напрямую между поставщиком и покупателем. Площадка NexaTrade не проводит платежи.
+                  Оплата и доставка осуществляются напрямую между поставщиком и покупателем. Площадка Торговый Хаб не проводит платежи.
                 </div>
               </CardContent>
             </Card>

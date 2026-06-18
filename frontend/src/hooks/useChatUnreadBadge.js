@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { api } from '../api'
 
-const BASE_TITLE = 'NexaTrade — B2B маркетплейс'
+const BASE_TITLE = 'Торговый Хаб — B2B маркетплейс'
 const POLL_INTERVAL_MS = 30000
 
 function stripBadge(title) {

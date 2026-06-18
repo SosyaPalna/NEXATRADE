@@ -137,10 +137,10 @@ export default function NavBar() {
           {/* Лого слева */}
           <Link to="/" className="flex items-center gap-2 shrink-0">
             <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold text-lg">
-              N
+              Т
             </div>
             <span className="text-xl font-bold tracking-tight text-foreground hidden sm:inline">
-              NexaTrade
+              Торговый Хаб
             </span>
           </Link>
 
@@ -320,8 +320,8 @@ export default function NavBar() {
               <SheetContent side="right" className="w-72">
                 <div className="flex flex-col gap-4 mt-4">
                   <Link to="/" className="flex items-center gap-2 text-lg font-bold text-foreground" onClick={() => setMobileOpen(false)}>
-                    <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">N</div>
-                    NexaTrade
+                    <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">Т</div>
+                    Торговый Хаб
                   </Link>
                   <div className="flex flex-col gap-1">
                     {navItems.map((item) => (

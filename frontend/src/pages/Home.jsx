@@ -22,14 +22,14 @@ export default function Home() {
           '@graph': [
             {
               '@type': 'WebSite',
-              name: 'NexaTrade',
+              name: 'Торговый Хаб',
               url: 'https://nexatrade.ru',
               description: 'Современная B2B-платформа для оптовых закупок и продаж',
               inLanguage: 'ru-RU',
             },
             {
               '@type': 'Organization',
-              name: 'NexaTrade',
+              name: 'Торговый Хаб',
               url: 'https://nexatrade.ru',
               logo: 'https://nexatrade.ru/favicon.svg',
               description: 'B2B маркетплейс для оптовых закупок и прямых контрактов между компаниями',
@@ -42,7 +42,7 @@ export default function Home() {
       <section className="relative overflow-hidden rounded-3xl bg-linear-to-br from-primary/10 via-primary/5 to-background border border-border">
         <div className="px-6 py-16 sm:px-12 sm:py-24 lg:px-16 text-center space-y-8">
           <Badge variant="outline" className="rounded-full px-4 py-1.5 text-sm border-primary/30 text-primary">
-            B2B-маркетплейс нового поколения
+            B2B-маркетплейс для оптимизации бизнес-расходов
           </Badge>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground max-w-4xl mx-auto">
             Оптовые закупки и продажи <span className="text-primary">без посредников</span>
@@ -95,7 +95,7 @@ export default function Home() {
       {/* Преимущества */}
       <section className="space-y-8">
         <div className="text-center space-y-3">
-          <h2 className="text-3xl font-bold tracking-tight text-foreground">Почему NexaTrade?</h2>
+          <h2 className="text-3xl font-bold tracking-tight text-foreground">Почему Торговый Хаб?</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Платформа создана специально для B2B-рынка: мы убрали лишнее и оставили только инструменты, которые нужны для крупных сделок.
           </p>
@@ -199,7 +199,7 @@ export default function Home() {
       <section className="rounded-3xl bg-primary text-primary-foreground p-8 sm:p-12 text-center space-y-6">
         <h2 className="text-3xl sm:text-4xl font-bold">Начните торговать сегодня</h2>
         <p className="text-primary-foreground/80 max-w-xl mx-auto text-lg">
-          Присоединяйтесь к тысячам компаний, которые уже используют NexaTrade для роста своего бизнеса.
+          Присоединяйтесь к тысячам компаний, которые уже используют Торговый Хаб для роста своего бизнеса.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Button size="lg" variant="secondary" className="gap-2" asChild>

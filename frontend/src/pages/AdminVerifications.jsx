@@ -84,7 +84,7 @@ export default function AdminVerifications() {
 
   return (
     <div className="space-y-6">
-      <SEO title="Верификации" description="Управление заявками на верификацию компаний в админ-панели NexaTrade." noindex nofollow />
+      <SEO title="Верификации" description="Управление заявками на верификацию компаний в админ-панели Торговый Хаб." noindex nofollow />
 
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-foreground">Верификации компаний</h1>

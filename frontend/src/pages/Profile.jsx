@@ -77,7 +77,7 @@ export default function Profile() {
 
   return (
     <div className="space-y-6">
-      <SEO title="Профиль" description="Ваш профиль компании, настройки аккаунта и история заявок на NexaTrade." noindex />
+      <SEO title="Профиль" description="Ваш профиль компании, настройки аккаунта и история заявок на Торговый Хаб." noindex />
       <h1 className="text-3xl font-bold tracking-tight text-foreground">Личный кабинет</h1>
 
       <div className="grid gap-6 lg:grid-cols-3">

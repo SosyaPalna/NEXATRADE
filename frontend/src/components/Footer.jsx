@@ -10,9 +10,9 @@ export default function Footer() {
           <div className="space-y-4">
             <Link to="/" className="flex items-center gap-2 text-foreground font-bold text-lg">
               <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-                N
+                Т
               </div>
-              NexaTrade
+              Торговый Хаб
             </Link>
             <p className="text-muted-foreground leading-relaxed">
               B2B-платформа для оптовых закупок и продаж. Находите поставщиков, публикуйте заявки и ведите переговоры в одном месте.
@@ -94,7 +94,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 pt-6 border-t border-border text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} NexaTrade. Все права защищены.
+          © {new Date().getFullYear()} Торговый Хаб. Все права защищены.
         </div>
       </div>
     </footer>

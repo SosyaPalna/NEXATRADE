@@ -12,7 +12,7 @@ import { AlertCircle, Mail, Lock } from 'lucide-react'
 export default function Login() {
   return (
     <>
-      <SEO title="Вход" description="Войдите в свой аккаунт NexaTrade — B2B-платформа для оптовых закупок." noindex nofollow />
+      <SEO title="Вход" description="Войдите в свой аккаунт Торговый Хаб — B2B-платформа для оптовых закупок." noindex nofollow />
       <LoginForm />
     </>
   )
@@ -57,7 +57,7 @@ function LoginForm() {
 
         <Card className="border border-border bg-card">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl text-foreground">Вход в NexaTrade</CardTitle>
+            <CardTitle className="text-2xl text-foreground">Вход в Торговый Хаб</CardTitle>
             <CardDescription className="text-muted-foreground">Введите данные вашей компании</CardDescription>
           </CardHeader>
           <CardContent>

@@ -65,10 +65,10 @@ export default function RfqList() {
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'WebPage',
-          name: 'Заявки на закупку — NexaTrade',
+          name: 'Заявки на закупку — Торговый Хаб',
           description: 'Актуальные заявки на закупку от покупателей. Найдите выгодные контракты и откликнитесь на RFQ.',
           url: typeof window !== 'undefined' ? window.location.href : 'https://nexatrade.ru/requests',
-          isPartOf: { '@type': 'WebSite', name: 'NexaTrade', url: 'https://nexatrade.ru' },
+          isPartOf: { '@type': 'WebSite', name: 'Торговый Хаб', url: 'https://nexatrade.ru' },
         }}
       />
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">

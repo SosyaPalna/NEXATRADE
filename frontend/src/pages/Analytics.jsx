@@ -89,7 +89,7 @@ export default function Analytics() {
 
   return (
     <div className="space-y-6">
-      <SEO title="Аналитика" description="Аналитика вашего бизнеса на NexaTrade" />
+      <SEO title="Аналитика" description="Аналитика вашего бизнеса на Торговый Хаб" />
 
       <div className="flex items-center justify-between">
         <div>

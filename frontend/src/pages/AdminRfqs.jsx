@@ -98,7 +98,7 @@ export default function AdminRfqs() {
 
   return (
     <div className="space-y-6">
-      <SEO title="Заявки" description="Управление заявками на закупку в админ-панели NexaTrade." noindex nofollow />
+      <SEO title="Заявки" description="Управление заявками на закупку в админ-панели Торговый Хаб." noindex nofollow />
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-foreground">Управление заявками</h1>
         <span className="text-sm text-muted-foreground">Всего: {rfqs.length}</span>

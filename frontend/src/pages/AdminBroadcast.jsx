@@ -67,7 +67,7 @@ export default function AdminBroadcast() {
 
   return (
     <div className="space-y-6">
-      <SEO title="Рассылка уведомлений" description="Массовая рассылка уведомлений пользователям NexaTrade." noindex nofollow />
+      <SEO title="Рассылка уведомлений" description="Массовая рассылка уведомлений пользователям Торговый Хаб." noindex nofollow />
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-foreground">Рассылка уведомлений</h1>
       </div>

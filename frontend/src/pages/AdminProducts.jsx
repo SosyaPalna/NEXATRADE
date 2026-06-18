@@ -55,7 +55,7 @@ export default function AdminProducts() {
 
   return (
     <div className="space-y-6">
-      <SEO title="Товары" description="Управление товарами в админ-панели NexaTrade." noindex nofollow />
+      <SEO title="Товары" description="Управление товарами в админ-панели Торговый Хаб." noindex nofollow />
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-foreground">Управление товарами</h1>
         <span className="text-sm text-muted-foreground">Всего: {products.length}</span>
