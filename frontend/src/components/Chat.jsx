@@ -222,7 +222,7 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
       })
       return res.data.files || []
     } catch (err) {
-      addNotification(err.response?.data?.error || 'Ошибка загрузки файлов', 'error')
+      // ошибку показывает глобальный axios-интерцептор
       return []
     } finally {
       setUploading(false)
@@ -424,7 +424,7 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
         el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
       }, 100)
     } catch (err) {
-      addNotification(err.response?.data?.error || 'Не удалось загрузить сообщение', 'error')
+      // ошибку показывает глобальный axios-интерцептор
     }
   }
 

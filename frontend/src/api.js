@@ -9,6 +9,15 @@ export const api = axios.create({
 
 let isRefreshing = false
 let refreshSubscribers = []
+let lastToast = null
+
+function showToast(message, type = 'error') {
+  if (lastToast && lastToast.message === message && Date.now() - lastToast.time < 2000) {
+    return
+  }
+  lastToast = { message, time: Date.now() }
+  toast[type](message)
+}
 
 function onRefreshed() {
   refreshSubscribers.forEach((cb) => cb())
@@ -75,7 +84,7 @@ api.interceptors.response.use(
       // Не показываем toast для 404 на публичных страницах
       const isPublic404 = status === 404 && requestUrl.includes('/products/')
       if (!isPublic404) {
-        toast.error(message)
+        showToast(message, 'error')
       }
     }
 

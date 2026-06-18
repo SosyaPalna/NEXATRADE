@@ -31,7 +31,7 @@ export default function Chats() {
       const res = await api.get('/chat/rooms')
       setRooms(res.data.rooms || [])
     } catch {
-      addNotification('Не удалось загрузить список чатов', 'error')
+      // ошибку показывает глобальный axios-интерцептор
     } finally {
       setLoading(false)
     }
@@ -85,7 +85,7 @@ export default function Chats() {
       addNotification('История очищена', 'success')
       fetchRooms()
     } catch (err) {
-      addNotification(err.response?.data?.error || 'Ошибка очистки', 'error')
+      // ошибку показывает глобальный axios-интерцептор
     }
   }
 
@@ -115,7 +115,7 @@ export default function Chats() {
       }
       setBlockedMap(prev => ({ ...prev, [key]: !isBlocked }))
     } catch (err) {
-      addNotification(err.response?.data?.error || 'Ошибка блокировки', 'error')
+      // ошибку показывает глобальный axios-интерцептор
     }
   }
 
