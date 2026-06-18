@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { api } from '../api'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -11,8 +11,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Input } from '@/components/ui/input'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { Menu, User, LogOut, Building2, LayoutDashboard, Package, FileText, BarChart3, Sun, Moon, Bell, Check, Trash2, MessageSquare, Gavel, ShieldCheck, MapPin, Shield } from 'lucide-react'
+import { Menu, User, LogOut, Building2, LayoutDashboard, Package, FileText, BarChart3, Sun, Moon, Bell, Check, Trash2, MessageSquare, Gavel, ShieldCheck, MapPin, Shield, Search } from 'lucide-react'
 import { useTheme } from './ThemeProvider'
 import { useNotification } from '../context/NotificationContext'
 import { useAuth } from '../context/AuthContext'
@@ -20,7 +21,7 @@ import { io } from 'socket.io-client'
 
 export default function NavBar() {
   const location = useLocation()
-  // const navigate = useNavigate()
+  const navigate = useNavigate()
   const { user, loading, logout } = useAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [notifications, setNotifications] = useState([])
@@ -28,6 +29,15 @@ export default function NavBar() {
   const [chatUnreadCount, setChatUnreadCount] = useState(0)
   const unreadCount = notifUnreadCount
   const [notifOpen, setNotifOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const showSearch = ['/', '/dashboard', '/products', '/rfqs'].includes(location.pathname) || location.pathname.startsWith('/category/')
+
+  const handleSearch = (e) => {
+    e.preventDefault()
+    if (!searchQuery.trim()) return
+    navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`)
+  }
   const { theme, toggleTheme } = useTheme()
   const { addNotification } = useNotification()
   const [selectedCity, setSelectedCity] = useState(() => localStorage.getItem('selectedCity') || 'Все города')
@@ -349,6 +359,26 @@ export default function NavBar() {
             </Sheet>
           </div>
         </div>
+
+        {/* Глобальный поиск */}
+        {showSearch && (
+          <div className="border-t border-border py-2 hidden md:block">
+            <form onSubmit={handleSearch} className="flex items-center gap-2 max-w-2xl mx-auto">
+              <div className="relative flex-1">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  className="pl-9 border-border"
+                  placeholder="Поиск по товарам и услугам..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <Button type="submit" className="bg-primary text-white hover:bg-primary/90 shrink-0">
+                Найти
+              </Button>
+            </form>
+          </div>
+        )}
       </div>
     </header>
   )

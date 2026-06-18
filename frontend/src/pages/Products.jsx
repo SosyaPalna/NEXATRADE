@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { api, uploadFiles } from '../api'
 import { useAuth } from '../context/AuthContext'
 import { Button } from '@/components/ui/button'
@@ -26,7 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Search, Package, Plus, SlidersHorizontal, X, Camera } from 'lucide-react'
+import { Package, Plus, SlidersHorizontal, X, Camera } from 'lucide-react'
 import { getPreviewUrl } from '../lib/images'
 import SEO from '../components/SEO'
 
@@ -88,6 +88,7 @@ export default function Products() {
   const [sort, setSort] = useState('createdAt:desc')
   const [page, setPage] = useState(1)
   const [pages, setPages] = useState(0)
+  const [searchParams] = useSearchParams()
   const [showAddForm, setShowAddForm] = useState(false)
   const [newProduct, setNewProduct] = useState({
     name: '', description: '', price: '', stock: '', unit: 'шт.',
@@ -122,6 +123,11 @@ export default function Products() {
     loadProducts()
     api.get('/categories/flat').then(res => setCategories(res.data)).catch(() => {})
   }, [loadProducts])
+
+  useEffect(() => {
+    const q = searchParams.get('search') || ''
+    setFilters(prev => prev.search === q ? prev : { ...prev, search: q })
+  }, [searchParams])
 
   useEffect(() => {
     const handleStorage = (e) => {
@@ -303,21 +309,6 @@ export default function Products() {
       </div>
 
       <Separator className="bg-border" />
-
-      {/* Поиск */}
-      <Card className="border-border shadow-sm">
-        <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input className="pl-9 border-border" placeholder="Поиск по товарам и услугам..." value={filters.search} onChange={e => setFilters({ ...filters, search: e.target.value })} />
-            </div>
-            <Button className="bg-primary text-white hover:bg-primary/90 shrink-0" onClick={() => { setPage(1); loadProducts() }}>
-              Найти
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Фильтры */}
       <Card className="border-border shadow-sm">
