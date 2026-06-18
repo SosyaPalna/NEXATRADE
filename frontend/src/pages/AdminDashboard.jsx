@@ -52,7 +52,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <SEO title="Админ-панель" description="Панель управления администратора NexaTrade." noindex nofollow />
+      <SEO title="Админ-панель" description="Панель управления администратора Торговый Хаб." noindex nofollow />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-foreground">Админ-панель</h1>
         <Badge className="bg-primary text-white hover:bg-primary">Администратор</Badge>

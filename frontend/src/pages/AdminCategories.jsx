@@ -136,7 +136,7 @@ export default function AdminCategories() {
 
   return (
     <div className="space-y-6">
-      <SEO title="Категории" description="Управление категориями товаров в админ-панели NexaTrade." noindex nofollow />
+      <SEO title="Категории" description="Управление категориями товаров в админ-панели Торговый Хаб." noindex nofollow />
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Категории товаров</h1>

@@ -45,11 +45,11 @@ export default function Dashboard() {
     <div className="space-y-8">
       <SEO
         title="Личный кабинет"
-        description="Ваш персональный дашборд NexaTrade — управляйте заявками, товарами и предложениями."
+        description="Ваш персональный дашборд Торговый Хаб — управляйте заявками, товарами и предложениями."
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'WebApplication',
-          name: 'NexaTrade',
+          name: 'Торговый Хаб',
           description: 'B2B-платформа для оптовых закупок',
           url: 'https://nexatrade.ru',
           applicationCategory: 'BusinessApplication',

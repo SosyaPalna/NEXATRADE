@@ -1,16 +1,16 @@
 import { Helmet } from 'react-helmet-async'
 
 const DEFAULT = {
-  title: 'NexaTrade — B2B маркетплейс',
+  title: 'Торговый Хаб — B2B маркетплейс',
   description:
-    'NexaTrade — современная B2B-платформа для оптовых закупок. Находите поставщиков, публикуйте заявки на закупку, управляйте торговыми процессами.',
+    'Торговый Хаб — современная B2B-платформа для оптовых закупок. Находите поставщиков, публикуйте заявки на закупку, управляйте торговыми процессами.',
   keywords:
     'B2B маркетплейс, оптовые закупки, поставщики, заявки на закупку, RFQ, торговая площадка, B2B платформа',
   image: '/og-image.png',
   url: 'https://nexatrade.ru',
   type: 'website',
   locale: 'ru_RU',
-  siteName: 'NexaTrade',
+  siteName: 'Торговый Хаб',
   twitterCard: 'summary_large_image',
 }
 
@@ -34,7 +34,7 @@ export default function SEO({
   canonical,
   jsonLd,
 }) {
-  const fullTitle = title ? `${title} — NexaTrade` : DEFAULT.title
+  const fullTitle = title ? `${title} — Торговый Хаб` : DEFAULT.title
   const metaDesc = description || DEFAULT.description
   const metaKeywords = keywords || DEFAULT.keywords
   const ogImage = image || DEFAULT.image

@@ -268,7 +268,7 @@ export default function AdminUsers() {
 
   return (
     <div className="space-y-6">
-      <SEO title="Пользователи" description="Управление пользователями NexaTrade." noindex nofollow />
+      <SEO title="Пользователи" description="Управление пользователями Торговый Хаб." noindex nofollow />
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-foreground">Управление пользователями</h1>
         <span className="text-sm text-muted-foreground">Найдено: {users.length}</span>

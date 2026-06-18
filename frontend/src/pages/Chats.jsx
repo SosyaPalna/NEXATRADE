@@ -142,7 +142,7 @@ export default function Chats() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <SEO title="Сообщения" description="Ваши переписки на NexaTrade." noindex />
+      <SEO title="Сообщения" description="Ваши переписки на Торговый Хаб." noindex />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-foreground">Сообщения</h1>
       </div>

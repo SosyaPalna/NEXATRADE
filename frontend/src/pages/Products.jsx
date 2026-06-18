@@ -177,15 +177,15 @@ export default function Products() {
     <div className="space-y-6">
       <SEO
         title="Каталог товаров"
-        description="Каталог товаров и услуг от проверенных B2B-поставщиков на NexaTrade."
+        description="Каталог товаров и услуг от проверенных B2B-поставщиков на Торговый Хаб."
         keywords="каталог товаров, B2B каталог, оптовые товары, поставщики, закупки оптом, торговая площадка"
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'WebPage',
-          name: 'Каталог товаров — NexaTrade',
-          description: 'Каталог товаров и услуг от проверенных B2B-поставщиков на NexaTrade.',
+          name: 'Каталог товаров — Торговый Хаб',
+          description: 'Каталог товаров и услуг от проверенных B2B-поставщиков на Торговый Хаб.',
           url: typeof window !== 'undefined' ? window.location.href : 'https://nexatrade.ru/products',
-          isPartOf: { '@type': 'WebSite', name: 'NexaTrade', url: 'https://nexatrade.ru' },
+          isPartOf: { '@type': 'WebSite', name: 'Торговый Хаб', url: 'https://nexatrade.ru' },
         }}
       />
       {/* Заголовок */}

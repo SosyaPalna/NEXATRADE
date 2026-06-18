@@ -54,17 +54,17 @@ export default function CategoryPage() {
     <div className="space-y-5">
       <SEO
         title={category.name}
-        description={`${category.name} — товары и услуги от B2B-поставщиков на NexaTrade. ${category.description || ''}`}
+        description={`${category.name} — товары и услуги от B2B-поставщиков на Торговый Хаб. ${category.description || ''}`}
         keywords={`${category.name}, B2B каталог, оптовые закупки, поставщики ${category.name}, товары оптом`}
         jsonLd={{
           '@context': 'https://schema.org',
           '@graph': [
             {
               '@type': 'CollectionPage',
-              name: `${category.name} — NexaTrade`,
-              description: category.description || `${category.name} — товары и услуги от B2B-поставщиков на NexaTrade.`,
+              name: `${category.name} — Торговый Хаб`,
+              description: category.description || `${category.name} — товары и услуги от B2B-поставщиков на Торговый Хаб.`,
               url: typeof window !== 'undefined' ? window.location.href : `https://nexatrade.ru/category/${slug}`,
-              isPartOf: { '@type': 'WebSite', name: 'NexaTrade', url: 'https://nexatrade.ru' },
+              isPartOf: { '@type': 'WebSite', name: 'Торговый Хаб', url: 'https://nexatrade.ru' },
               about: { '@type': 'Thing', name: category.name },
             },
             {

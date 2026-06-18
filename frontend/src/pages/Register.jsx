@@ -62,7 +62,7 @@ export default function Register() {
 
   return (
     <>
-      <SEO title="Регистрация" description="Создайте аккаунт компании на NexaTrade — B2B-платформа для оптовых закупок и продаж." noindex nofollow />
+      <SEO title="Регистрация" description="Создайте аккаунт компании на Торговый Хаб — B2B-платформа для оптовых закупок и продаж." noindex nofollow />
       <div className="min-h-screen flex items-center justify-center bg-muted px-4">
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-6">
