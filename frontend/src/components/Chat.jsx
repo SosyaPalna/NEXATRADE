@@ -502,8 +502,8 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
         onDrop={handleDrop}
       >
         <CardHeader className="py-3 px-4 bg-muted/50 border-b">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
+          <div className="flex items-center justify-between gap-2">
+            <CardTitle className="text-sm font-medium flex items-center gap-2 flex-wrap min-w-0">
               <MessageCircle className="h-4 w-4 text-primary" />
               {title}
               {counterpartId && (
@@ -589,7 +589,7 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
             </div>
           )}
 
-          <ScrollArea className="h-80 p-4" ref={scrollRef}>
+          <ScrollArea className="h-64 sm:h-80 p-4" ref={scrollRef}>
             <div className="space-y-3">
               {hasMore && (
                 <div className="flex justify-center">
@@ -644,7 +644,7 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
                         {msg.replyTo && renderReplyPreview(msg.replyTo)}
                         {msg.content && <div className="whitespace-pre-wrap">{msg.content}</div>}
                         {renderAttachments(msg.attachments)}
-                        <div className={`text-xs mt-1 opacity-70 flex items-center gap-1 ${msg.senderId === currentTenantId ? 'justify-end' : ''}`}>
+                        <div className={`text-xs mt-1 opacity-70 flex flex-wrap items-center gap-1 ${msg.senderId === currentTenantId ? 'justify-end' : ''}`}>
                           <span>{msg.sender?.name}</span>
                           {msg.isEdited && <span className="text-[10px]">(изм.)</span>}
                           <span>•</span>
@@ -655,7 +655,7 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
                     )}
 
                     {!msg.isDeleted && editingId !== msg.id && (
-                      <div className={`flex items-center gap-1 mt-1 ${msg.senderId === currentTenantId ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`flex flex-wrap items-center gap-1 mt-1 ${msg.senderId === currentTenantId ? 'justify-end' : 'justify-start'}`}>
                         <Button variant="ghost" size="icon" className="h-5 w-5 opacity-100 text-muted-foreground hover:text-foreground" onClick={() => setReplyTo(msg)}>
                           <Reply className="h-3 w-3" />
                         </Button>

@@ -231,15 +231,15 @@ export default function RfqDetail() {
                           </Badge>
                         </div>
                       </div>
-                      <div className="text-right shrink-0">
-                        <div className="text-xl font-bold text-primary">
+                      <div className="text-right shrink-0 max-w-[45%] sm:max-w-none">
+                        <div className="text-lg sm:text-xl font-bold text-primary break-words">
                           {Number(quote.price).toLocaleString('ru-RU')} ₽
                         </div>
                       </div>
                     </div>
 
                     {isBuyer && quote.status === 'pending' && (
-                      <div className="flex gap-2 mt-3 pt-3 border-t border-border">
+                      <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-border">
                         <Button size="sm" className="bg-green-500 text-white hover:bg-green-600" onClick={() => handleQuoteAction(quote.id, 'accepted')}>
                           <CheckCircle2 className="h-4 w-4 mr-1" />
                           Принять
