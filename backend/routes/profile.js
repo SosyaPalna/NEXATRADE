@@ -32,7 +32,7 @@ router.get('/me', authenticate, async (req, res) => {
 
     res.json({ user, rfqStats });
   } catch (err) {
-    console.error('❌ GET /profile/me error:', err.message);
+    console.error('GET /profile/me error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
@@ -80,7 +80,7 @@ router.put('/me', authenticate, async (req, res) => {
       tenant: result.tenant 
     });
   } catch (err) {
-    console.error('❌ PUT /profile/me error:', err.message);
+    console.error('PUT /profile/me error:', err.message);
     // Обработка уникальности email
     if (err.code === 'P2002') {
       return res.status(400).json({ error: 'Этот email уже занят' });
@@ -89,7 +89,7 @@ router.put('/me', authenticate, async (req, res) => {
   }
 });
 
-// 🔹 Получить заявки пользователя с фильтрами
+// Получить заявки пользователя с фильтрами
 router.get('/rfqs', authenticate, async (req, res) => {
   try {
     const { search, status, sortBy = 'createdAt', page = 1, limit = 20 } = req.query;

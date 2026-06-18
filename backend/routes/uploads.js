@@ -15,7 +15,6 @@ function handleUpload(type, fieldName) {
   }];
 }
 
-// Одиночная загрузка (обратная совместимость)
 router.post('/product-image', ...handleUpload('products', 'image'));
 router.post('/tenant-avatar', ...handleUpload('tenants', 'image'));
 router.post('/tenant-cover', ...handleUpload('tenants', 'image'));

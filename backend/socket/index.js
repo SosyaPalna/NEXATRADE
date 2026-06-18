@@ -91,19 +91,16 @@ const initSocket = (server) => {
   });
 
   io.on('connection', (socket) => {
-    console.log(`🔌 Connected: ${socket.tenantId}`);
+    console.log(`Connected: ${socket.tenantId}`);
 
-    // Presence tracking
     const count = (tenantConnections.get(socket.tenantId) || 0) + 1;
     tenantConnections.set(socket.tenantId, count);
     if (count === 1) {
       io.emit('user:online', { tenantId: socket.tenantId });
     }
 
-    // Каждый пользователь присоединяется к своей персональной комнате для уведомлений
     socket.join(`tenant:${socket.tenantId}`);
 
-    // Присоединение к универсальной комнате (rfq или product)
     socket.on('join:room', async ({ type, id }) => {
       const allowed = await canJoinRoom(socket.tenantId, type, id);
       if (!allowed) {
@@ -236,7 +233,7 @@ const initSocket = (server) => {
           userAgent: socket.handshake.headers['user-agent'],
         });
       } catch (err) {
-        console.error('❌ Edit error:', err.message);
+        console.error('Edit error:', err.message);
         socket.emit('error', { message: 'Failed to edit message' });
       }
     });
