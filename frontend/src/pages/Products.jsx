@@ -26,7 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Search, Package, Plus, SlidersHorizontal, X, Camera, Tag } from 'lucide-react'
+import { Search, Package, Plus, SlidersHorizontal, X, Camera } from 'lucide-react'
 import { getPreviewUrl } from '../lib/images'
 import SEO from '../components/SEO'
 
@@ -308,22 +308,6 @@ export default function Products() {
       <Card className="border-border shadow-sm">
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row gap-3">
-            <div className="w-full sm:w-64">
-              <Select value={filters.category} onValueChange={v => setFilters({ ...filters, category: v })}>
-                <SelectTrigger className="border-border">
-                  <Tag className="h-3.5 w-3.5 text-muted-foreground mr-1" />
-                  <SelectValue placeholder="Все категории">
-                    {filters.category ? flattenCategories(categories).find(o => o.id === filters.category)?.label : 'Все категории'}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">Все категории</SelectItem>
-                  {flattenCategories(categories).map(opt => (
-                    <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
             <div className="relative flex-1">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input className="pl-9 border-border" placeholder="Поиск по товарам и услугам..." value={filters.search} onChange={e => setFilters({ ...filters, search: e.target.value })} />
@@ -339,6 +323,21 @@ export default function Products() {
       <Card className="border-border shadow-sm">
         <CardContent className="p-4">
           <div className="flex flex-col md:flex-row gap-3 items-start">
+            <div className="w-full md:w-52">
+              <Select value={filters.category} onValueChange={v => setFilters({ ...filters, category: v })}>
+                <SelectTrigger className="border-border">
+                  <SelectValue placeholder="Все категории">
+                    {filters.category ? flattenCategories(categories).find(o => o.id === filters.category)?.label : 'Все категории'}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Все категории</SelectItem>
+                  {flattenCategories(categories).map(opt => (
+                    <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="w-full md:w-32">
               <Input className="border-border" type="number" placeholder="Цена от" value={filters.minPrice} onChange={e => setFilters({ ...filters, minPrice: e.target.value })} />
             </div>
