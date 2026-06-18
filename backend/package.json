@@ -8,7 +8,8 @@
     "dev": "nodemon index.js",
     "start": "node index.js",
     "prisma:push": "prisma db push",
-    "prisma:generate": "prisma generate"
+    "prisma:generate": "prisma generate",
+    "seed:categories": "node prisma/seed-categories.js"
   },
   "keywords": [],
   "author": "",

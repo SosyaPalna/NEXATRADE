@@ -1,0 +1,52 @@
+name: Seed categories on VPS
+
+on:
+  push:
+    branches:
+      - seed-cats
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: seed-cats
+      - name: Seed categories via SSH
+        env:
+          HOST: ${{ secrets.HOST }}
+          USERNAME: ${{ secrets.USERNAME }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          OUT="seed-status.txt"
+          echo "=== $(date -u +%Y-%m-%dT%H:%M:%SZ) ===" > "$OUT"
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/vps.key
+          chmod 600 ~/.ssh/vps.key
+          ssh -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o IdentitiesOnly=yes -i ~/.ssh/vps.key "$USERNAME@$HOST" <<EOF >> "$OUT" 2>&1
+          set -e
+          cd /var/www/NEXATRADE
+          git fetch origin seed-cats
+          git checkout seed-cats || git checkout -b seed-cats origin/seed-cats
+          git reset --hard origin/seed-cats
+          cd backend
+          echo "=== installing deps ==="
+          npm ci --production
+          echo "=== generating prisma client ==="
+          npx prisma generate
+          echo "=== seeding categories ==="
+          npm run seed:categories
+          echo "=== done ==="
+          EOF
+          echo "=== ssh exit code: \$? ===" >> "$OUT"
+          cat "$OUT"
+      - name: Commit status
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add seed-status.txt
+          git commit -m "seed-cats: update status" || true
+          git push origin seed-cats
