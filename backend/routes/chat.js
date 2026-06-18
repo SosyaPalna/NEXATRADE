@@ -241,7 +241,7 @@ router.get('/search', authenticate, async (req, res) => {
   }
 });
 
-// Очистить историю сообщений в комнате (мягкое удаление всех сообщений)
+// Удалить историю сообщений в комнате (жёсткое удаление всех сообщений)
 router.delete('/rooms/:roomType/:roomId/messages', authenticate, async (req, res) => {
   try {
     const { roomType, roomId } = req.params;
@@ -255,10 +255,7 @@ router.delete('/rooms/:roomType/:roomId/messages', authenticate, async (req, res
     if (!allowed) return res.status(403).json({ error: 'Access denied' });
 
     const where = roomType === 'rfq' ? { rfqId: roomId } : { productId: roomId };
-    await prisma.message.updateMany({
-      where,
-      data: { isDeleted: true }
-    });
+    await prisma.message.deleteMany({ where });
 
     await logAudit({
       userId: req.userId,

@@ -255,6 +255,14 @@ export default function Chats() {
                             {room.unreadCount}
                           </Badge>
                         )}
+                        <button
+                          type="button"
+                          title="Удалить чат"
+                          onClick={() => handleClearHistory(room)}
+                          className="p-1.5 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <button
@@ -267,7 +275,7 @@ export default function Chats() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => handleClearHistory(room)}>
                               <Trash2 className="h-4 w-4 mr-2" />
-                              Очистить историю
+                              Удалить чат
                             </DropdownMenuItem>
                             {room.counterpart?.id && (
                               <DropdownMenuItem onClick={() => toggleBlock(room)}>
