@@ -108,63 +108,63 @@ export default function ProductDetail() {
       />
 
       {/* Breadcrumbs */}
-      <nav className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Link to="/products" className="hover:text-foreground hover:underline transition-colors">Категории товаров</Link>
+      <nav className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm text-muted-foreground">
+        <Link to="/products" className="hover:text-foreground hover:underline transition-colors shrink-0">Каталог</Link>
         {product.category && (
           <>
-            <span className="text-border">/</span>
-            <Link to={`/category/${product.category.slug}`} className="hover:text-foreground hover:underline transition-colors">
+            <span className="text-border shrink-0">/</span>
+            <Link to={`/category/${product.category.slug}`} className="hover:text-foreground hover:underline transition-colors truncate max-w-[120px] sm:max-w-[200px]">
               {product.category.name}
             </Link>
           </>
         )}
-        <span className="text-border">/</span>
-        <span className="text-foreground font-medium truncate max-w-50 sm:max-w-md">{product.name}</span>
+        <span className="text-border shrink-0">/</span>
+        <span className="text-foreground font-medium truncate max-w-[140px] sm:max-w-md">{product.name}</span>
       </nav>
 
       {/* Верхняя секция: фото + инфо + цена/поставщик */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
         {/* Левая колонка — фото */}
         <div className="lg:col-span-4">
-          <Card className="border-border shadow-sm overflow-hidden p-4">
+          <Card className="border-border shadow-sm overflow-hidden p-2 sm:p-4">
             <ImageGallery images={product.images} alt={product.name} />
           </Card>
         </div>
 
         {/* Центральная колонка — инфо о товаре */}
         <div className="lg:col-span-5 space-y-4">
-          <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-foreground">{product.name}</h1>
-            <p className="text-sm text-muted-foreground">Артикул: {product.id.slice(0, 8).toUpperCase()}</p>
+          <div className="space-y-1.5">
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">{product.name}</h1>
+            <p className="text-xs sm:text-sm text-muted-foreground">Артикул: {product.id.slice(0, 8).toUpperCase()}</p>
           </div>
 
           {/* Характеристики */}
           <div className="space-y-2 text-sm">
-            <div className="flex justify-between border-b border-dashed border-border py-1.5">
-              <span className="text-muted-foreground">Цена</span>
-              <span className="font-medium">{formatPrice(product.price)} / {product.unit}</span>
+            <div className="flex justify-between gap-2 border-b border-dashed border-border py-1.5">
+              <span className="text-muted-foreground shrink-0">Цена</span>
+              <span className="font-medium text-right break-words">{formatPrice(product.price)} / {product.unit}</span>
             </div>
-            <div className="flex justify-between border-b border-dashed border-border py-1.5">
-              <span className="text-muted-foreground">Наличие</span>
-              <span className={product.stock > 0 ? 'text-green-600 font-medium' : 'text-amber-600 font-medium'}>
+            <div className="flex justify-between gap-2 border-b border-dashed border-border py-1.5">
+              <span className="text-muted-foreground shrink-0">Наличие</span>
+              <span className={product.stock > 0 ? 'text-green-600 font-medium text-right' : 'text-amber-600 font-medium text-right'}>
                 {product.stock > 0 ? 'В наличии' : 'Под заказ'}
               </span>
             </div>
-            <div className="flex justify-between border-b border-dashed border-border py-1.5">
-              <span className="text-muted-foreground">Мин. партия</span>
-              <span className="font-medium">{product.stock} {product.unit}</span>
+            <div className="flex justify-between gap-2 border-b border-dashed border-border py-1.5">
+              <span className="text-muted-foreground shrink-0">Мин. партия</span>
+              <span className="font-medium text-right break-words">{product.stock} {product.unit}</span>
             </div>
             {product.category && (
-              <div className="flex justify-between border-b border-dashed border-border py-1.5">
-                <span className="text-muted-foreground">Категория</span>
-                <Link to={`/category/${product.category.slug}`} className="font-medium text-primary hover:underline">
+              <div className="flex justify-between gap-2 border-b border-dashed border-border py-1.5">
+                <span className="text-muted-foreground shrink-0">Категория</span>
+                <Link to={`/category/${product.category.slug}`} className="font-medium text-primary hover:underline text-right truncate">
                   {product.category.name}
                 </Link>
               </div>
             )}
-            <div className="flex justify-between border-b border-dashed border-border py-1.5">
-              <span className="text-muted-foreground">Условия</span>
-              <span className="font-medium">
+            <div className="flex justify-between gap-2 border-b border-dashed border-border py-1.5">
+              <span className="text-muted-foreground shrink-0">Условия</span>
+              <span className="font-medium text-right">
                 {[product.isOpt && 'Опт', product.isRetail && 'Розница'].filter(Boolean).join(', ') || '—'}
               </span>
             </div>
@@ -191,8 +191,8 @@ export default function ProductDetail() {
         {/* Правая колонка — цена и действия */}
         <div className="lg:col-span-3 space-y-4">
           <Card className="border-border shadow-sm">
-            <CardContent className="p-5 space-y-4">
-              <div className="text-3xl font-bold text-primary">
+            <CardContent className="p-4 sm:p-5 space-y-4">
+              <div className="text-2xl sm:text-3xl font-bold text-primary">
                 {formatPrice(product.price)}
               </div>
               <div className="text-sm text-muted-foreground">за {product.unit}</div>

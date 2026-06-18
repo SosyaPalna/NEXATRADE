@@ -63,7 +63,7 @@ export default function Home() {
               </Link>
             </Button>
           </div>
-          <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground pt-4">
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm text-muted-foreground pt-4">
             <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-green-500" /> Бесплатная регистрация</span>
             <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-green-500" /> Верификация компаний</span>
             <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-green-500" /> Прямые контракты</span>

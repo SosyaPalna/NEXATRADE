@@ -27,7 +27,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Search, Package, Plus, SlidersHorizontal, X, Camera, Tag } from 'lucide-react'
-import { toast } from 'sonner'
 import { getPreviewUrl } from '../lib/images'
 import SEO from '../components/SEO'
 
@@ -145,7 +144,7 @@ export default function Products() {
       const urls = await uploadFiles('/uploads/product-images', Array.from(files))
       setNewProduct(prev => ({ ...prev, images: [...prev.images, ...urls] }))
     } catch {
-      toast.error('Ошибка загрузки изображений')
+      // Ошибка обрабатывается глобальным интерсептором api
     } finally {
       setUploading(false)
     }
@@ -169,8 +168,8 @@ export default function Products() {
       })
       setShowAddForm(false)
       loadProducts()
-    } catch (err) {
-      toast.error(err.response?.data?.error || 'Ошибка добавления товара')
+    } catch {
+      // Ошибка обрабатывается глобальным интерсептором api
     }
   }
 
@@ -308,7 +307,7 @@ export default function Products() {
       {/* Фильтры */}
       <Card className="border-border shadow-sm">
         <CardContent className="p-4">
-          <div className="flex flex-col md:flex-row gap-3 items-end">
+          <div className="flex flex-col md:flex-row gap-3 items-start">
             <div className="relative flex-1 w-full">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input className="pl-9 border-border" placeholder="Название товара..." value={filters.search} onChange={e => setFilters({ ...filters, search: e.target.value })} />

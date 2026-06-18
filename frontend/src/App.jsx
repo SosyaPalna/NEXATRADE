@@ -64,7 +64,7 @@ function AppLayout() {
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <NavBar />
-      <div className="flex-1 px-4 sm:px-6 lg:px-8 py-6">
+      <div className="flex-1 px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
         <main className="mx-auto max-w-7xl">
           <Outlet />
         </main>
