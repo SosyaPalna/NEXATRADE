@@ -162,7 +162,7 @@ export default function CompanyPage() {
         }}
       />
       {/* Cover */}
-      <div className="relative h-48 md:h-64 rounded-xl overflow-hidden bg-linear-to-r from-primary/80 to-primary">
+      <div className="relative h-40 sm:h-48 md:h-64 rounded-xl overflow-hidden bg-linear-to-r from-primary/80 to-primary">
         {company.coverUrl ? (
           <img src={company.coverUrl} alt="" className="w-full h-full object-cover" />
         ) : null}
@@ -188,8 +188,8 @@ export default function CompanyPage() {
 
       {/* Company header */}
       <div className="flex flex-col md:flex-row gap-4 items-start">
-        <div className="relative -mt-16 ml-4 md:ml-8">
-          <Avatar className="h-24 w-24 border-4 border-background">
+        <div className="relative -mt-12 sm:-mt-16 ml-3 sm:ml-4 md:ml-8">
+          <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-4 border-background">
             <AvatarImage src={company.avatarUrl} alt={company.name} />
             <AvatarFallback className="bg-primary text-white text-2xl">
               {company.name?.charAt(0)?.toUpperCase()}
@@ -217,7 +217,7 @@ export default function CompanyPage() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
             <div>
               <h1 className="text-2xl font-bold text-foreground">{company.name}</h1>
-              <div className="flex items-center gap-2 mt-1 flex-wrap">
+              <div className="flex items-center gap-2 mt-1 flex-wrap text-xs sm:text-sm">
                 <Badge variant="outline" className="border-border text-foreground">
                   {company.role === 'buyer' ? 'Покупатель' : 'Поставщик'}
                 </Badge>

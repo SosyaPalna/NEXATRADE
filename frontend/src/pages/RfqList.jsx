@@ -175,8 +175,8 @@ export default function RfqList() {
                         </div>
                         <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{rfq.description}</p>
                       </div>
-                      <div className="text-right shrink-0">
-                        <div className="text-lg font-bold text-primary">
+                      <div className="text-right shrink-0 max-w-[45%] sm:max-w-none">
+                        <div className="text-base sm:text-lg font-bold text-primary break-words">
                           {rfq.budget ? `${Number(rfq.budget).toLocaleString('ru-RU')} ₽` : 'Договорная'}
                         </div>
                         <div className="text-xs text-muted-foreground mt-1">{rfq.quantity} {rfq.unit || 'шт.'}</div>

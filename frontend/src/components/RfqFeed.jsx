@@ -55,12 +55,12 @@ export default function RfqFeed({ limit = 5 }) {
                     {rfq.description}
                   </p>
                 </div>
-                <div className="text-right shrink-0">
-                  <div className="font-bold text-primary">
+                <div className="text-right shrink-0 max-w-[45%] sm:max-w-none">
+                  <div className="font-bold text-primary break-words">
                     {rfq.budget ? `${Number(rfq.budget).toLocaleString('ru-RU')} ₽` : 'Договорная'}
                   </div>
                   <div className="text-xs text-muted-foreground mt-1">
-                    {rfq.quantity} шт.
+                    {rfq.quantity} {rfq.unit || 'шт.'}
                   </div>
                 </div>
               </div>

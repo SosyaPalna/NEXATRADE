@@ -237,13 +237,13 @@ export default function Profile() {
                                 <div className="flex-1 min-w-0">
                                   <h3 className="font-semibold text-foreground truncate">{rfq.title}</h3>
                                   <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{rfq.description}</p>
-                                  <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                                  <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-muted-foreground">
                                     <span>{new Date(rfq.createdAt).toLocaleDateString('ru-RU')}</span>
                                     <span>•</span>
                                     <span>{rfq._count?.quotes || 0} предложений</span>
                                   </div>
                                 </div>
-                                <div className="text-right shrink-0">
+                                <div className="text-right shrink-0 max-w-[45%] sm:max-w-none">
                                   <Badge className={
                                     rfq.status === 'open' ? 'bg-primary text-white hover:bg-primary' :
                                     rfq.status === 'in_progress' ? 'bg-amber-500 text-white hover:bg-amber-500' :
@@ -252,7 +252,7 @@ export default function Profile() {
                                   }>
                                     {rfq.status === 'open' ? 'Открыт' : rfq.status === 'in_progress' ? 'В работе' : rfq.status === 'closed' ? 'Закрыт' : 'Отменён'}
                                   </Badge>
-                                  <div className="text-sm font-bold text-primary mt-1">
+                                  <div className="text-sm font-bold text-primary mt-1 break-words">
                                     {rfq.budget ? `${Number(rfq.budget).toLocaleString('ru-RU')} ₽` : 'Договорная'}
                                   </div>
                                 </div>
