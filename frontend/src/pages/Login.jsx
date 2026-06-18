@@ -51,7 +51,7 @@ function LoginForm() {
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-6">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold text-2xl">
-            N
+            Т
           </div>
         </div>
 
