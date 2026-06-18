@@ -139,7 +139,7 @@ export default function NavBar() {
             <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold text-lg">
               N
             </div>
-            <span className="text-xl font-bold tracking-tight text-foreground">
+            <span className="text-xl font-bold tracking-tight text-foreground hidden sm:inline">
               NexaTrade
             </span>
           </Link>
@@ -168,15 +168,15 @@ export default function NavBar() {
           </nav>
 
           {/* Правая часть */}
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={toggleTheme}>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 text-muted-foreground hover:text-foreground" onClick={toggleTheme}>
               {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
 
             {/* Выбор города */}
             <DropdownMenu>
               <DropdownMenuTrigger className="outline-none">
-                <div className="inline-flex items-center gap-1.5 rounded-md h-8 px-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer">
+                <div className="inline-flex items-center gap-1.5 rounded-md h-7 sm:h-8 px-1.5 sm:px-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer">
                   <MapPin className="h-3.5 w-3.5" />
                   <span className="hidden sm:inline max-w-25 truncate">{selectedCity}</span>
                 </div>
@@ -199,7 +199,7 @@ export default function NavBar() {
             {user && (
               <DropdownMenu open={notifOpen} onOpenChange={setNotifOpen}>
                 <DropdownMenuTrigger className="outline-none relative">
-                  <div className="inline-flex items-center justify-center rounded-md h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer relative">
+                  <div className="inline-flex items-center justify-center rounded-md h-7 w-7 sm:h-8 sm:w-8 text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer relative">
                     <Bell className="h-4 w-4" />
                     {unreadCount > 0 && (
                       <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] text-white font-medium">
@@ -259,8 +259,8 @@ export default function NavBar() {
             ) : user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger className="outline-none">
-                  <div className="flex items-center gap-2 rounded-full hover:bg-muted transition-colors cursor-pointer px-2 py-1">
-                    <Avatar className="h-8 w-8">
+                  <div className="flex items-center gap-2 rounded-full hover:bg-muted transition-colors cursor-pointer px-1.5 sm:px-2 py-1">
+                    <Avatar className="h-7 w-7 sm:h-8 sm:w-8">
                       <AvatarImage src={user.tenant?.avatarUrl} alt={user.tenant?.name} />
                       <AvatarFallback className="bg-primary text-primary-foreground text-xs">
                         {user.tenant?.name?.charAt(0)?.toUpperCase() || 'U'}
@@ -314,7 +314,7 @@ export default function NavBar() {
 
             {/* Мобильное меню */}
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-              <SheetTrigger className="md:hidden inline-flex items-center justify-center rounded-md h-8 w-8 hover:bg-muted cursor-pointer">
+              <SheetTrigger className="md:hidden inline-flex items-center justify-center rounded-md h-7 w-7 sm:h-8 sm:w-8 hover:bg-muted cursor-pointer">
                 <Menu className="h-5 w-5 text-foreground" />
               </SheetTrigger>
               <SheetContent side="right" className="w-72">

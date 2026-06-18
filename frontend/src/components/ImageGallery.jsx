@@ -32,7 +32,7 @@ export default function ImageGallery({ images = [], alt = 'Изображени�
     <div className="space-y-4">
       {/* Главное изображение */}
       <div
-        className="aspect-square bg-muted rounded-lg overflow-hidden cursor-pointer border border-border hover:border-primary transition-colors"
+        className="aspect-square bg-muted rounded-lg overflow-hidden cursor-pointer border border-border hover:border-primary transition-colors max-h-64 sm:max-h-80 md:max-h-96 mx-auto"
         onClick={() => openLightbox(selectedIndex)}
       >
         <img
@@ -50,7 +50,7 @@ export default function ImageGallery({ images = [], alt = 'Изображени�
               key={index}
               type="button"
               onClick={() => setSelectedIndex(index)}
-              className={`flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 transition-colors ${
+              className={`flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-md overflow-hidden border-2 transition-colors ${
                 index === selectedIndex ? 'border-primary' : 'border-border hover:border-primary/50'
               }`}
             >
