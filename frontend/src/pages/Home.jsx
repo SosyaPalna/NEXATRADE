@@ -4,8 +4,8 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import {
-  ArrowRight, ShieldCheck, Zap, Search, FileText,
-  Users, TrendingUp, Truck, Building2, CheckCircle2,
+  ArrowRight, ShieldCheck, Search, FileText,
+  Users, TrendingUp, Truck, CheckCircle2,
   Package, MessageSquare
 } from 'lucide-react'
 import SEO from '../components/SEO'
@@ -71,26 +71,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        {[
-          { value: '10 000+', label: 'Компаний на платформе', icon: Building2 },
-          { value: '50 000+', label: 'Активных заявок', icon: FileText },
-          { value: '24 часа', label: 'Средний срок отклика', icon: Zap },
-        ].map((stat) => (
-          <Card key={stat.label} className="border-border shadow-sm">
-            <CardContent className="p-6 flex items-center gap-4">
-              <div className="p-3 rounded-xl bg-primary/10">
-                <stat.icon className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </section>
 
       {/* Преимущества */}
       <section className="space-y-8">
