@@ -251,7 +251,36 @@ router.delete('/rooms/:roomType/:roomId/messages', authenticate, async (req, res
       return res.status(400).json({ error: 'Invalid room type' });
     }
 
-    const allowed = await canJoinRoom(tenantId, roomType, roomId);
+    let allowed = await canJoinRoom(tenantId, roomType, roomId);
+
+    // Fallback: если товар/RFQ удалён (soft-delete), canJoinRoom вернёт false,
+    // но участникам чата всё равно нужно иметь возможность удалить историю.
+    if (!allowed) {
+      if (roomType === 'product') {
+        const product = await prisma.product.findFirst({
+          where: { id: roomId, deletedAt: { not: null } },
+          select: { tenantId: true }
+        });
+        const isOwner = product?.tenantId === tenantId;
+        const hasMessages = await prisma.message.count({
+          where: { productId: roomId, senderId: tenantId }
+        }) > 0;
+        allowed = isOwner || hasMessages;
+      } else {
+        const rfq = await prisma.rfq.findFirst({
+          where: { id: roomId, deletedAt: { not: null } },
+          select: { buyerId: true }
+        });
+        const hasQuote = await prisma.quote.count({
+          where: { rfqId: roomId, sellerId: tenantId }
+        }) > 0;
+        const hasMessages = await prisma.message.count({
+          where: { rfqId: roomId, senderId: tenantId }
+        }) > 0;
+        allowed = rfq?.buyerId === tenantId || hasQuote || hasMessages;
+      }
+    }
+
     if (!allowed) return res.status(403).json({ error: 'Access denied' });
 
     const where = roomType === 'rfq' ? { rfqId: roomId } : { productId: roomId };
