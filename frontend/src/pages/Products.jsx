@@ -307,7 +307,7 @@ export default function Products() {
       {/* Фильтры */}
       <Card className="border-border shadow-sm">
         <CardContent className="p-4">
-          <div className="flex flex-col md:flex-row gap-3 items-end">
+          <div className="flex flex-col md:flex-row gap-3 items-start">
             <div className="relative flex-1 w-full">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input className="pl-9 border-border" placeholder="Название товара..." value={filters.search} onChange={e => setFilters({ ...filters, search: e.target.value })} />

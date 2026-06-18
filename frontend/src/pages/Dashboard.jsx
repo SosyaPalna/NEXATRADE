@@ -73,7 +73,7 @@ export default function Dashboard() {
               : 'Размещайте заявки на закупку и находите надёжных поставщиков'}
           </p>
         </div>
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex flex-wrap items-center gap-3 shrink-0">
           <Button className="bg-primary text-white hover:bg-primary/90 flex items-center gap-2" asChild>
             <Link to={isSeller ? '/products' : '/rfq/create'}>
               <PlusCircle className="h-4 w-4" />
