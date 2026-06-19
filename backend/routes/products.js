@@ -83,7 +83,7 @@ router.get('/', validate(paginationSchema), async (req, res) => {
     const [products, total] = await Promise.all([
       prisma.product.findMany({
         where,
-        include: { category: { select: { id: true, name: true, slug: true } }, tenant: { select: { name: true, city: true } } },
+        include: { category: { select: { id: true, name: true, slug: true } }, tenant: { select: { name: true, city: true, phone: true } } },
         orderBy,
         skip,
         take: limit,

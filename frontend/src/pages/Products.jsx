@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -27,8 +26,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Package, Plus, SlidersHorizontal, X, Camera } from 'lucide-react'
-import { getPreviewUrl } from '../lib/images'
 import SEO from '../components/SEO'
+import ProductCard from '../components/ProductCard'
 
 const units = [
   { value: 'шт.', label: 'Штуки' },
@@ -377,58 +376,9 @@ export default function Products() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="flex flex-col gap-4">
           {products.map(product => (
-            <article key={product.id}>
-              <Card className="border-border shadow-sm overflow-hidden hover:border-primary/30 hover:shadow-md transition-all h-full flex flex-col">
-                <Link to={`/product/${product.id}`} className="h-44 bg-muted flex items-center justify-center shrink-0 relative">
-                  {product.images?.[0] ? (
-                    <>
-                      <img src={getPreviewUrl(product.images[0])} alt={product.name} className="w-full h-full object-cover" />
-                      {product.images.length > 1 && (
-                        <span className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full">
-                          +{product.images.length - 1}
-                        </span>
-                      )}
-                    </>
-                  ) : (
-                    <Package className="h-10 w-10 text-muted-foreground/40" />
-                  )}
-                </Link>
-                <CardContent className="p-4 flex flex-col flex-1">
-                  <div className="flex-1">
-                    <Link to={`/company/${product.tenantId}`} className="text-xs text-primary hover:underline font-medium line-clamp-1">
-                      {product.tenant?.name || 'Поставщик'}
-                      {product.tenant?.city && ` · ${product.tenant.city}`}
-                    </Link>
-                    <Link to={`/product/${product.id}`} className="hover:text-primary transition-colors block mt-1">
-                      <h3 className="text-sm font-semibold text-foreground line-clamp-2">{product.name}</h3>
-                    </Link>
-                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{product.description}</p>
-                    <div className="flex flex-wrap gap-1.5 mt-2">
-                      <Badge className={product.stock > 0 ? 'bg-green-500/10 text-green-600 border-0 text-[10px]' : 'bg-amber-500/10 text-amber-600 border-0 text-[10px]'}>
-                        {product.stock > 0 ? 'В наличии' : 'Под заказ'}
-                      </Badge>
-                      {product.isOpt && <Badge variant="outline" className="border-border text-[10px]">Опт</Badge>}
-                      {product.isRetail && <Badge variant="outline" className="border-border text-[10px]">Розница</Badge>}
-                    </div>
-                  </div>
-                  <div className="pt-3 mt-3 border-t border-border">
-                    <div className="flex items-center justify-between">
-                      <span className="text-base font-bold text-primary">
-                        {product.price ? `${Number(product.price).toLocaleString('ru-RU')} ₽` : 'Договорная'}
-                      </span>
-                      <span className="text-xs text-muted-foreground">{product.unit || 'шт.'}</span>
-                    </div>
-                    <Button size="sm" className="w-full mt-2 bg-primary text-white hover:bg-primary/90" asChild>
-                      <Link to={`/product/${product.id}`}>
-                        Подробнее
-                      </Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </article>
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
       )}

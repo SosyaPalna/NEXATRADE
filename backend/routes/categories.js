@@ -92,7 +92,7 @@ router.get('/:slug', async (req, res) => {
         children: { orderBy: { name: 'asc' } },
         products: {
           include: {
-            tenant: { select: { id: true, name: true, role: true, avatarUrl: true } }
+            tenant: { select: { id: true, name: true, role: true, avatarUrl: true, city: true, phone: true } }
           },
           orderBy: { createdAt: 'desc' },
           skip: (parseInt(page) - 1) * parseInt(limit),

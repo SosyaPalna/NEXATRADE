@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { ChevronLeft, ChevronRight, Package, Building2, Phone } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Package } from 'lucide-react'
 import SEO from '../components/SEO'
+import ProductCard from '../components/ProductCard'
 
 export default function CategoryPage() {
   const { slug } = useParams()
@@ -137,92 +138,9 @@ export default function CategoryPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <div className="flex flex-col gap-4">
           {products.map(product => (
-            <Card
-              key={product.id}
-              className="border-border overflow-hidden hover:border-primary/30 hover:shadow-md transition-all flex flex-col"
-            >
-              {/* Product image */}
-              <div className="h-44 bg-muted flex items-center justify-center relative overflow-hidden group">
-                {product.images?.[0] ? (
-                  <Link to={`/product/${product.id}`} className="w-full h-full">
-                    <img
-                      src={product.images[0]}
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </Link>
-                ) : (
-                  <Package className="h-10 w-10 text-border" />
-                )}
-                <div className="absolute top-2 right-2 flex flex-col gap-1">
-                  {product.isOpt && (
-                    <Badge className="bg-primary/90 text-white border-0 text-[10px]">Опт</Badge>
-                  )}
-                  {product.isRetail && (
-                    <Badge className="bg-amber-500/90 text-white border-0 text-[10px]">Розница</Badge>
-                  )}
-                </div>
-              </div>
-
-              <CardContent className="p-4 flex flex-col flex-1">
-                {/* Supplier */}
-                <Link
-                  to={`/company/${product.tenantId}`}
-                  className="text-xs text-primary hover:underline font-medium flex items-center gap-1 mb-1.5"
-                >
-                  <Building2 className="h-3 w-3" />
-                  {product.tenant?.name || 'Поставщик'}
-                </Link>
-
-                {/* Title */}
-                <Link to={`/product/${product.id}`} className="hover:text-primary transition-colors">
-                  <h3 className="text-sm font-bold text-foreground line-clamp-2 mb-1 min-h-10">
-                    {product.name}
-                  </h3>
-                </Link>
-
-                {/* Description */}
-                <p className="text-xs text-muted-foreground line-clamp-2 mb-3 min-h-8">
-                  {product.description || 'Нет описания'}
-                </p>
-
-                {/* Stock badge */}
-                <div className="mb-3">
-                  <Badge
-                    className={
-                      product.stock > 0
-                        ? 'bg-green-500/10 text-green-500 border-0 text-[10px]'
-                        : 'bg-amber-500/10 text-amber-500 border-0 text-[10px]'
-                    }
-                  >
-                    {product.stock > 0 ? 'В наличии' : 'Под заказ'}
-                  </Badge>
-                </div>
-
-                {/* Price and CTA */}
-                <div className="mt-auto pt-3 border-t border-border">
-                  <div className="flex items-baseline gap-1 mb-3">
-                    <span className="text-lg font-bold text-primary">
-                      {product.price ? `${Number(product.price).toLocaleString('ru-RU')} ₽` : 'Договорная'}
-                    </span>
-                    {product.price && (
-                      <span className="text-xs text-muted-foreground">/{product.unit || 'шт.'}</span>
-                    )}
-                  </div>
-                  <Link to={`/company/${product.tenantId}`}>
-                    <Button
-                      size="sm"
-                      className="w-full bg-primary hover:bg-primary/90 text-white"
-                    >
-                      <Phone className="h-3.5 w-3.5 mr-1.5" />
-                      Связаться
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
       )}
