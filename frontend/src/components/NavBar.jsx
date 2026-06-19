@@ -362,7 +362,7 @@ export default function NavBar() {
 
         {/* Глобальный поиск */}
         {showSearch && (
-          <div className="border-t border-border py-2 hidden md:block">
+          <div className="border-t border-border py-2">
             <form onSubmit={handleSearch} className="flex items-center gap-2 max-w-2xl mx-auto">
               <div className="relative flex-1">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -374,7 +374,8 @@ export default function NavBar() {
                 />
               </div>
               <Button type="submit" className="bg-primary text-white hover:bg-primary/90 shrink-0">
-                Найти
+                <span className="hidden sm:inline">Найти</span>
+                <Search className="h-4 w-4 sm:hidden" />
               </Button>
             </form>
           </div>
