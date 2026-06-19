@@ -41,10 +41,19 @@ export default function Chats() {
   }, [addNotification])
 
   useEffect(() => {
+    if (!user) {
+      setLoading(false)
+      return
+    }
     fetchRooms()
-  }, [fetchRooms])
+  }, [fetchRooms, user])
 
   useEffect(() => {
+    if (!user) {
+      setSearchResults([])
+      setSearchLoading(false)
+      return
+    }
     if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
     const query = searchQuery.trim()
     if (!query) {
@@ -62,7 +71,7 @@ export default function Chats() {
     return () => {
       if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
     }
-  }, [searchQuery])
+  }, [searchQuery, user])
 
   const getRoomLink = (room) => {
     if (room.roomType === 'product') return `/product/${room.roomId}`
