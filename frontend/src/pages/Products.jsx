@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { api, uploadFiles } from '../api'
 import { useAuth } from '../context/AuthContext'
 import { Button } from '@/components/ui/button'
