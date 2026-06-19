@@ -21,6 +21,7 @@ const citiesRoutes = require('./routes/cities');
 const uploadRoutes = require('./routes/uploads');
 const reviewRoutes = require('./routes/reviews');
 const analyticsRoutes = require('./routes/analytics');
+const companyRoutes = require('./routes/company');
 const initSocket = require('./socket');
 
 const app = express();
@@ -82,11 +83,12 @@ app.use('/api/cities', publicLimiter);
 app.use('/api/cities', citiesRoutes); // публичный endpoint городов
 app.use('/api/categories', categoryRoutes); // публичные категории
 app.use('/api/products', productRoutes);   // публичный каталог товаров
+app.use('/api/rfq', rfqRoutes);            // публичный список/детали RFQ
+app.use('/api/company', companyRoutes);    // публичные профили компаний
+app.use('/api/analytics', analyticsRoutes); // публичная аналитика
 
 // Все последующие /api/* требуют авторизации и rate limit по пользователю
 app.use('/api', authenticate, auditLog, authLimiter);
-
-app.use('/api/rfq', rfqRoutes);
 
 // Health checks
 app.get('/health', (req, res) => res.json({ status: 'ok', service: 'nexatrade-backend' }));
@@ -114,16 +116,12 @@ app.use('/api/admin', adminRoutes);
 const profileRoutes = require('./routes/profile');
 app.use('/api/profile', profileRoutes);
 
-const companyRoutes = require('./routes/company');
-app.use('/api/company', companyRoutes);
-
 const reportRoutes = require('./routes/reports');
 app.use('/api/reports', reportRoutes);
 
 const notificationRoutes = require('./routes/notifications');
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/reviews', reviewRoutes);
-app.use('/api/analytics', analyticsRoutes);
 
 const verificationRoutes = require('./routes/verification');
 app.use('/api/verification', verificationRoutes);
