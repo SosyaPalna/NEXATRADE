@@ -223,7 +223,7 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
         headers: { 'Content-Type': 'multipart/form-data' },
       })
       return res.data.files || []
-    } catch (err) {
+    } catch {
       // ошибку показывает глобальный axios-интерцептор
       return []
     } finally {
@@ -425,7 +425,7 @@ export default function Chat({ roomType, roomId, currentTenantId, title = 'Ча�
         const el = messageRefs.current[target.id]
         el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
       }, 100)
-    } catch (err) {
+    } catch {
       // ошибку показывает глобальный axios-интерцептор
     }
   }
