@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { ChevronLeft, ChevronRight, Package } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Package, Tag } from 'lucide-react'
 import SEO from '../components/SEO'
 import ProductCard from '../components/ProductCard'
 
@@ -117,7 +117,7 @@ export default function CategoryPage() {
                 size="sm"
                 className="border-border text-foreground hover:bg-muted hover:border-primary/30 transition-colors"
               >
-                <TagIcon className="h-3.5 w-3.5 mr-1.5 text-primary" />
+                <Tag className="h-3.5 w-3.5 mr-1.5 text-primary" />
                 {sub.name}
                 <span className="ml-1.5 text-xs text-muted-foreground">({sub._count?.products || 0})</span>
               </Button>
