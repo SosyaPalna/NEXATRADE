@@ -77,7 +77,8 @@ function flattenCategories(categories) {
 }
 
 export default function Products() {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
+  const isSeller = user?.tenant?.role === 'seller'
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
@@ -199,7 +200,7 @@ export default function Products() {
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Каталог товаров и услуг</h1>
           <p className="text-sm text-muted-foreground mt-1">Найдено: <strong>{products.length}</strong> предложений</p>
         </div>
-        {isAuthenticated && (
+        {isAuthenticated && isSeller && (
         <Dialog open={showAddForm} onOpenChange={setShowAddForm}>
           <DialogTrigger className="inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium h-9 px-3 bg-primary text-white hover:bg-primary/90 cursor-pointer shrink-0">
             <Plus className="h-4 w-4" />
@@ -367,7 +368,7 @@ export default function Products() {
             <Package className="h-12 w-12 text-muted-foreground/50 mb-4" />
             <h2 className="text-lg font-semibold text-foreground">Товаров пока нет</h2>
             <p className="text-sm text-muted-foreground mt-1">Будьте первым — добавьте свой товар!</p>
-            {isAuthenticated && (
+            {isAuthenticated && isSeller && (
             <Button className="mt-4 bg-primary text-white hover:bg-primary/90" onClick={() => setShowAddForm(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Добавить товар

@@ -98,9 +98,17 @@ router.get('/', validate(paginationSchema), async (req, res) => {
   }
 });
 
-// 🔹 Создать товар
+// 🔹 Создать товар (только поставщик)
 router.post('/', authenticate, validate(productSchema), async (req, res) => {
   try {
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: req.tenantId },
+      select: { role: true }
+    });
+    if (tenant?.role !== 'seller') {
+      return res.status(403).json({ error: 'Только поставщики могут добавлять товары' });
+    }
+
     const body = req.validated.body;
     const data = {
       name: sanitizeText(body.name),
