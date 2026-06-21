@@ -5,7 +5,7 @@ export default function Footer() {
   return (
     <footer className="border-t border-border bg-card py-10 mt-auto">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 text-sm">
           {/* Brand */}
           <div className="space-y-4">
             <Link to="/" className="flex items-center gap-2 text-foreground font-bold text-lg">
@@ -47,23 +47,34 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Product */}
+          {/* Разделы */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-foreground uppercase tracking-wide">Продукт</h3>
+            <h3 className="font-semibold text-foreground uppercase tracking-wide">Разделы</h3>
             <ul className="space-y-2">
               <li><Link to="/products" className="text-muted-foreground hover:text-foreground transition-colors">Каталог</Link></li>
-              <li><Link to="/rfq" className="text-muted-foreground hover:text-foreground transition-colors">Заявки</Link></li>
-              <li><Link to="/login" className="text-muted-foreground hover:text-foreground transition-colors">Вход</Link></li>
-              <li><Link to="/register" className="text-muted-foreground hover:text-foreground transition-colors">Регистрация</Link></li>
+              <li><Link to="/requests" className="text-muted-foreground hover:text-foreground transition-colors">Заявки на закупку</Link></li>
+              <li><Link to="/analytics" className="text-muted-foreground hover:text-foreground transition-colors">Аналитика</Link></li>
+              <li><Link to="/chats" className="text-muted-foreground hover:text-foreground transition-colors">Чаты</Link></li>
             </ul>
           </div>
 
-          {/* Company */}
+          {/* Аккаунт */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-foreground uppercase tracking-wide">Аккаунт</h3>
+            <ul className="space-y-2">
+              <li><Link to="/login" className="text-muted-foreground hover:text-foreground transition-colors">Вход</Link></li>
+              <li><Link to="/register" className="text-muted-foreground hover:text-foreground transition-colors">Регистрация</Link></li>
+              <li><Link to="/profile" className="text-muted-foreground hover:text-foreground transition-colors">Профиль</Link></li>
+            </ul>
+          </div>
+
+          {/* Компания */}
           <div className="space-y-4">
             <h3 className="font-semibold text-foreground uppercase tracking-wide">Компания</h3>
             <ul className="space-y-2">
               <li><Link to="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">Политика конфиденциальности</Link></li>
               <li><Link to="/chats" className="text-muted-foreground hover:text-foreground transition-colors">Связаться с нами</Link></li>
+              <li><a href="https://github.com/SosyaPalna/NEXATRADE" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">GitHub</a></li>
             </ul>
           </div>
 
