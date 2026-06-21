@@ -188,7 +188,7 @@ export default function Home() {
               Бесплатная регистрация <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
-          <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 gap-2" asChild>
+          <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground bg-primary-foreground/10 hover:bg-primary-foreground/20 dark:bg-transparent gap-2" asChild>
             <Link to="/register">
               <FileText className="h-4 w-4" />
               Разместить заявку

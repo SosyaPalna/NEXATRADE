@@ -38,7 +38,7 @@ export default function Chats() {
     } finally {
       setLoading(false)
     }
-  }, [addNotification])
+  }, [])
 
   useEffect(() => {
     if (!user) {
@@ -96,7 +96,7 @@ export default function Chats() {
       await api.delete(`/chat/rooms/${room.roomType}/${room.roomId}/messages`)
       addNotification('История очищена', 'success')
       fetchRooms()
-    } catch (err) {
+    } catch {
       // ошибку показывает глобальный axios-интерцептор
     }
   }
@@ -126,7 +126,7 @@ export default function Chats() {
         addNotification('Пользователь заблокирован', 'success')
       }
       setBlockedMap(prev => ({ ...prev, [key]: !isBlocked }))
-    } catch (err) {
+    } catch {
       // ошибку показывает глобальный axios-интерцептор
     }
   }
