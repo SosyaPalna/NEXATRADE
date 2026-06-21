@@ -193,7 +193,7 @@ export default function Dashboard() {
                 <Link to="/requests">
                   <span className="flex items-center gap-2 min-w-0">
                     <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
-                    <span className="truncate">Мои заявки</span>
+                    <span className="truncate">Заявки</span>
                   </span>
                   <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
                 </Link>

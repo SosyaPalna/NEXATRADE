@@ -11,18 +11,8 @@ const router = express.Router();
 
 router.get('/', optionalAuth, async (req, res) => {
   try {
-    let where = { status: 'open' };
-
-    if (req.tenantId) {
-      const { role } = await prisma.tenant.findUnique({
-        where: { id: req.tenantId },
-        select: { role: true }
-      });
-
-      if (role === 'buyer') {
-        where = { buyerId: req.tenantId };
-      }
-    }
+    // Раздел заявок доступен всем ролям и гостям: показываем открытые RFQ
+    const where = { status: 'open' };
 
     // Фильтр по категории
     const { categoryId } = req.query;
@@ -67,18 +57,6 @@ router.get('/:id', optionalAuth, async (req, res) => {
     // Публичный доступ только к открытым RFQ
     if (!req.tenantId && rfq.status !== 'open') {
       return res.status(403).json({ error: 'Нет доступа' });
-    }
-
-    // Проверка доступа для авторизованных покупателей
-    if (req.tenantId) {
-      const { role } = await prisma.tenant.findUnique({
-        where: { id: req.tenantId },
-        select: { role: true }
-      });
-
-      if (role === 'buyer' && rfq.buyerId !== req.tenantId) {
-        return res.status(403).json({ error: 'Нет доступа' });
-      }
     }
 
     res.json(rfq);
