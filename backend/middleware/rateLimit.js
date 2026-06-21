@@ -1,13 +1,19 @@
 const rateLimit = require('express-rate-limit');
 
-// Strict limit for login attempts: 5 per 15 minutes per IP
+const LOGIN_LIMITER_TRUSTED_IPS = (process.env.LOGIN_LIMITER_TRUSTED_IPS || '')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
+
+// Strict limit for login attempts: 10 per 15 minutes per IP
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 5,
+  max: 10,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Слишком много попыток входа. Попробуйте позже.' },
-  skipSuccessfulRequests: false,
+  skipSuccessfulRequests: true,
+  skip: (req) => LOGIN_LIMITER_TRUSTED_IPS.includes(req.ip),
 });
 
 // Public API limit (registration, cities): 30 per 15 minutes per IP
