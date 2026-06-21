@@ -73,7 +73,7 @@ export default function Footer() {
             <h3 className="font-semibold text-foreground uppercase tracking-wide">Компания</h3>
             <ul className="space-y-2">
               <li><Link to="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">Политика конфиденциальности</Link></li>
-              <li><Link to="/chats" className="text-muted-foreground hover:text-foreground transition-colors">Связаться с нами</Link></li>
+              <li><a href="mailto:sofya_timokhina@inbox.ru" className="text-muted-foreground hover:text-foreground transition-colors">Написать в поддержку</a></li>
               <li><a href="https://github.com/SosyaPalna/NEXATRADE" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">GitHub</a></li>
             </ul>
           </div>
@@ -93,7 +93,7 @@ export default function Footer() {
               <li>
                 <a href="mailto:sofya_timokhina@inbox.ru" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
                   <Mail className="h-4 w-4" />
-                  sofya_timokhina@inbox.ru
+                  Поддержка: sofya_timokhina@inbox.ru
                 </a>
               </li>
               <li>
